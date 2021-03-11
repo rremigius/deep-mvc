@@ -1,0 +1,23 @@
+{
+  "name": "deep-mvc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Remi Alkemade <info@remialkemade.nl> (https://www.remialkemade.nl)",
+  "license": "ISC",
+  "dependencies": {
+    "@types/mocha": "^8.2.1",
+    "deep-loader": "0.0.3",
+    "event-interface-mixin": "git+https://github.com/rremigius/event-interface-mixin.git",
+    "inversify": "^5.0.5",
+    "log-control": "0.0.2",
+    "mocha": "^8.3.1",
+    "mozel": "git+https://github.com/rremigius/mozel.git",
+    "tsconfig-paths": "^3.9.0",
+    "validation-kit": "0.0.5"
+  }
+}
