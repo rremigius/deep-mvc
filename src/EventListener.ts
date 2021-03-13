@@ -1,27 +1,21 @@
-import {EventInterfacer, Event, Callback, EventClass} from "event-interface-mixin";
+import EventInterface, {callback} from "@/EventInterface";
 
-export default class EventListener<E extends Event<T>, T> {
-	private readonly eventInterfacer?:EventInterfacer;
-	private readonly event?:EventClass<E,T>;
-	private readonly callback:Callback<E>;
+export default class EventListener<T> {
+	private readonly event:EventInterface<T>
+	private readonly callback:callback<T>;
 
 	remove:boolean = false;
 
-	constructor(callback:Callback<E>, eventInterfacer?:EventInterfacer, event?:EventClass<E,T>) {
-		this.callback = callback;
-		this.eventInterfacer = eventInterfacer;
+	constructor(event:EventInterface<T>, callback:callback<T>) {
 		this.event = event;
+		this.callback = callback;
 	}
 
 	start() {
-		if(this.eventInterfacer && this.event) {
-			this.eventInterfacer.on(this.event, this.callback);
-		}
+		this.event.on(this.callback);
 	}
 
 	stop() {
-		if(this.eventInterfacer && this.event) {
-			this.eventInterfacer.off(this.event, this.callback);
-		}
+		this.event.off(this.callback);
 	}
 }

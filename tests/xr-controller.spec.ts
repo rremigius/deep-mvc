@@ -1,18 +1,17 @@
 import {assert} from 'chai';
 import Controller, {injectableController} from "@/Controller";
 import BehaviourModel from "@/models/BehaviourModel";
-import Mozel, {collection, property, reference, injectable, MozelFactory, Collection} from "mozel";
+import {collection, Collection, injectable, MozelFactory, property, reference} from "mozel";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import EngineInterface from "@/Engine/EngineInterface";
 import {FrameListener} from "@/Engine";
 import {Container} from "inversify";
 import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
 import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
-import EventInterface from "event-interface-mixin";
 import ControllerList from "@/Controller/ControllerList";
 import {isNil} from 'lodash';
 import ModelControllerSync from "@/Controller/ModelControllerSync";
-import ControllerModel from "@/models/ControllerModel";
+import {Events} from "@/EventInterface";
 
 const modelContainer = new Container({autoBindInjectable:true});
 const controllerContainer = new Container({autoBindInjectable:true});
@@ -49,10 +48,7 @@ class MockEngine implements EngineInterface {
 	addFrameListener(f:FrameListener) { };
 	callAction(action: string, payload: any) { }
 	removeFrameListener(f: FrameListener) { }
-	eventInterface = new EventInterface();
-	on = this.eventInterface.getOnMethod();
-	off = this.eventInterface.getOffMethod();
-	fire = this.eventInterface.getFireMethod();
+	events = new Events();
 }
 
 describe('Controller', () => {

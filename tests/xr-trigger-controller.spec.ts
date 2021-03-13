@@ -8,7 +8,6 @@ import ControllerFactory from "@/Controller/ControllerFactory";
 import {Container} from "inversify";
 import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
 import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
-import EventInterface, {Callback, Event} from "event-interface-mixin";
 import SceneModel from "@/models/SceneModel";
 import ObjectModel from "@/models/ObjectModel";
 import SceneController from "@/Controller/SceneController";
@@ -21,17 +20,13 @@ import TriggerModel from "@/models/TriggerModel";
 import ConditionModel from "@/models/ConditionModel";
 import BehaviourModel from "@/models/BehaviourModel";
 import BehaviourController from "@/Controller/BehaviourController";
-import {Action} from "@/Controller";
+import {ControllerAction, ControllerEvent} from "@/Controller";
 
 class MockEngine implements EngineInterface {
 	camera:CameraRenderInterface<unknown> = new ThreeCamera();
 	addFrameListener(f:FrameListener) { };
 	callAction(action: string, payload: unknown) { };
 	removeFrameListener(f: FrameListener) { };
-	eventInterface = new EventInterface();
-	on = this.eventInterface.getOnMethod();
-	off = this.eventInterface.getOffMethod();
-	fire = this.eventInterface.getFireMethod();
 }
 
 class Factory {
@@ -50,8 +45,8 @@ class Factory {
 	}
 }
 
-class FooEvent extends Event<{foo:object}> {}
-class BarAction extends Event<{bar:object}> {}
+class FooEvent extends ControllerEvent<{foo:object}> {}
+class BarAction extends ControllerEvent<{bar:object}> {}
 
 describe('TriggerController', () => {
 	it('listens to an event on a Behaviour and calls an action on its target Behaviour', done => {
@@ -80,15 +75,15 @@ describe('TriggerController', () => {
 		foo.registerAction(BarAction, () => {
 			assert.ok(false, "BarAction on Foo was avoided");
 		});
-		bar.registerAction(BarAction, payload => {
-			assert.deepEqual(payload && payload.data.bar, expected, "BarAction on Bar called with correct data");
+		bar.registerAction(BarAction, action => {
+			assert.deepEqual(action && action.data.bar, expected, "BarAction on Bar called with correct data");
 			done();
 		});
 
 		const trigger = factory.controller.create(TriggerController, triggerModel, true);
 		trigger.start();
 
-		foo.fire(FooEvent, {foo: expected});
+		foo.events.$fire(FooEvent, {foo: expected});
 	});
 
 	it('listens to an event on the EventBus if no source is provided on event model', done => {
@@ -122,7 +117,7 @@ describe('TriggerController', () => {
 		triggerCtl.start();
 
 		const eventBus = triggerCtl.eventBus;
-		eventBus.fire(FooEvent, { foo: expected });
+		eventBus.$fire(FooEvent, { foo: expected });
 	});
 	it('with condition is not fired if condition is not met.', done=>{
 		const factory = new Factory();
@@ -165,7 +160,7 @@ describe('TriggerController', () => {
 		negativeTrigger.start();
 		positiveTrigger.start();
 
-		foo.fire(FooEvent);
+		foo.events.$fire(FooEvent);
 	});
 	it('with default controller uses that controller for actions and events if no behaviour specified.', done=>{
 		const factory = new Factory();
@@ -188,17 +183,17 @@ describe('TriggerController', () => {
 		triggerController.setDefaultController(controller);
 		triggerController.start();
 
-		controller.fire(FooEvent);
+		controller.events.$fire(FooEvent);
 	});
 	it('can be used on SceneController, ObjectController and BehaviourController.', done=>{
 		const factory = new Factory();
 
-		class SceneEvent extends Event<void> {}
-		class ObjectEvent extends Event<void> {}
-		class BehaviourEvent extends Event<void> {}
-		class SceneAction extends Action<void> {}
-		class ObjectAction extends Action<void> {}
-		class BehaviourAction extends Action<void> {}
+		class SceneEvent extends ControllerEvent<void> {}
+		class ObjectEvent extends ControllerEvent<void> {}
+		class BehaviourEvent extends ControllerEvent<void> {}
+		class SceneAction extends ControllerAction<void> {}
+		class ObjectAction extends ControllerAction<void> {}
+		class BehaviourAction extends ControllerAction<void> {}
 
 		let count = 0;
 		const sceneModel = factory.model.create(SceneModel, {
@@ -250,9 +245,9 @@ describe('TriggerController', () => {
 
 		scene.start(); // start event listeners
 
-		scene.fire(SceneEvent);
-		object.fire(ObjectEvent);
-		behaviour.fire(BehaviourEvent);
+		scene.events.$fire(SceneEvent);
+		object.events.$fire(ObjectEvent);
+		behaviour.events.$fire(BehaviourEvent);
 
 		assert.equal(count, 3, "All 3 actions triggered.");
 		done();

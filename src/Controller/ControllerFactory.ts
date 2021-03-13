@@ -6,8 +6,8 @@ import xrControllerContainer from "@/Controller/inversify";
 import EngineInterface, {EngineInterfaceType} from "@/Engine/EngineInterface";
 import {Registry} from "mozel";
 import Log from "@/log";
-import EventInterface, {EventInterfacer} from "event-interface-mixin";
 import EventBus from "@/EventBus";
+import {Events} from "@/EventInterface";
 
 const log = Log.instance("controller-factory");
 
@@ -20,18 +20,18 @@ export default class ControllerFactory {
 	readonly diContainer!:Container;
 
 	readonly xrEngineInterface:EngineInterface;
-	public eventBus:EventInterfacer = new EventInterface();
+	public eventBus:Events;
 	public readonly registry:Registry<Controller>;
 
 	constructor(
 		@inject(EngineInterfaceType) @optional() xrEngineInterface:EngineInterface,
 		@inject('container') @optional() diContainer?:Container,
-		@inject(EventBus) @optional() eventBus?:EventInterfacer,
+		@inject(EventBus) @optional() eventBus?:Events,
 		@inject(Registry) @optional() controllerRegistry?:Registry<Controller>
 	) {
 		this.registry = controllerRegistry || new Registry<Controller>();
 		this.xrEngineInterface = xrEngineInterface;
-		this.eventBus = eventBus || new EventInterface();
+		this.eventBus = eventBus || new Events(true);
 
 		const localContainer = new Container({autoBindInjectable:true});
 

@@ -2,7 +2,6 @@ import {inject, injectable, LazyServiceIdentifer} from "inversify";
 import ControllerFactory, {ControllerModelType} from "@/Controller/ControllerFactory";
 import Log from "@/log";
 import Loader from "deep-loader";
-import EventInterface, {Callback, Event, EventClass, EventInterfacer} from "event-interface-mixin";
 import EngineInterface, {EngineInterfaceType} from "@/Engine/EngineInterface";
 import {injectableController} from "@/Controller/inversify";
 import EventListener from "@/EventListener";
@@ -11,9 +10,10 @@ import ControllerList from "@/Controller/ControllerList";
 import ModelControllerSync, {ControllerChangeEvent} from "@/Controller/ModelControllerSync";
 import {alphanumeric, Collection, Registry} from "mozel";
 import ControllerModel from "@/models/ControllerModel";
-import {check, instanceOf} from "validation-kit";
+import {check, Constructor, instanceOf} from "validation-kit";
 import {isString} from "lodash";
 import EventBus from "@/EventBus";
+import {Events, callback} from "@/EventInterface";
 
 export {injectableController};
 
@@ -24,10 +24,35 @@ export type ControllerConstructor<T extends Controller> = {
 	ModelClass:(typeof ControllerModel);
 };
 
-export class Action<T> extends Event<T> {}
-export type ActionClass<E extends Event<T>,T> = EventClass<E,T>;
+import EventInterface from "@/EventInterface";
 
-export {Event, EventClass} from "event-interface-mixin";
+export class ControllerAction<T> {
+	data:T;
+	constructor(data:T) {
+		this.data = data;
+	}
+}
+
+export class ControllerEvent<T> {
+	origin:Controller;
+	data:T;
+	constructor(origin:Controller, data:T) {
+		this.origin = origin;
+		this.data = data;
+	}
+}
+
+export class ControllerEnabledEvent extends ControllerEvent<void> { }
+export class ControllerDisabledEvent extends ControllerEvent<void> { }
+
+export class ControllerEvents extends Events {
+	enabled = this.$event(ControllerEnabledEvent)
+	disabled = this.$event(ControllerDisabledEvent)
+}
+
+export class ControllerActions extends Events {
+
+}
 
 @injectable()
 export default class Controller {
@@ -39,7 +64,7 @@ export default class Controller {
 	readonly factory:ControllerFactory;
 	readonly engine:EngineInterface;
 	readonly registry:Registry<Controller>;
-	readonly eventBus:EventInterfacer;
+	readonly eventBus:EventBus;
 	readonly renderFactory:RenderFactory;
 
 	children:ControllerList<Controller> = new ControllerList<Controller>();
@@ -47,15 +72,10 @@ export default class Controller {
 
 	loading:Loader;
 
-	eventInterface = new EventInterface();
-	on = this.eventInterface.getOnMethod();
-	off = this.eventInterface.getOffMethod();
-	fire = this.eventInterface.getFireMethod();
+	events = new ControllerEvents();
 
-	private eventListeners:EventListener<Event<unknown>, unknown>[] = [];
-	private actions = new EventInterface();
-	private actionClasses:Record<string,ActionClass<any,any>> = {};
-	private eventClasses:Record<string,EventClass<any,any>> = {};
+	private eventListeners:EventListener<EventInterface<unknown>>[] = [];
+	private actions = new ControllerActions();
 	private readonly controllerSyncs:ModelControllerSync<Controller>[];
 
 	_started:boolean = false;
@@ -72,7 +92,7 @@ export default class Controller {
 		@inject(new LazyServiceIdentifer(()=>ControllerFactory)) controllerFactory:ControllerFactory,
 		@inject(EngineInterfaceType) xrEngine:EngineInterface,
 		@inject(Registry) registry:Registry<Controller>,
-		@inject(EventBus) eventBus:EventInterfacer,
+		@inject(EventBus) eventBus:EventBus,
 		@inject(RenderFactory) renderFactory:RenderFactory
 	) {
 		if(!this.static.ModelClass || !(model instanceof this.static.ModelClass)) {
@@ -125,25 +145,36 @@ export default class Controller {
 		// For override
 	}
 
+	registerAction<T>(ActionClass:Constructor<T>, callback:callback<T>, name?:string):EventInterface<T> {
+		if(!name) name = ActionClass.name;
+		const event = this.actions.$event(ActionClass, name);
+		// TS: The runtime type checking should take care of the event before it fires
+		this.actions.$on(name, callback as callback<unknown>);
+		return event;
+	}
+
+	/**
+	 * Listent to an event from the given source by its event name.
+	 * @param {Controller} source
+	 * @param {string} eventName
+	 * @param {callback} callback
+	 */
+	listenToEventName(source:Controller, eventName:string, callback:callback<unknown>) {
+		const event = source.events.$get(eventName);
+		this.listenTo(event, callback);
+	}
+
 	/**
 	 * Starts listening to an event of the target EventInterfacer, storing the callback locally to be destroyed and
 	 * unsubscribed when the Controller is destroyed.
-	 * @param eventInterfacer
 	 * @param event
 	 * @param callback
 	 */
-	listenTo<E extends Event<T>, T>(eventInterfacer:EventInterfacer, event:EventClass<E,T>|string, callback:Callback<E>) {
-		if(isString(event)) {
-			event = this.eventClasses[event] || event;
-			if(isString(event)) {
-				log.error(`Cannot listen to unknown event '${event}.`);
-				return;
-			}
-		}
-		const eventListener = new EventListener(callback, eventInterfacer, event);
+	listenTo<T>(event:EventInterface<T>, callback:callback<T>) {
+		const eventListener = new EventListener(event, callback);
 		eventListener.start();
 		// TS: we can't use the event listener callbacks in this class anyway
-		this.eventListeners.push(eventListener as EventListener<any, any>);
+		this.eventListeners.push(eventListener as EventListener<any>);
 		return eventListener;
 	}
 
@@ -177,7 +208,8 @@ export default class Controller {
 		this.childrenLists.push(<ControllerList<Controller>><unknown>controllerList);
 
 		this.syncControllerList(controllerList, collection, ExpectedControllerClass);
-		controllerList.events.added.on(controller => {
+		controllerList.events.added.on(event => {
+			const controller = event.controller;
 			if(this.started && !controller.started) controller.start();
 		});
 
@@ -189,12 +221,13 @@ export default class Controller {
 
 	private syncControllerList<T extends Controller>(controllerList:ControllerList<T>, collection:Collection<ControllerModel>, ExpectedControllerClass:ControllerConstructor<T>) {
 		// Synchronize controller -> model
-		controllerList.events.added.on(controller => {
+		controllerList.events.added.on(event => {
+			const controller = event.controller;
 			if(collection.find(controller.model)) return; // model already exists in Collection
 			collection.add(controller.model)
 		});
-		controllerList.events.removed.on(controller => {
-			collection.remove(controller.model)
+		controllerList.events.removed.on(event => {
+			collection.remove(event.controller.model)
 		});
 
 		// Synchronize model -> controller
@@ -225,12 +258,12 @@ export default class Controller {
 		this.controllerSyncs.push(sync);
 
 		if(childController) {
-			sync.on(ControllerChangeEvent, event => {
-				if(event.data.old) {
-					this.children.remove(event.data.old);
+			sync.events.changed.on(event => {
+				if(event.oldController) {
+					this.children.remove(event.oldController);
 				}
-				if(event.data.controller) {
-					this.children.add(event.data.controller);
+				if(event.controller) {
+					this.children.add(event.controller);
 				}
 			});
 		}
@@ -314,7 +347,7 @@ export default class Controller {
 		});
 	}
 	stopListening() {
-		this.eventListeners.forEach((listener:EventListener<Event<unknown>,unknown>) => listener.stop());
+		this.eventListeners.forEach(listener => listener.stop());
 	}
 	enable(enabled:boolean = true) {
 		// TODO: remember state if disabled from parent
@@ -328,8 +361,10 @@ export default class Controller {
 		this._enabled = enabled;
 		if(!enabled) {
 			this.onDisable();
+			this.events.disabled.fire(new ControllerDisabledEvent(this));
 		} else {
 			this.onEnable();
+			this.events.enabled.fire(new ControllerEnabledEvent(this));
 		}
 		this.forEachChild((child:Controller) => {
 			child.enable(enabled);
@@ -340,53 +375,6 @@ export default class Controller {
 			return;
 		}
 		this.onFrame();
-	}
-
-	/**
-	 * Registers an Event so it can be subscribed by name.
-	 * @param Event
-	 */
-	registerEvent<E extends Event<T>, T>(Event:EventClass<E,T>) {
-		if(Event.name in this.eventClasses && Action !== this.actionClasses[Action.name]) {
-			log.error(`Conflicting Event classes for action '${Action.name}'.`);
-		} else {
-			this.eventClasses[Event.name] = Action;
-		}
-	}
-
-	/**
-	 * Registers an action so it can be activated. Also registers the Action name so it can be called by name.
-	 * @param Action
-	 * @param callback
-	 */
-	registerAction<E extends Action<T>, T>(Action:ActionClass<E,T>, callback:Callback<E>) {
-		this.actions.on(Action, callback);
-		if(Action.name in this.actionClasses && Action !== this.actionClasses[Action.name]) {
-			log.error(`Conflicting Action classes for action '${Action.name}'.`);
-		} else {
-			this.actionClasses[Action.name] = Action;
-		}
-	}
-
-	callAction<E extends Event<T>, T>(Action:EventClass<E,T>|string, event:T) {
-		if(isString(Action)) {
-			if(!(Action in this.actionClasses)) {
-				log.error(`No action called '${Action}'`);
-				return;
-			}
-			const FoundAction = this.actionClasses[Action];
-			if(event instanceof FoundAction) {
-				// TS: because payload type is defined as instance of Action
-				Action = <EventClass<E,T>>FoundAction;
-			}
-			log.error(`Payload did not match action '${Action}'`, event);
-			return;
-		}
-		if(!(event instanceof Action)) { // runtime check
-			log.error(`Payload did not match action '${Action.name}'`, event);
-			return;
-		}
-		this.actions.fire(event);
 	}
 
 	toString() {

@@ -1,8 +1,8 @@
 import Model, {property, required} from "mozel";
-import {Event} from "event-interface-mixin";
+import {ControllerEvent} from "@/Controller";
 
-// Out-of the box for Event conditions
-export type ConditionType<T> = T extends Event<infer E> ? E : T;
+// Out-of the box for ControllerEvent conditions
+export type ConditionType<T> = T extends ControllerEvent<infer E> ? E : T;
 
 export default class ConditionModel<T> extends Model {
 	@property(Function, {required})

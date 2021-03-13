@@ -1,15 +1,23 @@
-import Controller from "@/Controller";
+import Controller, {ControllerEvent, ControllerEvents} from "@/Controller";
 import {isArray, isFunction, isMatch, clone} from 'lodash';
-import EventInterface from "event-interface-mixin";
-import Event from "@/Event";
+import {Events} from "@/EventInterface";
+
+export class ControllerAddedEvent {
+	constructor(public controller: Controller) {}
+}
+export class ControllerRemovedEvent {
+	constructor(public controller: Controller) {}
+}
+
+class ControllerListEvents extends Events {
+	added = this.$event(ControllerAddedEvent);
+	removed = this.$event(ControllerRemovedEvent);
+}
 
 export default class ControllerList<T extends Controller> {
 	protected list:T[];
 
-	public readonly events = {
-		added: new Event<T>(),
-		removed: new Event<T>()
-	}
+	events = new ControllerListEvents();
 
 	constructor(controllers?:T[]) {
 		this.list = controllers ? clone(controllers) : [];
@@ -21,7 +29,7 @@ export default class ControllerList<T extends Controller> {
 			return;
 		}
 		this.list.push(controller);
-		this.events.added.fire(controller);
+		this.events.added.fire(new ControllerAddedEvent(controller));
 	}
 
 	has(controller:T) {
@@ -38,7 +46,7 @@ export default class ControllerList<T extends Controller> {
 			let item = this.list[i];
 			if(check(item)) {
 				this.list.splice(i, 1);
-				this.events.removed.fire(item);
+				this.events.removed.fire(new ControllerRemovedEvent(item));
 			}
 		}
 		return count;
