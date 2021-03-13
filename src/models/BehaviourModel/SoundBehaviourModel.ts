@@ -1,14 +1,9 @@
-import BehaviourModel from '../BehaviourModel';
-
-import {injectableModel, property} from "@common/classes/Model/Model";
-
-import Log from "@/log';
-import FileModel from "../FileModel";
-
-const log = Log.instance("BehaviourModel/Tween");
+import BehaviourModel from '@/models/BehaviourModel';
+import FileModel from "@/models/FileModel";
+import {injectable, property} from "mozel";
 
 
-@injectableModel()
+@injectable()
 export default class SoundBehaviourModel extends BehaviourModel {
 	static get type() { return 'SoundBehaviour' }
 

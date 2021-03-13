@@ -10,7 +10,7 @@ const log = Log.instance("xrengine/video");
 export default class VideoController extends ObjectController {
 	static ModelClass = VideoModel;
 
-	log:Log = log;
+	log = log;
 
 	private videoRender: VideoRenderInterface<unknown> = this.renderFactory.create<VideoRenderInterface<unknown>>("VideoRenderInterface");
 

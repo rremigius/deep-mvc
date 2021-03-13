@@ -1,7 +1,4 @@
-import Model, {Alphanumeric, property} from "@common/classes/Model/Model";
-import {alphanumeric} from "@common/classes/Model/Property";
-import GenericModel from "@/models/GenericModel";
-import {required} from "@common/utils";
+import Model, {Alphanumeric, alphanumeric, property, GenericMozel, required} from "mozel";
 import {uniqueId} from 'lodash';
 
 export default class GraphNodeModel extends Model {
@@ -9,8 +6,8 @@ export default class GraphNodeModel extends Model {
 
 	id:alphanumeric = super.id || uniqueId();
 
-	@property(GenericModel)
-	data?:GenericModel;
+	@property(GenericMozel)
+	data?:GenericMozel;
 
 	@property(String)
 	label?:string;

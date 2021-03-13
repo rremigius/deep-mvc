@@ -1,4 +1,5 @@
-import Controller, {injectableController, ControllerModel} from "./controller";
+import Controller, {injectableController} from "@/Controller";
+import ControllerModel from "@/models/ControllerModel";
 import Log from "@/log";
 import ObjectModel from "@/models/ObjectModel";
 import BehaviourController from "./BehaviourController";
@@ -8,6 +9,8 @@ import ControllerRootRenderInterface, {ClickEventInterface} from "@/renderers/co
 import Vector3 from "@/renderers/common/Vector3";
 import TriggerController from "@/Controller/TriggerController";
 import ControllerList from "@/Controller/ControllerList";
+import {check, instanceOf} from "validation-kit";
+import {isNumber} from "lodash";
 
 const log = Log.instance("Engine/Object");
 
@@ -18,7 +21,7 @@ export default class ObjectController extends Controller {
 	behaviours:ControllerList<BehaviourController> = this.createControllerList(this.xrObject.behaviours, BehaviourController);
 	triggers!:ControllerList<TriggerController>;
 
-	log:Log = log;
+	log = log;
 
 	private _root!:ControllerRootRenderInterface<unknown>;
 	get root(){ return this._root; };
@@ -31,17 +34,23 @@ export default class ObjectController extends Controller {
 		this._root.onClick = this.handleClick.bind(this);
 
 		// Watch the model for changes
-		this.xrObject.watch({
+		this.xrObject.$watch({
 			path: 'position',
 			deep: true,
 			immediate: true,
-			handler: this.onPositionChanged.bind(this)
+			handler: position => {
+				const $position = check<Vector3Model>(position, instanceOf(Vector3Model), 'position');
+				this.onPositionChanged($position);
+			}
 		});
-		this.xrObject.watch({
+		this.xrObject.$watch({
 			path: 'scale',
 			deep: true,
 			immediate: true,
-			handler: this.onScaleChanged.bind(this)
+			handler: scale => {
+				const $scale = check<number>(scale, isNumber, 'scale');
+				this.onScaleChanged($scale);
+			}
 		});
 
 		this.triggers = this.createControllerList(this.xrObject.triggers, TriggerController);

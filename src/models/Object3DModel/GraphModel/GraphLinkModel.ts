@@ -1,7 +1,4 @@
-import Model, {Alphanumeric, property} from "@common/classes/Model/Model";
-import {alphanumeric} from "@common/classes/Model/Property";
-import GenericModel from "@/models/GenericModel";
-import {reference, required} from "@common/utils";
+import Model, {alphanumeric, Alphanumeric, GenericMozel, property, reference, required} from "mozel";
 import GraphNodeModel from "@/models/Object3DModel/GraphModel/GraphNodeModel";
 import {uniqueId} from 'lodash';
 
@@ -10,8 +7,8 @@ export default class GraphLinkModel extends Model {
 
 	id:alphanumeric = super.id || uniqueId();
 
-	@property(GenericModel)
-	data?:GenericModel;
+	@property(GenericMozel)
+	data?:GenericMozel;
 
 	@property(GraphNodeModel, {reference})
 	from?:GraphNodeModel;

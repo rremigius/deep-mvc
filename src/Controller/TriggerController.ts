@@ -1,13 +1,13 @@
-import Controller, {Action, injectableController} from "@/Controller";
+import Controller, {ControllerAction, ControllerEvent, injectableController} from "@/Controller";
 import Log from "@/log";
 import TriggerModel from "@/models/TriggerModel";
 import {forEach, isEmpty, isPlainObject, isString} from 'lodash';
 import ModelControllerSync from "@/Controller/ModelControllerSync";
-import {Event} from "event-interface-mixin"
+import {isSubClass} from "validation-kit";
 
-const log = Log.instance("Engine/Trigger");
+const log = Log.instance("controller/trigger");
 
-type UnknownTrigger = TriggerModel<Event<unknown>,Action<unknown>>;
+type UnknownTrigger = TriggerModel<ControllerEvent<unknown>,ControllerAction<unknown>>;
 
 @injectableController()
 export default class TriggerController extends Controller {
@@ -38,11 +38,12 @@ export default class TriggerController extends Controller {
 	}
 
 	startListening() {
-		const source = this.source.get() || this.eventBus;
+		const source = this.source.get();
+		const events = source ? source.events : this.eventBus;
 		const eventName = this.triggerModel.event.name;
 		const callback = this.onEvent.bind(this);
 
-		this.listenTo(source, eventName, callback);
+		this.listenToEventName(events, eventName, callback);
 	}
 
 	setDefaultController(controller:Controller) {
@@ -62,12 +63,16 @@ export default class TriggerController extends Controller {
 		return this.triggerModel.action.name;
 	}
 
-	onEvent(payload:unknown) {
-		if(this.triggerModel.condition && !this.triggerModel.condition.eval(payload)) {
+	onEvent(event:unknown) {
+		if(!(event instanceof ControllerEvent)) {
+			throw this.error("Cannot listen to non-ControllerEvents", event);
+		}
+		const data = event.data;
+		if(this.triggerModel.condition && !this.triggerModel.condition.eval(data)) {
 			log.log("Condition for trigger not met; not calling target action.");
 			return;
 		}
-		this.targetAction(payload);
+		this.targetAction(data);
 	}
 
 	onEnable() {
@@ -80,8 +85,8 @@ export default class TriggerController extends Controller {
 		this.stopListening();
 	}
 
-	targetAction(payload:unknown) {
-		if(!isPlainObject(payload) && payload !== undefined) {
+	private targetAction(payload:unknown) {
+		if(payload !== undefined && !isPlainObject(payload)) {
 			log.error("Action payload should be a plain object.");
 			return;
 		}
@@ -107,6 +112,11 @@ export default class TriggerController extends Controller {
 			}
 		}
 
-		target.callAction(this.triggerModel.action.name, input);
+		const action = target.actions.$get(this.triggerModel.action.name);
+		if(!isSubClass(action.type, ControllerAction)) {
+			throw new Error("Trigger action is not a ControllerAction.");
+		}
+		const Action = action.type;
+		target.actions.$fire(this.triggerModel.action.name, new Action(input));
 	}
 }

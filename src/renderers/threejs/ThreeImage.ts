@@ -1,21 +1,21 @@
 import {Mesh, MeshBasicMaterial, Object3D, PlaneGeometry, TextureLoader} from "three";
 import Err from "@utils/error";
-import ThreeObject from "./XRThreeObject";
+import ThreeObject from "./ThreeObject";
 import Log from "@utils/log";
-import XRImageModel from "@common/models/XRObject3DModel/XRImageModel";
-import {injectableXRObjectRender} from "@/classes/renderers/inversify";
-import threeContainer from "@/classes/renderers/threejs/inversify";
-import XRImageRenderInterface from "@/classes/renderers/common/XRObjectRenderInterface/XRImageRenderInterface";
+import ImageModel from "@common/models/Object3DModel/ImageModel";
+import {injectableObjectRender} from "@/renderers/inversify";
+import threeContainer from "@/renderers/threejs/inversify";
+import ImageRenderInterface from "@/renderers/common/ObjectRenderInterface/ImageRenderInterface";
 
-const log = Log.instance("XRController/Object/Object3D");
+const log = Log.instance("Controller/Object/Object3D");
 
-@injectableXRObjectRender(threeContainer, "XRImageRenderInterface")
-export default class ThreeImage extends ThreeObject implements XRImageRenderInterface<Object3D> {
-	async load(xrImage: XRImageModel): Promise<this> {
+@injectableObjectRender(threeContainer, "ImageRenderInterface")
+export default class ThreeImage extends ThreeObject implements ImageRenderInterface<Object3D> {
+	async load(xrImage: ImageModel): Promise<this> {
 		return new Promise((resolve, reject) => {
 			if (!xrImage.file || !xrImage.file.url) {
 				const err = new Err({
-					message: "XRImageModel has no image file. Cannot load.",
+					message: "ImageModel has no image file. Cannot load.",
 					data: this
 				});
 				log.error(err.message);

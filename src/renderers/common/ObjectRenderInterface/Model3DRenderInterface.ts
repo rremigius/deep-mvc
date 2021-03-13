@@ -1,6 +1,6 @@
-import ObjectRenderInterface from "../XRObjectRenderInterface";
-import XRModel3DModel from "@common/models/XRObject3DModel/XRModel3DModel";
+import ObjectRenderInterface from "../ObjectRenderInterface";
+import Model3DModel from "@common/models/Object3DModel/Model3DModel";
 
 export default interface Model3DRenderInterface<T> extends ObjectRenderInterface<T> {
-    load(xrModel3D: XRModel3DModel):Promise<this>;
+    load(xrModel3D: Model3DModel):Promise<this>;
 }

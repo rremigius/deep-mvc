@@ -1,17 +1,15 @@
-import Model, {property} from '@common/classes/Model/Model';
+import Log from "@/log";
+import Mozel, {GenericMozel, property} from "mozel";
 
-import Log from "@/log';
-import GenericModel from "@/models/GenericModel";
+const log = Log.instance("objectmodel/behaviour/tween/step");
 
-const log = Log.instance("ObjectModel/Behaviour/Tween/Step");
-
-export default class TweenStepModel extends Model {
-	@property(Model)
-	target?:Model;
+export default class TweenStepModel extends Mozel {
+	@property(Mozel)
+	target?:Mozel;
 	@property(String)
 	targetPath?:string;
-	@property(GenericModel)
-	tweenProperties?:GenericModel;
+	@property(GenericMozel)
+	tweenProperties?:GenericMozel;
 	@property(Number)
 	to?:number;
 	@property(Number, {required: true, default: 1})
@@ -22,8 +20,4 @@ export default class TweenStepModel extends Model {
 	positionIsRelative!:boolean;
 	@property(String, {required: true, default: 'Linear.easeNone'})
 	ease!:string;
-
-	defineData() {
-		super.defineData();
-	}
 }

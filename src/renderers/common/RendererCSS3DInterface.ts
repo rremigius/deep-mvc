@@ -1,5 +1,5 @@
-import XRRendererInterface from "@/classes/renderers/common/XRRendererInterface";
+import RendererInterface from "@/renderers/common/RendererInterface";
 
-export default interface RendererCSS3DInterface<T> extends XRRendererInterface<T> {
-	setMainRenderer(renderer:XRRendererInterface<T>):void;
+export default interface RendererCSS3DInterface<T> extends RendererInterface<T> {
+	setMainRenderer(renderer:RendererInterface<T>):void;
 }

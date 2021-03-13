@@ -3,7 +3,7 @@ import Controller, {injectableController} from "@/Controller";
 import BehaviourModel from "@/models/BehaviourModel";
 import {collection, Collection, injectable, MozelFactory, property, reference} from "mozel";
 import ControllerFactory from "@/Controller/ControllerFactory";
-import EngineInterface from "@/Engine/EngineInterface";
+import EngineInterface, {EngineEvents} from "@/Engine/EngineInterface";
 import {FrameListener} from "@/Engine";
 import {Container} from "inversify";
 import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
@@ -48,7 +48,7 @@ class MockEngine implements EngineInterface {
 	addFrameListener(f:FrameListener) { };
 	callAction(action: string, payload: any) { }
 	removeFrameListener(f: FrameListener) { }
-	events = new Events();
+	events = new EngineEvents();
 }
 
 describe('Controller', () => {

@@ -1,22 +1,22 @@
-import XRModel3DRenderInterface from "../../common/XRObjectRenderInterface/XRModel3DRenderInterface";
-import XRModel3DModel, {FileType} from "@common/models/XRObject3DModel/XRModel3DModel";
+import Model3DRenderInterface from "../../common/ObjectRenderInterface/Model3DRenderInterface";
+import Model3DModel, {FileType} from "@common/models/Object3DModel/Model3DModel";
 import {Group, Object3D} from "three";
 import Err from "@utils/error";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import {MaterialCreator, MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
 import ColladaLoader from "three-collada-loader-2";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
-import ThreeObject from "../XRThreeObject";
-import XRFileModel from "@common/models/XRFileModel";
+import ThreeObject from "../ThreeObject";
+import FileModel from "@common/models/FileModel";
 import Log from "@utils/log";
-import {injectableRenderClass} from "@/classes/renderers/inversify";
-import threeContainer from "@/classes/renderers/threejs/inversify";
+import {injectableRenderClass} from "@/renderers/inversify";
+import threeContainer from "@/renderers/threejs/inversify";
 
-const log = Log.instance("XRController/Object/Object3D");
+const log = Log.instance("Controller/Object/Object3D");
 
-@injectableRenderClass(threeContainer, "XRModel3DRenderInterface")
-export class ThreeModel3D extends ThreeObject implements XRModel3DRenderInterface<Object3D> {
-	async load(xrModel3D: XRModel3DModel): Promise<this> {
+@injectableRenderClass(threeContainer, "Model3DRenderInterface")
+export class ThreeModel3D extends ThreeObject implements Model3DRenderInterface<Object3D> {
+	async load(xrModel3D: Model3DModel): Promise<this> {
 		switch(xrModel3D.determineFileType()) {
 			case FileType.Collada:
 				return this.loadCollada(xrModel3D);
@@ -31,12 +31,12 @@ export class ThreeModel3D extends ThreeObject implements XRModel3DRenderInterfac
 		}));
 	}
 
-	async loadObjFiles(xrModel3D: XRModel3DModel): Promise<this> {
+	async loadObjFiles(xrModel3D: Model3DModel): Promise<this> {
 		const loader = new OBJLoader();
 		const files = xrModel3D.files;
 
 		const materialFile = files.toArray()
-			.find((f: XRFileModel) => f.url.toLowerCase().endsWith("mtl"));
+			.find((f: FileModel) => f.url.toLowerCase().endsWith("mtl"));
 		if(materialFile){
 			log.log("Loading OBJ material", materialFile.url);
 			const materialLoader = new MTLLoader();
@@ -57,7 +57,7 @@ export class ThreeModel3D extends ThreeObject implements XRModel3DRenderInterfac
 		log.log("Loading OBJ", url);
 		return new Promise((resolve, reject) => {
 			if(!url) {
-				reject(new Err("XRModel3DModel does not have a main file."));
+				reject(new Err("Model3DModel does not have a main file."));
 				return;
 			}
 			loader.load(url, (obj) => {
@@ -77,14 +77,14 @@ export class ThreeModel3D extends ThreeObject implements XRModel3DRenderInterfac
 
 	}
 
-	async loadCollada(xrModel3D: XRModel3DModel): Promise<this> {
+	async loadCollada(xrModel3D: Model3DModel): Promise<this> {
 		let loader = new ColladaLoader();
 		const url = xrModel3D.mainFile && xrModel3D.mainFile.url;
 
 		log.log("Loading Collada", url);
 		return new Promise((resolve, reject) => {
 			if(!url) {
-				reject(new Err("XRModel3DModel does not have a main file."));
+				reject(new Err("Model3DModel does not have a main file."));
 				return;
 			}
 			loader.load(url, (collada) => {
@@ -103,14 +103,14 @@ export class ThreeModel3D extends ThreeObject implements XRModel3DRenderInterfac
 		});
 	}
 
-	async loadFbx(xrModel3D: XRModel3DModel): Promise<this> {
+	async loadFbx(xrModel3D: Model3DModel): Promise<this> {
 		let loader = new FBXLoader();
 		const url = xrModel3D.mainFile && xrModel3D.mainFile.url;
 
 		log.log("Loading FBX", url);
 		return new Promise((resolve, reject) => {
 			if(!url) {
-				reject(new Err("XRModel3DModel does not have a main file."));
+				reject(new Err("Model3DModel does not have a main file."));
 				return;
 			}
 			loader.load(url, (fbx: Group) => {

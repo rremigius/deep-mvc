@@ -1,5 +1,5 @@
-import XRObjectRenderInterface from "@/classes/renderers/common/XRObjectRenderInterface";
-import XRVideoModel from "@common/models/XRObject3DModel/XRVideoModel";
+import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
+import VideoModel from "@common/models/Object3DModel/VideoModel";
 
 export function createVideo(url:string) {
 	const video = document.createElement("video");
@@ -13,8 +13,8 @@ export function createVideo(url:string) {
 	return video;
 }
 
-export default interface VideoRenderInterface<T> extends XRObjectRenderInterface<T> {
-	load(xrVideo: XRVideoModel):Promise<this>;
+export default interface VideoRenderInterface<T> extends ObjectRenderInterface<T> {
+	load(xrVideo: VideoModel):Promise<this>;
 	play():void;
 	pause():void;
 	stop():void;

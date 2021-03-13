@@ -1,12 +1,9 @@
 import {EventDispatcher, Object3D, Vector3} from "three";
-import {injectableXRObjectRender} from "@/classes/renderers/inversify";
-import threeContainer from "@/classes/renderers/threejs/inversify";
+import {injectableObjectRender} from "@/renderers/inversify";
+import threeContainer from "@/renderers/threejs/inversify";
 import {decorate, inject, injectable, optional} from "inversify";
-import Log from "@utils/log";
-import XRVector3, {SparseVector3} from "@/classes/renderers/common/XRVector3";
-import XRObjectRenderInterface from "@/classes/renderers/common/XRObjectRenderInterface";
-
-const log = Log.instance("renderers/three/xrthreeobject");
+import {default as V3, SparseVector3} from "@/renderers/common/Vector3";
+import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
 
 function applySparseVector(target:Vector3, source:SparseVector3) {
 	if(source.x !== undefined) {
@@ -22,8 +19,8 @@ function applySparseVector(target:Vector3, source:SparseVector3) {
 
 decorate(injectable(), Object3D);
 decorate(injectable(), EventDispatcher);
-@injectableXRObjectRender(threeContainer, "XRObjectRenderInterface")
-export default class ThreeObject implements XRObjectRenderInterface<Object3D> {
+@injectableObjectRender(threeContainer, "ObjectRenderInterface")
+export default class ThreeObject implements ObjectRenderInterface<Object3D> {
 	readonly object3D:Object3D;
 	constructor(@inject("object3d") @optional() object3D?:Object3D) {
 		this.object3D = object3D ? object3D : this.createObject3D();
@@ -34,28 +31,28 @@ export default class ThreeObject implements XRObjectRenderInterface<Object3D> {
 	public getRenderObject() {
 		return this.object3D;
 	}
-	add(object: XRObjectRenderInterface<Object3D>) {
+	add(object: ObjectRenderInterface<Object3D>) {
 		this.object3D.add(object.getRenderObject());
 		return this;
 	}
-	remove(object: XRObjectRenderInterface<Object3D>) {
+	remove(object: ObjectRenderInterface<Object3D>) {
 		this.object3D.remove(object.getRenderObject());
 		return this;
 	}
-	getPosition(): XRVector3 {
+	getPosition() {
 		return this.object3D.position;
 	}
-	getScale(): XRVector3 {
+	getScale() {
 		return this.object3D.scale;
 	}
-	setPosition(position: XRVector3|SparseVector3): void {
-		if(position instanceof XRVector3) {
+	setPosition(position: V3|SparseVector3) {
+		if(position instanceof V3) {
 			this.object3D.position.set(position.x, position.y, position.z);
 			return;
 		}
 		applySparseVector(this.object3D.position, position);
 	}
-	setScale(scale: XRVector3): void {
+	setScale(scale: V3) {
 		this.object3D.scale.set(scale.x, scale.y, scale.z);
 		applySparseVector(this.object3D.scale, scale);
 	}

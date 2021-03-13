@@ -1,6 +1,6 @@
-import XRImageModel from "@common/models/XRObject3DModel/XRImageModel";
-import XRObjectRenderInterface from "@/classes/renderers/common/XRObjectRenderInterface";
+import ImageModel from "@common/models/Object3DModel/ImageModel";
+import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
 
-export default interface ImageRenderInterface<T> extends XRObjectRenderInterface<T> {
-	load(xrImage: XRImageModel):Promise<this>;
+export default interface ImageRenderInterface<T> extends ObjectRenderInterface<T> {
+	load(xrImage: ImageModel):Promise<this>;
 }

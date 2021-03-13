@@ -7,10 +7,17 @@ const log = Log.instance("event");
 
 export type TypeClass<T> = Constructor<T>|String|Number|Boolean|Alphanumeric;
 
+function getTypeName(type:unknown) {
+	const className = _.get(type, 'constructor.name');
+	if(className) return className;
+	return typeof(type);
+}
+
 export type callback<T> = (payload:T)=>void
 export default class EventInterface<T> {
 	private listeners:callback<T>[] = [];
-	private readonly type?:TypeClass<T>;
+
+	type?:TypeClass<T>;
 
 	constructor(runtimeType?:TypeClass<T>) {
 		this.type = runtimeType;
@@ -27,7 +34,7 @@ export default class EventInterface<T> {
 	fire(event:T) {
 		if(this.type) {
 			if(!this.isCorrectType(event)) {
-				const message = `Incompatible payload for event '${this.constructor.name}'.`;
+				const message = `Incompatible payload. Expected '${_.get(this.type, 'name')}', received '${getTypeName(event)}'.`;
 				log.error(message, event);
 				throw new Error(message);
 			}
@@ -63,12 +70,35 @@ export class Events {
 		this.$allowDynamicEvents = allowDynamicEvents;
 	}
 
+	/**
+	 * Creates an EventInterface and registers it.
+	 * @param EventClass
+	 * @param name
+	 */
 	$event<T>(EventClass:Constructor<T>, name?:string):EventInterface<T> {
 		if(!name) {
 			name = EventClass.name;
 		}
 		const event = new EventInterface<T>(EventClass);
-		this.$byName[name] = <EventInterface<unknown>>event;
+		return this.$register(event, name);
+	}
+
+	/**
+	 * Registers an EventInterface so it can be called by name.
+	 * @param event
+	 * @param name
+	 */
+	$register<T>(event:EventInterface<T>, name:string):EventInterface<T> {
+		// Register new
+		if(!(name in this.$byName)) {
+			this.$byName[name] = <EventInterface<unknown>>event;
+			return event;
+		}
+		// Update existing
+		const existing = this.$byName[name];
+		if(!existing.type && event.type) {
+			existing.type = event.type;
+		}
 		return event;
 	}
 
@@ -79,9 +109,8 @@ export class Events {
 	 * @param {callback} callback
 	 */
 	$on(event:string|Class, callback:callback<unknown>) {
-		event = this.$getEvent(event);
-		const property = this.$get(event);
-		property.on(callback);
+		const eventInterface = this.$get(event);
+		eventInterface.on(callback);
 	}
 
 	/**
@@ -90,11 +119,8 @@ export class Events {
 	 * @param callback
 	 */
 	$off(event:string|Class, callback:callback<unknown>) {
-		event = this.$getEvent(event);
-		let property = _.get(this, event);
-		if(!(property instanceof EventInterface)) {
-			return; // nothing to do here
-		}
+		const eventInterface = this.$get(event);
+		eventInterface.off(callback);
 	}
 
 	/**
@@ -103,12 +129,8 @@ export class Events {
 	 * @param payload
 	 */
 	$fire(event:string|Class, payload?:unknown) {
-		event = this.$getEvent(event);
-		let property = _.get(this, event);
-		if(!(property instanceof EventInterface)) {
-			return; // nothing to do here
-		}
-		property.fire(payload);
+		const eventInterface = this.$get(event);
+		eventInterface.fire(payload);
 	}
 
 	/**
@@ -117,18 +139,19 @@ export class Events {
 	 * @param event
 	 */
 	$get(event:string|Class):EventInterface<unknown> {
-		event = this.$getEvent(event);
-		if(!(event in this.$byName) && this.$allowDynamicEvents) {
+		event = this.$getEventName(event);
+		if(!(event in this.$byName)) {
+			if (!this.$allowDynamicEvents) {
+				throw new Error(`Unknown event '${event}'.`);
+			}
 			// Define event on the fly
 			this.$byName[event] = new EventInterface<unknown>();
-		} else {
-			throw new Error(`Unknown event '${event}'.`);
 		}
 
 		return this.$byName[event];
 	}
 
-	private $getEvent(event:string|Class) {
+	private $getEventName(event:string|Class) {
 		if(isClass(event)) return event.name;
 		return event;
 	}

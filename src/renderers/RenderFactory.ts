@@ -2,8 +2,8 @@ import {Container, inject, injectable, interfaces, optional} from "inversify";
 import Log from "@/log";
 import {newableString} from "@/renderers/inversify";
 import Newable = interfaces.Newable;
-import XRObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
-import XRThreeObject from "@/renderers/threejs/ThreeObject";
+import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
+import ThreeObject from "@/renderers/threejs/ThreeObject";
 
 const log = Log.instance("RenderFactory");
 
@@ -24,11 +24,11 @@ export default class RenderFactory {
 	}
 
 	/**
-	 * Creates an XRObjectInterface
+	 * Creates an ObjectInterface
 	 * @param {T} interfaceName
-	 * @param {XRThreeObject} [object];
+	 * @param {ThreeObject} [object];
 	 */
-	create<T extends XRObjectRenderInterface<unknown>>(interfaceName:string):T {
+	create<T extends ObjectRenderInterface<unknown>>(interfaceName:string):T {
 		let container = this.diContainer;
 		return container.get<T>(interfaceName);
 	}

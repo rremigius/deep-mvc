@@ -3,7 +3,8 @@ import ObjectModel from './ObjectModel';
 import ControllerModel from "@/models/ControllerModel";
 
 import {EngineType} from "@/viewer-settings";
-import TriggerModel from "./TriggerModel";
+import TriggerModel, {UnknownTriggerModel} from "./TriggerModel";
+import {ControllerAction, ControllerEvent} from "@/Controller";
 
 export default class SceneModel extends ControllerModel {
 	static get type() { return 'Scene' };
@@ -24,5 +25,5 @@ export default class SceneModel extends ControllerModel {
 	objects!:Collection<ObjectModel>;
 
 	@collection(TriggerModel)
-	triggers!:Collection<TriggerModel>;
+	triggers!:Collection<UnknownTriggerModel>;
 }

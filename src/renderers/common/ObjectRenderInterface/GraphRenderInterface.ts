@@ -1,5 +1,5 @@
-import ObjectRenderInterface from "../XRObjectRenderInterface";
-import XRCameraRenderInterface from "@/classes/renderers/common/XRObjectRenderInterface/XRCameraRenderInterface";
+import ObjectRenderInterface from "../ObjectRenderInterface";
+import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
 
 export default interface GraphRenderInterface<T> extends ObjectRenderInterface<T> {
 	setup(setup:GraphSetup<T>):void;
@@ -14,7 +14,7 @@ type Link = {source:string|number, target:string|number};
 export type GraphData = {nodes:Node[], links: Link[]};
 
 export type GraphSetup<T> = {
-	camera: XRCameraRenderInterface<T>;
+	camera: CameraRenderInterface<T>;
 };
 
 export type GraphConfig = {

@@ -5,7 +5,7 @@ export function newableString(interfaceName:string) {
 	return `Newable<${interfaceName}>`;
 }
 
-export function injectableXRObjectRender(container:Container, interfaceName:string) {
+export function injectableObjectRender(container:Container, interfaceName:string) {
 	return function(Target:Class) {
 		injectable()(Target);
 		container.bind(interfaceName).to(Target);

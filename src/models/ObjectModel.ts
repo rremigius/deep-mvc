@@ -2,7 +2,7 @@ import {collection, Collection, property, required} from 'mozel';
 import BehaviourModel from './BehaviourModel';
 
 import Vector3Model from "@/models/Vector3Model";
-import TriggerModel from "@/models/TriggerModel";
+import TriggerModel, {UnknownTriggerModel} from "@/models/TriggerModel";
 import ControllerModel from "@/models/ControllerModel";
 
 export default class ObjectModel extends ControllerModel {
@@ -21,5 +21,5 @@ export default class ObjectModel extends ControllerModel {
 	behaviours!:Collection<BehaviourModel>;
 
 	@collection(TriggerModel)
-	triggers!:Collection<TriggerModel>;
+	triggers!:Collection<UnknownTriggerModel>;
 }

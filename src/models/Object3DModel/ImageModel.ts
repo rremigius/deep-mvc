@@ -1,14 +1,16 @@
 import ObjectModel from "@/models/ObjectModel";
-import {injectableModel, property} from "@common/classes/Model/Model";
+import {injectable, property} from "mozel";
 import Log from "@/log";
 import FileModel from "@/models/FileModel";
-import {required} from "@common/utils";
+import {required} from "mozel";
 
 const log = Log.instance("Scene/ObjectModel/ImageModel");
 
-@injectableModel()
+@injectable()
 export default class ImageModel extends ObjectModel {
 	static get type() { return 'Image' };
+
+	log = log;
 
 	@property(Number, {required, default: 1})
 	width!:number;

@@ -1,13 +1,13 @@
 import {Scene} from "three";
 import {alphanumeric} from "@common/classes/Model/Model";
-import XRSceneRenderInterface from "@/classes/renderers/common/XRObjectRenderInterface/XRSceneRenderInterface";
-import {injectableRenderClass} from "@/classes/renderers/inversify";
-import threeContainer from "@/classes/renderers/threejs/inversify";
-import XRThreeObject from "@/classes/renderers/threejs/XRThreeObject";
+import SceneRenderInterface from "@/renderers/common/ObjectRenderInterface/SceneRenderInterface";
+import {injectableRenderClass} from "@/renderers/inversify";
+import threeContainer from "@/renderers/threejs/inversify";
+import ThreeObject from "@/renderers/threejs/ThreeObject";
 
-@injectableRenderClass(threeContainer, "XRSceneRenderInterface")
-export default class ThreeScene extends XRThreeObject implements XRSceneRenderInterface<Scene> {
-	public gid: alphanumeric = "_SCENE"; // Will be overwritten by XRObjectController
+@injectableRenderClass(threeContainer, "SceneRenderInterface")
+export default class ThreeScene extends ThreeObject implements SceneRenderInterface<Scene> {
+	public gid: alphanumeric = "_SCENE"; // Will be overwritten by ObjectController
 
 	protected createObject3D():Scene {
 		return new Scene();

@@ -1,23 +1,23 @@
-import Controller, {ControllerEvent, ControllerEvents} from "@/Controller";
-import {isArray, isFunction, isMatch, clone} from 'lodash';
-import {Events} from "@/EventInterface";
+import Controller from "@/Controller";
+import {clone, isArray, isFunction, isMatch} from 'lodash';
+import EventInterface, {Events} from "@/EventInterface";
 
-export class ControllerAddedEvent {
-	constructor(public controller: Controller) {}
+export class ControllerAddedEvent<T extends Controller> {
+	constructor(public controller: T) {}
 }
-export class ControllerRemovedEvent {
-	constructor(public controller: Controller) {}
+export class ControllerRemovedEvent<T extends Controller> {
+	constructor(public controller: T) {}
 }
 
-class ControllerListEvents extends Events {
-	added = this.$event(ControllerAddedEvent);
-	removed = this.$event(ControllerRemovedEvent);
+class ControllerListEvents<T extends Controller> extends Events {
+	added = this.$register(new EventInterface<ControllerAddedEvent<T>>(ControllerAddedEvent), ControllerAddedEvent.name);
+	removed = this.$register(new EventInterface<ControllerRemovedEvent<T>>(ControllerRemovedEvent), ControllerRemovedEvent.name);
 }
 
 export default class ControllerList<T extends Controller> {
 	protected list:T[];
 
-	events = new ControllerListEvents();
+	events = new ControllerListEvents<T>();
 
 	constructor(controllers?:T[]) {
 		this.list = controllers ? clone(controllers) : [];

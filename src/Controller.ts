@@ -7,24 +7,22 @@ import {injectableController} from "@/Controller/inversify";
 import EventListener from "@/EventListener";
 import RenderFactory from "@/renderers/RenderFactory";
 import ControllerList from "@/Controller/ControllerList";
-import ModelControllerSync, {ControllerChangeEvent} from "@/Controller/ModelControllerSync";
+import ModelControllerSync from "@/Controller/ModelControllerSync";
 import {alphanumeric, Collection, Registry} from "mozel";
 import ControllerModel from "@/models/ControllerModel";
 import {check, Constructor, instanceOf} from "validation-kit";
-import {isString} from "lodash";
 import EventBus from "@/EventBus";
-import {Events, callback} from "@/EventInterface";
+import EventInterface, {callback, Events} from "@/EventInterface";
+import {isArray} from "lodash";
 
 export {injectableController};
 
-const log = Log.instance("Controller");
+const log = Log.instance("controller");
 
 export type ControllerConstructor<T extends Controller> = {
 	new (...args: any[]): T;
 	ModelClass:(typeof ControllerModel);
 };
-
-import EventInterface from "@/EventInterface";
 
 export class ControllerAction<T> {
 	data:T;
@@ -33,7 +31,7 @@ export class ControllerAction<T> {
 	}
 }
 
-export class ControllerEvent<T> {
+export class ControllerEvent<T extends object|void|unknown> {
 	origin:Controller;
 	data:T;
 	constructor(origin:Controller, data:T) {
@@ -48,10 +46,16 @@ export class ControllerDisabledEvent extends ControllerEvent<void> { }
 export class ControllerEvents extends Events {
 	enabled = this.$event(ControllerEnabledEvent)
 	disabled = this.$event(ControllerDisabledEvent)
+
+	constructor() {
+		super(true);
+	}
 }
 
 export class ControllerActions extends Events {
-
+	constructor() {
+		super(true);
+	}
 }
 
 @injectable()
@@ -72,10 +76,11 @@ export default class Controller {
 
 	loading:Loader;
 
+	log = log;
 	events = new ControllerEvents();
+	actions = new ControllerActions();
 
 	private eventListeners:EventListener<EventInterface<unknown>>[] = [];
-	private actions = new ControllerActions();
 	private readonly controllerSyncs:ModelControllerSync<Controller>[];
 
 	_started:boolean = false;
@@ -145,6 +150,11 @@ export default class Controller {
 		// For override
 	}
 
+	protected error(...args:unknown[]) {
+		this.log.error(...args);
+		return new Error(""+args[0]);
+	}
+
 	registerAction<T>(ActionClass:Constructor<T>, callback:callback<T>, name?:string):EventInterface<T> {
 		if(!name) name = ActionClass.name;
 		const event = this.actions.$event(ActionClass, name);
@@ -159,8 +169,8 @@ export default class Controller {
 	 * @param {string} eventName
 	 * @param {callback} callback
 	 */
-	listenToEventName(source:Controller, eventName:string, callback:callback<unknown>) {
-		const event = source.events.$get(eventName);
+	listenToEventName(source:Events, eventName:string, callback:callback<unknown>) {
+		const event = source.$get(eventName);
 		this.listenTo(event, callback);
 	}
 

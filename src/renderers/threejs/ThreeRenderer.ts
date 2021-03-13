@@ -1,13 +1,13 @@
-import XRRendererInterface from "@/classes/renderers/common/XRRendererInterface";
+import RendererInterface from "@/renderers/common/RendererInterface";
 import {Color, Object3D, Vector2, WebGLRenderer} from 'three';
 import Err from "@utils/error";
-import {injectableRenderClass} from "@/classes/renderers/inversify";
-import threeContainer from "@/classes/renderers/threejs/inversify";
-import XRThreeScene from "@/classes/renderers/threejs/XRThreeObject/XRThreeScene";
-import XRThreeCamera from "@/classes/renderers/threejs/XRThreeObject/XRThreeCamera";
+import {injectableRenderClass} from "@/renderers/inversify";
+import threeContainer from "@/renderers/threejs/inversify";
+import ThreeScene from "@/renderers/threejs/ThreeObject/ThreeScene";
+import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
 
-@injectableRenderClass(threeContainer, "XRRendererInterface")
-export default class ThreeRenderer implements XRRendererInterface<Object3D> {
+@injectableRenderClass(threeContainer, "RendererInterface")
+export default class ThreeRenderer implements RendererInterface<Object3D> {
 	renderer:WebGLRenderer;
 
 	constructor() {
@@ -23,11 +23,11 @@ export default class ThreeRenderer implements XRRendererInterface<Object3D> {
 
 	render(scene: any, camera: any): void {
 		// if scene type is not `any`, typescript will complain abot instanceof "has type that is not related"
-		if(!(scene instanceof XRThreeScene)) {
-			throw new Err({message: "Invalid XRThreeScene.", data: scene});
+		if(!(scene instanceof ThreeScene)) {
+			throw new Err({message: "Invalid ThreeScene.", data: scene});
 		}
-		if(!(camera instanceof XRThreeCamera)) {
-			throw new Err({message:"Invalid XRThreeCamera.", data: camera});
+		if(!(camera instanceof ThreeCamera)) {
+			throw new Err({message:"Invalid ThreeCamera.", data: camera});
 		}
 
 		this.renderer.render(scene.getRenderObject(), camera.getRenderObject());

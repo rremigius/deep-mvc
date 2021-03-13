@@ -1,12 +1,12 @@
 import {PerspectiveCamera} from "three";
 import {alphanumeric} from "@common/classes/Model/Model";
-import XRCameraRenderInterface from "@/classes/renderers/common/XRObjectRenderInterface/XRCameraRenderInterface";
-import {injectableXRObjectRender} from "@/classes/renderers/inversify";
+import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
+import {injectableObjectRender} from "@/renderers/inversify";
 import container from '../inversify';
-import XRThreeCamera from "@/classes/renderers/threejs/XRThreeObject/XRThreeCamera";
+import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
 
-@injectableXRObjectRender(container, "XRCameraRenderInterface")
-export default class ThreePerspectiveCamera extends XRThreeCamera implements XRCameraRenderInterface<PerspectiveCamera> {
+@injectableObjectRender(container, "CameraRenderInterface")
+export default class ThreePerspectiveCamera extends ThreeCamera implements CameraRenderInterface<PerspectiveCamera> {
 	public gid: alphanumeric = "_CAMERA";
 
 	createObject3D() {

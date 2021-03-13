@@ -1,13 +1,17 @@
 import GrapohModel from "@/models/Object3DModel/GraphModel";
 import GraphLinkModel from "@/models/Object3DModel/GraphModel/GraphLinkModel";
 import GraphNodeModel from "@/models/Object3DModel/GraphModel/GraphNodeModel";
-import {injectableController, ControllerModel} from "@/Controller/controller";
+import {injectableController} from "@/Controller";
+import ControllerModel from "@/models/ControllerModel";
 import ObjectController from "@/Controller/ObjectController";
 import GraphRenderInterface from "@/renderers/common/ObjectRenderInterface/GraphRenderInterface";
 import Log from "@/log";
 import {compact} from 'lodash';
+import {alphanumeric} from "validation-kit";
 
 const log = Log.instance("engine/controller/graphcontroller");
+
+type Link = {source:alphanumeric,target:alphanumeric,graphLink:GraphLinkModel};
 
 @injectableController()
 export default class GraphController extends ObjectController {
@@ -21,14 +25,14 @@ export default class GraphController extends ObjectController {
 
 	debugGenerateData() {
 		const N = 50;
-		const nodes = [...Array(N).keys()].map(i => GraphNodeModel.create({
+		const nodes = [...Array(N).keys()].map(i => GraphNodeModel.create<GraphNodeModel>({
 			gid: i,
 			label: "Node " + i,
 			group: Math.round(Math.random()*5)
 		}));
 		const relations = [...Array(N).keys()]
 			.filter(id => id)
-			.map(id => GraphLinkModel.create({
+			.map(id => GraphLinkModel.create<GraphLinkModel>({
 				from: nodes[id],
 				to: nodes[Math.round(Math.random() * (id-1))]
 			}));
@@ -62,7 +66,7 @@ export default class GraphController extends ObjectController {
 					graphNode: node
 				};
 			}),
-			links: compact(this.xrGraph.links.map((relation:GraphLinkModel) => {
+			links: compact<Link>(this.xrGraph.links.map((relation:GraphLinkModel) => {
 				if(relation.group) {
 					linkGroups = true;
 				}

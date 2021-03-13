@@ -1,31 +1,30 @@
-import XRGraphNode from "@common/models/XRObject3DModel/XRGraphModel/XRGraphNodeModel";
-import {Camera, Geometry, Material, Mesh, MeshLambertMaterial, Object3D, SphereGeometry} from "three";
-import ThreeObject from "../XRThreeObject";
+import GraphNode from "@/models/Object3DModel/GraphModel/GraphNodeModel";
+import {Camera, Material, Mesh, MeshLambertMaterial, Object3D, SphereGeometry} from "three";
+import ThreeObject from "../ThreeObject";
 import tinycolor from 'tinycolor2';
 import {CSS3DObject} from "three-css3drenderer";
 import {get} from 'lodash';
-import XRGraphRenderInterface, {
+import GraphRenderInterface, {
 	GraphConfig,
 	GraphData,
 	GraphSetup
-} from "@/classes/renderers/common/XRObjectRenderInterface/XRGraphRenderInterface";
-import ThreeCamera from "./XRThreeCamera";
-import Err from "@utils/error";
+} from "@/renderers/common/ObjectRenderInterface/GraphRenderInterface";
+import ThreeCamera from "./ThreeCamera";
 import ThreeForceGraph from "three-forcegraph";
-import Log from "@utils/log";
-import {injectableXRObjectRender} from "@/classes/renderers/inversify";
-import threeContainer from "@/classes/renderers/threejs/inversify";
+import {injectableObjectRender} from "@/renderers/inversify";
+import threeContainer from "@/renderers/threejs/inversify";
+import Log from "@/log";
 
 const colorStr2Hex = (str: string) => parseInt(tinycolor(str).toHex(), 16);
 const colorAlpha = (str: string) => tinycolor(str).getAlpha();
 
 const log = Log.instance("Engine/Renderer/ThreeGraph");
 
-@injectableXRObjectRender(threeContainer, "XRGraphRenderInterface")
-export default class ThreeGraph extends ThreeObject implements XRGraphRenderInterface<Object3D> {
+@injectableObjectRender(threeContainer, "GraphRenderInterface")
+export default class ThreeGraph extends ThreeObject implements GraphRenderInterface<Object3D> {
 
 	// Cache
-	private sphereGeometries: Record<number, Geometry> = {};
+	private sphereGeometries: Record<number, SphereGeometry> = {};
 	private materials: Record<string, Material> = {};
 
 	private labels: CSS3DObject[] = [];
@@ -49,14 +48,14 @@ export default class ThreeGraph extends ThreeObject implements XRGraphRenderInte
 		this.getRenderObject().add(this.graph);
 	}
 
-	createNodeLabel(graphNode: XRGraphNode) {
+	createNodeLabel(graphNode: GraphNode) {
 		const labelDiv = document.createElement('div');
 		labelDiv.style.fontSize = this.graphConfig.labelSize + 'px';
 		labelDiv.innerHTML = graphNode.label || '';
 		return new CSS3DObject(labelDiv);
 	}
 
-	createNodeThreeObject(graphNode: XRGraphNode, autoColor?: string) {
+	createNodeThreeObject(graphNode: GraphNode, autoColor?: string) {
 		// Example taken from default node creation in three-forcegraph
 		const geometrySize = Math.cbrt(graphNode.size) * 4;
 		if (!this.sphereGeometries.hasOwnProperty(geometrySize)) {
@@ -135,13 +134,13 @@ export default class ThreeGraph extends ThreeObject implements XRGraphRenderInte
 			});
 		}
 
-		// ThreeForceGraph renders about 100x too large, so setting a more sensible default. XRObject scale will be applied on top.
+		// ThreeForceGraph renders about 100x too large, so setting a more sensible default. Object scale will be applied on top.
 		this.graph.scale.set(0.01, 0.01, 0.01);
 	}
 
 	onFrame() {
 		if(!this.camera) {
-			throw new Err("No camera present.");
+			throw new Error("No camera present.");
 		}
 
 		// Make labels look at camera

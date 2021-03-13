@@ -1,15 +1,15 @@
-import XRRendererInterface from "@/classes/renderers/common/XRRendererInterface";
+import RendererInterface from "@/renderers/common/RendererInterface";
 import {Object3D, Vector2} from 'three';
 import Err from "@utils/error";
 import {CSS3DRenderer} from "three-css3drenderer";
-import {injectableRenderClass} from "@/classes/renderers/inversify";
-import threeContainer from "@/classes/renderers/threejs/inversify";
-import XRRendererCSS3DInterface from "@/classes/renderers/common/XRRendererCSS3DInterface";
-import XRThreeScene from "@/classes/renderers/threejs/XRThreeObject/XRThreeScene";
-import XRThreeCamera from "@/classes/renderers/threejs/XRThreeObject/XRThreeCamera";
+import {injectableRenderClass} from "@/renderers/inversify";
+import threeContainer from "@/renderers/threejs/inversify";
+import RendererCSS3DInterface from "@/renderers/common/RendererCSS3DInterface";
+import ThreeScene from "@/renderers/threejs/ThreeObject/ThreeScene";
+import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
 
-@injectableRenderClass(threeContainer, "XRRendererCSS3DInterface")
-export default class ThreeRendererCSS3D implements XRRendererCSS3DInterface<Object3D> {
+@injectableRenderClass(threeContainer, "RendererCSS3DInterface")
+export default class ThreeRendererCSS3D implements RendererCSS3DInterface<Object3D> {
 	renderer:CSS3DRenderer;
 
 	constructor() {
@@ -19,18 +19,18 @@ export default class ThreeRendererCSS3D implements XRRendererCSS3DInterface<Obje
 
 		this.renderer = renderer;
 	}
-	setMainRenderer(renderer:XRRendererInterface<Object3D>) {
+	setMainRenderer(renderer:RendererInterface<Object3D>) {
 		this.renderer.domElement.style.position = renderer.getDOMElement().style.position;
 		this.renderer.domElement.style.top = renderer.getDOMElement().style.top;
 		this.renderer.domElement.style.left = renderer.getDOMElement().style.left;
 	}
 	render(scene: any, camera: any): void {
 		// if scene type is not `any`, typescript will complain about redundancy of the checks
-		if(!(scene instanceof XRThreeScene)) {
-			throw new Err({message: "Invalid XRThreeScene.", data: scene});
+		if(!(scene instanceof ThreeScene)) {
+			throw new Err({message: "Invalid ThreeScene.", data: scene});
 		}
-		if(!(camera instanceof XRThreeCamera)) {
-			throw new Err({message:"Invalid XRThreeCamera.", data: camera});
+		if(!(camera instanceof ThreeCamera)) {
+			throw new Err({message:"Invalid ThreeCamera.", data: camera});
 		}
 
 		this.renderer.render(scene.getRenderObject(), camera.getRenderObject());

@@ -6,6 +6,10 @@ export class MarkerDetectedEvent {
 	constructor(public id:string, public first:boolean) {}
 }
 
+export class EngineEvents extends Events {
+	markerDetected = this.$event(MarkerDetectedEvent);
+}
+
 /**
  * Interface needed to prevent circular dependencies between Engine and Controller
  */
@@ -14,7 +18,7 @@ interface EngineInterface {
 	addFrameListener:(f:FrameListener)=>void;
 	removeFrameListener:(f:FrameListener)=>void;
 	callAction:(action:string, payload?:unknown)=>void;
-	events:Events;
+	events:EngineEvents;
 }
 
 export default EngineInterface;

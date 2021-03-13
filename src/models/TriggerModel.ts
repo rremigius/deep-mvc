@@ -4,10 +4,13 @@ import ActionModel from "@/models/ActionModel";
 import MappingModel from "@/models/MappingModel";
 import ConditionModel from "@/models/ConditionModel";
 import ControllerModel from "@/models/ControllerModel";
-import {Event} from "event-interface-mixin";
-import {Action} from "@/Controller";
+import {ControllerAction, ControllerEvent} from "@/Controller";
 
-export default class TriggerModel<E extends Event<unknown>, A extends Action<unknown>> extends ControllerModel {
+export type UnknownTriggerModel = TriggerModel<ControllerEvent<unknown>, ControllerAction<unknown>>;
+
+type Payload<E> = E extends ControllerAction<infer A> ? A : unknown;
+
+export default class TriggerModel<E, A> extends ControllerModel {
 	static get type() { return 'Trigger' };
 
 	@property(EventModel, {required})
@@ -17,7 +20,7 @@ export default class TriggerModel<E extends Event<unknown>, A extends Action<unk
 	action!:ActionModel;
 
 	@property(GenericMozel, {required})
-	mapping!:MappingModel<A, E>;
+	mapping!:MappingModel<Payload<A>, Payload<E>>;
 
 	@property(ConditionModel)
 	condition?:ConditionModel<E>

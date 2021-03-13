@@ -1,17 +1,11 @@
-import BehaviourModel from '../BehaviourModel';
+import BehaviourModel from '@/models/BehaviourModel';
 
 import TweenStepModel from "./TweenBehaviourModel/TweenStepModel";
-import {collection, injectableModel, property} from "@common/classes/Model/Model";
-import Collection from "@common/classes/Model/Collection";
-
-import Log from "@/log';
-import {required} from "@common/utils";
-
-const log = Log.instance("BehaviourModel/Tween");
+import {Collection, collection, injectable, property, required} from "mozel";
 
 // TODO: add loop and delay (they used to be there)
 
-@injectableModel()
+@injectable()
 export default class TweenBehaviourModel extends BehaviourModel {
 	static get type() { return 'TweenBehaviour' }
 

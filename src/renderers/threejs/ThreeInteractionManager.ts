@@ -1,15 +1,15 @@
-import InteractionManagerInterface from "../common/XRInteractionManagerInterface";
-import XRCameraRenderInterface from "@/classes/renderers/common/XRObjectRenderInterface/XRCameraRenderInterface";
-import XRSceneRenderInterface from "@/classes/renderers/common/XRObjectRenderInterface/XRSceneRenderInterface";
-import XRThreeCamera from "./XRThreeObject/XRThreeCamera";
+import InteractionManagerInterface from "../common/InteractionManagerInterface";
+import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
+import SceneRenderInterface from "@/renderers/common/ObjectRenderInterface/SceneRenderInterface";
+import ThreeCamera from "./ThreeObject/ThreeCamera";
 import Err from "@utils/error";
 import {Camera, Object3D, Raycaster, Scene, Vector2} from "three";
-import XRThreeScene from "./XRThreeObject/XRThreeScene";
-import {RootObject3D} from "./XRThreeObject/XRThreeControllerRoot";
-import {injectableRenderConstructor} from "@/classes/renderers/inversify";
-import threeContainer from "@/classes/renderers/threejs/inversify";
+import ThreeScene from "./ThreeObject/ThreeScene";
+import {RootObject3D} from "./ThreeObject/ThreeControllerRoot";
+import {injectableRenderConstructor} from "@/renderers/inversify";
+import threeContainer from "@/renderers/threejs/inversify";
 
-@injectableRenderConstructor(threeContainer, "XRInteractionManagerInterface")
+@injectableRenderConstructor(threeContainer, "InteractionManagerInterface")
 export default class ThreeInteractionManager implements InteractionManagerInterface<Object3D> {
 	protected mouse = new Vector2();
 	protected raycaster = new Raycaster();
@@ -19,15 +19,15 @@ export default class ThreeInteractionManager implements InteractionManagerInterf
 	protected readonly _handleMouseMove: (e: MouseEvent) => void;
 	protected readonly _handleClick: (e: MouseEvent) => void;
 
-	constructor(camera: XRCameraRenderInterface<Camera>, scene: XRSceneRenderInterface<Scene>) {
-		if (!(camera instanceof XRThreeCamera)) {
+	constructor(camera: CameraRenderInterface<Camera>, scene: SceneRenderInterface<Scene>) {
+		if (!(camera instanceof ThreeCamera)) {
 			throw new Err({
-				message: `camera is not a XRThreeCamera or a XRThreePerspectiveCamera`
+				message: `camera is not a ThreeCamera or a ThreePerspectiveCamera`
 			});
 		}
-		if (!(scene instanceof XRThreeScene)){
+		if (!(scene instanceof ThreeScene)){
 			throw new Err({
-				message: `scene is not a XRThreeScene`
+				message: `scene is not a ThreeScene`
 			});
 		}
 		this.camera = camera.getRenderObject();
@@ -69,7 +69,7 @@ export default class ThreeInteractionManager implements InteractionManagerInterf
 	}
 }
 
-/** Given an Object3d (most likely a Mesh), finds the XRThreeRootObject it lies under */
+/** Given an Object3d (most likely a Mesh), finds the ThreeRootObject it lies under */
 const findRoot = (object: Object3D): RootObject3D | null => {
 	let currentObject = object;
 	while (currentObject != null) {

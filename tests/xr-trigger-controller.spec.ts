@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {describe} from 'mocha';
-import EngineInterface from "@/Engine/EngineInterface";
+import EngineInterface, {EngineEvents} from "@/Engine/EngineInterface";
 import {FrameListener} from "@/Engine";
 import {MozelFactory} from "mozel";
 import TriggerController from "@/Controller/TriggerController";
@@ -12,7 +12,6 @@ import SceneModel from "@/models/SceneModel";
 import ObjectModel from "@/models/ObjectModel";
 import SceneController from "@/Controller/SceneController";
 import "@/Controller/all";
-import "@/renderers/threejs/all";
 import threeContainer from "@/renderers/threejs/inversify";
 import RenderFactory from "@/renderers/RenderFactory";
 import ActionModel from "@/models/ActionModel";
@@ -27,6 +26,7 @@ class MockEngine implements EngineInterface {
 	addFrameListener(f:FrameListener) { };
 	callAction(action: string, payload: unknown) { };
 	removeFrameListener(f: FrameListener) { };
+	events = new EngineEvents();
 }
 
 class Factory {
@@ -46,7 +46,7 @@ class Factory {
 }
 
 class FooEvent extends ControllerEvent<{foo:object}> {}
-class BarAction extends ControllerEvent<{bar:object}> {}
+class BarAction extends ControllerAction<{bar:object}> {}
 
 describe('TriggerController', () => {
 	it('listens to an event on a Behaviour and calls an action on its target Behaviour', done => {
@@ -83,7 +83,7 @@ describe('TriggerController', () => {
 		const trigger = factory.controller.create(TriggerController, triggerModel, true);
 		trigger.start();
 
-		foo.events.$fire(FooEvent, {foo: expected});
+		foo.events.$fire(FooEvent, new FooEvent(foo, {foo: expected}));
 	});
 
 	it('listens to an event on the EventBus if no source is provided on event model', done => {

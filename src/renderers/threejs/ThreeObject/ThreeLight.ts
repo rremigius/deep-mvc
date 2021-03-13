@@ -1,15 +1,15 @@
-import XRThreeObject from "@/classes/renderers/threejs/XRThreeObject";
+import ThreeObject from "@/renderers/threejs/ThreeObject";
 import {AmbientLight, Color, Light, Object3D} from "three";
-import XRLightRenderInterface from "@/classes/renderers/common/XRObjectRenderInterface/XRLightRenderInterface";
-import {injectableXRObjectRender} from "@/classes/renderers/inversify";
-import threeContainer from "@/classes/renderers/threejs/inversify";
+import LightRenderInterface from "@/renderers/common/ObjectRenderInterface/LightRenderInterface";
+import {injectableObjectRender} from "@/renderers/inversify";
+import threeContainer from "@/renderers/threejs/inversify";
 
 export enum LightType {
 	AMBIENT
 }
 
-@injectableXRObjectRender(threeContainer, "XRLightRenderInterface")
-export default class ThreeLight extends XRThreeObject implements XRLightRenderInterface<Object3D> {
+@injectableObjectRender(threeContainer, "LightRenderInterface")
+export default class ThreeLight extends ThreeObject implements LightRenderInterface<Object3D> {
 	light:Light;
 	color:number|string;
 	lightType:LightType;

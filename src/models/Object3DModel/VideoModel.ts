@@ -1,15 +1,15 @@
 import ObjectModel from "@/models/ObjectModel";
-import {injectableModel, property} from "@common/classes/Model/Model";
 import Log from "@/log";
 import File from "@/models/FileModel";
-import {required} from "@common/utils";
+import {injectable, property, required} from "mozel";
 
-const log = Log.instance("Scene/Object/Video");
+const log = Log.instance("scene/object/video");
 
-
-@injectableModel()
+@injectable()
 export default class VideoModel extends ObjectModel {
 	static get type() { return 'Video' };
+
+	log = log;
 
 	@property(Number, {required, default: 1})
 	width!: number;

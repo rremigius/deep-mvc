@@ -1,16 +1,16 @@
-import XRThreeObject from "@/classes/renderers/threejs/XRThreeObject";
-import XRVideoRenderInterface, {createVideo} from "@/classes/renderers/common/XRObjectRenderInterface/XRVideoRenderInterface";
+import ThreeObject from "@/renderers/threejs/ThreeObject";
+import VideoRenderInterface, {createVideo} from "@/renderers/common/ObjectRenderInterface/VideoRenderInterface";
 import {DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Object3D, PlaneGeometry, VideoTexture} from "three";
-import {injectableXRObjectRender} from "@/classes/renderers/inversify";
-import threeContainer from "@/classes/renderers/threejs/inversify";
-import XRVideoModel from "@common/models/XRObject3DModel/XRVideoModel";
+import {injectableObjectRender} from "@/renderers/inversify";
+import threeContainer from "@/renderers/threejs/inversify";
+import VideoModel from "@common/models/Object3DModel/VideoModel";
 import Err from "@utils/error";
 import Log from "@utils/log";
 
 const log = Log.instance("renderer/xrthreevideo");
 
-@injectableXRObjectRender(threeContainer, "XRVideoRenderInterface")
-export default class ThreeVideo extends XRThreeObject implements XRVideoRenderInterface<Object3D> {
+@injectableObjectRender(threeContainer, "VideoRenderInterface")
+export default class ThreeVideo extends ThreeObject implements VideoRenderInterface<Object3D> {
 	video?: HTMLVideoElement;
 	videoTexture?: VideoTexture;
 	loaded:boolean = false;
@@ -48,11 +48,11 @@ export default class ThreeVideo extends XRThreeObject implements XRVideoRenderIn
 		}
 	}
 
-	async load(xrVideo: XRVideoModel):Promise<this> {
+	async load(xrVideo: VideoModel):Promise<this> {
 		return new Promise((resolve, reject) => {
 			if (!xrVideo.file || !xrVideo.file.url) {
 				const err = new Err({
-					message: "XRVideo has no video file. Cannot load.",
+					message: "Video has no video file. Cannot load.",
 					data: this
 				});
 				log.error(err.message);
