@@ -1,9 +1,8 @@
-import {EventDispatcher, Object3D, Vector3} from "three";
-import {injectableObjectRender} from "@/renderers/inversify";
+import {Object3D, Vector3} from "three";
 import threeContainer from "@/renderers/threejs/inversify";
-import {decorate, inject, injectable, optional} from "inversify";
 import {default as V3, SparseVector3} from "@/renderers/common/Vector3";
 import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
+import {injectable} from "@/renderers/inversify";
 
 function applySparseVector(target:Vector3, source:SparseVector3) {
 	if(source.x !== undefined) {
@@ -17,26 +16,27 @@ function applySparseVector(target:Vector3, source:SparseVector3) {
 	}
 }
 
-decorate(injectable(), Object3D);
-decorate(injectable(), EventDispatcher);
-@injectableObjectRender(threeContainer, "ObjectRenderInterface")
-export default class ThreeObject implements ObjectRenderInterface<Object3D> {
+@injectable(threeContainer, "ObjectRenderInterface")
+export default class ThreeObject implements ObjectRenderInterface {
 	readonly object3D:Object3D;
-	constructor(@inject("object3d") @optional() object3D?:Object3D) {
-		this.object3D = object3D ? object3D : this.createObject3D();
+
+	constructor() {
+		this.object3D = this.createObject3D();
 	}
-	protected createObject3D() {
+
+	protected createObject3D(): Object3D {
 		return new Object3D();
 	}
-	public getRenderObject() {
+
+	public getObject3D() {
 		return this.object3D;
 	}
-	add(object: ObjectRenderInterface<Object3D>) {
-		this.object3D.add(object.getRenderObject());
+	add(object: ThreeObject) {
+		this.object3D.add(object.getObject3D());
 		return this;
 	}
-	remove(object: ObjectRenderInterface<Object3D>) {
-		this.object3D.remove(object.getRenderObject());
+	remove(object: ThreeObject) {
+		this.object3D.remove(object.getObject3D());
 		return this;
 	}
 	getPosition() {

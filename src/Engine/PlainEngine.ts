@@ -14,7 +14,7 @@ export default class PlainEngine extends Engine {
 		}
 
 		// Add Orbitcontrols to camera
-		const controls = new OrbitControls(camera.getRenderObject());
+		const controls = new OrbitControls(camera.getObject3D());
 		controls.autoRotate = true;
 		controls.enableDamping = true;
 		controls.dampingFactor = 0.1;

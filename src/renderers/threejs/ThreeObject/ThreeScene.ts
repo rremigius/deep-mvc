@@ -1,18 +1,18 @@
 import {Scene} from "three";
-import {alphanumeric} from "@common/classes/Model/Model";
 import SceneRenderInterface from "@/renderers/common/ObjectRenderInterface/SceneRenderInterface";
-import {injectableRenderClass} from "@/renderers/inversify";
+import {injectable} from "@/renderers/inversify";
 import threeContainer from "@/renderers/threejs/inversify";
 import ThreeObject from "@/renderers/threejs/ThreeObject";
+import {alphanumeric} from "mozel";
 
-@injectableRenderClass(threeContainer, "SceneRenderInterface")
-export default class ThreeScene extends ThreeObject implements SceneRenderInterface<Scene> {
+@injectable(threeContainer, "SceneRenderInterface")
+export default class ThreeScene extends ThreeObject implements SceneRenderInterface {
 	public gid: alphanumeric = "_SCENE"; // Will be overwritten by ObjectController
 
 	protected createObject3D():Scene {
 		return new Scene();
 	}
-	public getRenderObject():Scene {
-		return <Scene>super.getRenderObject();
+	public getObject3D():Scene {
+		return <Scene>super.getObject3D();
 	}
 }

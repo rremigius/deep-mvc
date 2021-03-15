@@ -1,10 +1,12 @@
 import ObjectController from "@/Controller/ObjectController";
-import {ControllerEvent, ControllerEvents, injectableController} from "@/Controller";
+import {ControllerEvent, ControllerEvents, injectable} from "@/Controller";
 import Model3DModel from "@/models/Object3DModel/Model3DModel";
 import Log from "@/log";
 import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
 import Model3DRenderInterface from "@/renderers/common/ObjectRenderInterface/Model3DRenderInterface";
-import {ClickEventInterface} from "@/renderers/common/ObjectRenderInterface/ControllerRootRenderInterface";
+import {ObjectClickEvent} from "@/renderers/common/ObjectRenderInterface/RootObjectRenderInterface";
+import {Object3D} from "three";
+import {check, instanceOf} from "validation-kit";
 
 const log = Log.instance("Controller/Object/Object3D");
 
@@ -13,10 +15,10 @@ export class Model3DControllerEvents extends ControllerEvents {
 	click = this.$event(ClickEvent);
 }
 
-@injectableController()
+@injectable()
 export default class Model3DController extends ObjectController {
 	static ModelClass = Model3DModel;
-	private modelRender: Model3DRenderInterface<unknown> = this.renderFactory.create<Model3DRenderInterface<unknown>>("Model3DRenderInterface");
+	private modelRender: Model3DRenderInterface = this.renderFactory.create<Model3DRenderInterface>("Model3DRenderInterface");
 
 	log = log;
 	events = new Model3DControllerEvents();
@@ -25,12 +27,15 @@ export default class Model3DController extends ObjectController {
 		super.init(xrObject);
 	}
 
-	handleClick(event: ClickEventInterface): void {
-		super.handleClick(event);
+	onClick(event:ObjectClickEvent): void {
+		super.onClick(event);
 
-		const meshes: string[] = event.meshes;
-		const foundClickableMesh = meshes.find((mesh) =>
-			this.xrModel3D.clickableMeshes.find(mesh) !== undefined
+		const meshNames = event.intersects.map(mesh => {
+			const $object3D = check<Object3D>(mesh, instanceOf(Object3D), "mesh");
+			return $object3D.name;
+		});
+		const foundClickableMesh = meshNames.find(name =>
+			this.xrModel3D.clickableMeshes.find(name) !== undefined
 		);
 		if (foundClickableMesh) {
 			this.events.click.fire(new ClickEvent(this, { mesh: foundClickableMesh } ));
@@ -41,7 +46,7 @@ export default class Model3DController extends ObjectController {
 		return <Model3DModel>this.model;
 	}
 
-	async createObjectRender():Promise<ObjectRenderInterface<unknown>> {
+	async createObjectRender():Promise<ObjectRenderInterface> {
 		return this.modelRender.load(this.xrModel3D);
 	}
 }

@@ -1,38 +1,22 @@
-import InteractionManagerInterface from "../common/InteractionManagerInterface";
-import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
-import SceneRenderInterface from "@/renderers/common/ObjectRenderInterface/SceneRenderInterface";
 import ThreeCamera from "./ThreeObject/ThreeCamera";
-import Err from "@utils/error";
-import {Camera, Object3D, Raycaster, Scene, Vector2} from "three";
+import {Object3D, Raycaster, Vector2} from "three";
 import ThreeScene from "./ThreeObject/ThreeScene";
-import {RootObject3D} from "./ThreeObject/ThreeControllerRoot";
-import {injectableRenderConstructor} from "@/renderers/inversify";
+import {injectable} from "@/renderers/inversify";
 import threeContainer from "@/renderers/threejs/inversify";
+import {ObjectClickEvent} from "@/renderers/common/ObjectRenderInterface/RootObjectRenderInterface";
+import {RootObject3D} from "@/renderers/threejs/ThreeObject/ThreeRootObject";
 
-@injectableRenderConstructor(threeContainer, "InteractionManagerInterface")
-export default class ThreeInteractionManager implements InteractionManagerInterface<Object3D> {
+@injectable(threeContainer, "InteractionManagerInterface")
+export default class ThreeInteractionManager {
 	protected mouse = new Vector2();
 	protected raycaster = new Raycaster();
-	protected camera: Camera;
-	protected scene: Scene;
+	public camera?: ThreeCamera;
+	public scene?: ThreeScene;
 
 	protected readonly _handleMouseMove: (e: MouseEvent) => void;
 	protected readonly _handleClick: (e: MouseEvent) => void;
 
-	constructor(camera: CameraRenderInterface<Camera>, scene: SceneRenderInterface<Scene>) {
-		if (!(camera instanceof ThreeCamera)) {
-			throw new Err({
-				message: `camera is not a ThreeCamera or a ThreePerspectiveCamera`
-			});
-		}
-		if (!(scene instanceof ThreeScene)){
-			throw new Err({
-				message: `scene is not a ThreeScene`
-			});
-		}
-		this.camera = camera.getRenderObject();
-		this.scene = scene.getRenderObject();
-
+	constructor() {
 		this._handleMouseMove = this.handleMouseMove.bind(this);
 		window.addEventListener('mousemove', (e) => { this._handleMouseMove(e);} );
 		this._handleClick = this.handleClick.bind(this);
@@ -52,10 +36,13 @@ export default class ThreeInteractionManager implements InteractionManagerInterf
 	protected handleClick(event: MouseEvent) {
 		if(!this.camera || !this.scene) return;
 
-		this.raycaster.setFromCamera(this.mouse, this.camera);
+		const camera = this.camera.getObject3D();
+		const scene = this.scene.getObject3D();
+
+		this.raycaster.setFromCamera(this.mouse, camera);
 
 		// calculate objects intersecting the picking ray
-		const intersects = this.raycaster.intersectObjects( this.scene.children, true);
+		const intersects = this.raycaster.intersectObjects( scene.children, true);
 		if (!intersects.length) {
 			return;
 		}
@@ -64,8 +51,8 @@ export default class ThreeInteractionManager implements InteractionManagerInterf
 		if (!root) {
 			return;
 		}
-		const meshes = intersects.map((i) => i.object.name);
-		root.onClick({ meshes });
+		const meshes = intersects.map((i) => i.object);
+		root.onClick(new ObjectClickEvent(meshes));
 	}
 }
 

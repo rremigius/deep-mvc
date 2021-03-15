@@ -52,7 +52,7 @@ export default class ThreeAREngine extends Engine {
 		//@ts-ignore (THREEAR messed up the SourceParameter type so it requires all properties although in the code it doesn't).
 		this.arSource = new THREEAR.Source({
 			renderer: renderer.getWebGLRenderer(),
-			camera: camera.getRenderObject(),
+			camera: camera.getObject3D(),
 			parent: container
 		});
 
@@ -60,7 +60,7 @@ export default class ThreeAREngine extends Engine {
 		this.arController = await THREEAR.initialize({ source: this.arSource });
 
 		// Workaround for low-quality rendering bug (https://github.com/JamesMilnerUK/THREEAR/issues/52)
-		let m = camera.getRenderObject().projectionMatrix;
+		let m = camera.getObject3D().projectionMatrix;
 		let far = 1000;
 		let near = 0.1;
 		m.elements[10] = -(far + near) / (far - near);

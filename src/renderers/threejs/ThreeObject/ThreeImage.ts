@@ -1,23 +1,19 @@
-import {Mesh, MeshBasicMaterial, Object3D, PlaneGeometry, TextureLoader} from "three";
-import Err from "@utils/error";
-import ThreeObject from "./ThreeObject";
-import Log from "@utils/log";
-import ImageModel from "@common/models/Object3DModel/ImageModel";
-import {injectableObjectRender} from "@/renderers/inversify";
+import {Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
+import Log from "@/log";
+import ImageModel from "@/models/Object3DModel/ImageModel";
+import {injectable} from "@/renderers/inversify";
 import threeContainer from "@/renderers/threejs/inversify";
 import ImageRenderInterface from "@/renderers/common/ObjectRenderInterface/ImageRenderInterface";
+import ThreeRootObject from "@/renderers/threejs/ThreeObject/ThreeInteractableObject";
 
 const log = Log.instance("Controller/Object/Object3D");
 
-@injectableObjectRender(threeContainer, "ImageRenderInterface")
-export default class ThreeImage extends ThreeObject implements ImageRenderInterface<Object3D> {
+@injectable(threeContainer, "ImageRenderInterface")
+export default class ThreeImage extends ThreeRootObject implements ImageRenderInterface {
 	async load(xrImage: ImageModel): Promise<this> {
 		return new Promise((resolve, reject) => {
 			if (!xrImage.file || !xrImage.file.url) {
-				const err = new Err({
-					message: "ImageModel has no image file. Cannot load.",
-					data: this
-				});
+				const err = new Error("ImageModel has no image file. Cannot load.");
 				log.error(err.message);
 				reject(err);
 				return;
@@ -29,7 +25,7 @@ export default class ThreeImage extends ThreeObject implements ImageRenderInterf
 				texture => {
 					// Create geometry
 					const geometry = new PlaneGeometry( 1, 1, 1 );
-					const material = new MeshBasicMaterial( { color: 0xffffff, flatShading: true } );
+					const material = new MeshBasicMaterial( { color: 0xffffff } );
 					const mesh = new Mesh( geometry, material );
 					mesh.rotation.x = -Math.PI / 2;
 
@@ -49,7 +45,8 @@ export default class ThreeImage extends ThreeObject implements ImageRenderInterf
 				},
 				undefined, // progress callback currently not supported (THREE docs)
 				() => {
-					const err = new Err({message: "Failed to load image.", data: {file: xrImage.file}});
+					const err = new Error("Failed to load image.");
+					log.error(err.message, xrImage.file);
 					reject(err);
 				}
 			);

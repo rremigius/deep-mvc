@@ -1,20 +1,20 @@
-import Controller, {injectableController} from "@/Controller";
+import Controller, {injectable} from "@/Controller";
 import ControllerModel from "@/models/ControllerModel";
 import Log from "@/log";
 import ObjectModel from "@/models/ObjectModel";
 import BehaviourController from "./BehaviourController";
 import Vector3Model from "@/models/Vector3Model";
-import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
-import ControllerRootRenderInterface, {ClickEventInterface} from "@/renderers/common/ObjectRenderInterface/ControllerRootRenderInterface";
+import RootObjectRenderInterface, {ObjectClickEvent} from "@/renderers/common/ObjectRenderInterface/RootObjectRenderInterface";
 import Vector3 from "@/renderers/common/Vector3";
 import TriggerController from "@/Controller/TriggerController";
 import ControllerList from "@/Controller/ControllerList";
 import {check, instanceOf} from "validation-kit";
 import {isNumber} from "lodash";
+import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
 
 const log = Log.instance("Engine/Object");
 
-@injectableController()
+@injectable()
 export default class ObjectController extends Controller {
 	static ModelClass = ObjectModel;
 
@@ -23,15 +23,15 @@ export default class ObjectController extends Controller {
 
 	log = log;
 
-	private _root!:ControllerRootRenderInterface<unknown>;
+	private _root!:RootObjectRenderInterface;
 	get root(){ return this._root; };
 
 	init(xrObject:ControllerModel) {
 		super.init(xrObject);
 
-		this._root = this.renderFactory.create<ControllerRootRenderInterface<unknown>>("RootObjectRenderInterface");
+		this._root = this.renderFactory.create<RootObjectRenderInterface>("RootObjectRenderInterface");
 		this._root.gid = xrObject.gid;
-		this._root.onClick = this.handleClick.bind(this);
+		this._root.events.click.on(event => this.onClick(event));
 
 		// Watch the model for changes
 		this.xrObject.$watch({
@@ -57,7 +57,8 @@ export default class ObjectController extends Controller {
 		this.triggers.each(trigger => trigger.setDefaultController(this));
 	}
 
-	handleClick(event: ClickEventInterface): void {
+	// For override
+	onClick(event:ObjectClickEvent): void {
 
 	}
 
@@ -82,7 +83,7 @@ export default class ObjectController extends Controller {
 	 * For override
 	 * Creates a ThreeObject3D from the Object.
 	 */
-	async createObjectRender():Promise<ObjectRenderInterface<unknown>> {
-		return this.renderFactory.create<ObjectRenderInterface<unknown>>("RootObjectRenderInterface");
+	async createObjectRender():Promise<ObjectRenderInterface> {
+		return this.renderFactory.create<ObjectRenderInterface>("RootObjectRenderInterface");
 	}
 }

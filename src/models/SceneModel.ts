@@ -4,7 +4,6 @@ import ControllerModel from "@/models/ControllerModel";
 
 import {EngineType} from "@/viewer-settings";
 import TriggerModel, {UnknownTriggerModel} from "./TriggerModel";
-import {ControllerAction, ControllerEvent} from "@/Controller";
 
 export default class SceneModel extends ControllerModel {
 	static get type() { return 'Scene' };

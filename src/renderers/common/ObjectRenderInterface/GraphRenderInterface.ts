@@ -1,8 +1,8 @@
 import ObjectRenderInterface from "../ObjectRenderInterface";
 import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
 
-export default interface GraphRenderInterface<T> extends ObjectRenderInterface<T> {
-	setup(setup:GraphSetup<T>):void;
+export default interface GraphRenderInterface extends ObjectRenderInterface {
+	setup(setup:GraphSetup):void;
 	config(config:GraphConfig):void;
 	setData(data:GraphData):void;
 	onFrame(): void;
@@ -13,8 +13,8 @@ type Link = {source:string|number, target:string|number};
 
 export type GraphData = {nodes:Node[], links: Link[]};
 
-export type GraphSetup<T> = {
-	camera: CameraRenderInterface<T>;
+export type GraphSetup = {
+	camera: CameraRenderInterface;
 };
 
 export type GraphConfig = {

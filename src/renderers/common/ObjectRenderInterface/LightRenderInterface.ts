@@ -4,7 +4,7 @@ export enum LightType {
 	AMBIENT
 }
 
-export default interface LightRenderInterface<T> extends ObjectRenderInterface<T> {
+export default interface LightRenderInterface extends ObjectRenderInterface {
 	setType(type:LightType):boolean;
 	setColor(color:number|string):boolean;
 }

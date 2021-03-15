@@ -1,21 +1,20 @@
-import Model3DRenderInterface from "../../common/ObjectRenderInterface/Model3DRenderInterface";
-import Model3DModel, {FileType} from "@common/models/Object3DModel/Model3DModel";
+import Model3DRenderInterface from "@/renderers/common/ObjectRenderInterface/Model3DRenderInterface";
+import Model3DModel, {FileType} from "@/models/Object3DModel/Model3DModel";
 import {Group, Object3D} from "three";
-import Err from "@utils/error";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import {MaterialCreator, MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
 import ColladaLoader from "three-collada-loader-2";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 import ThreeObject from "../ThreeObject";
-import FileModel from "@common/models/FileModel";
-import Log from "@utils/log";
-import {injectableRenderClass} from "@/renderers/inversify";
+import FileModel from "@/models/FileModel";
+import Log from "@/log";
+import {injectable} from "@/renderers/inversify";
 import threeContainer from "@/renderers/threejs/inversify";
 
-const log = Log.instance("Controller/Object/Object3D");
+const log = Log.instance("controller/object/model3d");
 
-@injectableRenderClass(threeContainer, "Model3DRenderInterface")
-export class ThreeModel3D extends ThreeObject implements Model3DRenderInterface<Object3D> {
+@injectable(threeContainer, "Model3DRenderInterface")
+export class ThreeModel3D extends ThreeObject implements Model3DRenderInterface {
 	async load(xrModel3D: Model3DModel): Promise<this> {
 		switch(xrModel3D.determineFileType()) {
 			case FileType.Collada:
@@ -25,10 +24,7 @@ export class ThreeModel3D extends ThreeObject implements Model3DRenderInterface<
 			case FileType.Fbx:
 				return this.loadFbx(xrModel3D);
 		}
-		return Promise.reject(new Err({
-			message: "Could not determine file type.",
-			data: xrModel3D.files
-		}));
+		return Promise.reject(new Error("Could not determine file type."));
 	}
 
 	async loadObjFiles(xrModel3D: Model3DModel): Promise<this> {
@@ -46,10 +42,7 @@ export class ThreeModel3D extends ThreeObject implements Model3DRenderInterface<
 
 			}, progress => {
 			}, error => {
-				let err = new Err({
-					message: "Could not load Obj material.",
-					originalError: new Err(error.message)
-				});
+				let err = new Error("Could not load Obj material.");
 				return Promise.reject(err);
 			});
 		}
@@ -57,7 +50,7 @@ export class ThreeModel3D extends ThreeObject implements Model3DRenderInterface<
 		log.log("Loading OBJ", url);
 		return new Promise((resolve, reject) => {
 			if(!url) {
-				reject(new Err("Model3DModel does not have a main file."));
+				reject(new Error("Model3DModel does not have a main file."));
 				return;
 			}
 			loader.load(url, (obj) => {
@@ -66,13 +59,7 @@ export class ThreeModel3D extends ThreeObject implements Model3DRenderInterface<
 				resolve(this);
 			}, progress => {
 
-			}, error => {
-				let err = new Err({
-					message: "Could not load Obj model.",
-					originalError: new Err(error.message)
-				});
-				reject(err);
-			});
+			}, reject);
 		});
 
 	}
@@ -84,7 +71,7 @@ export class ThreeModel3D extends ThreeObject implements Model3DRenderInterface<
 		log.log("Loading Collada", url);
 		return new Promise((resolve, reject) => {
 			if(!url) {
-				reject(new Err("Model3DModel does not have a main file."));
+				reject(new Error("Model3DModel does not have a main file."));
 				return;
 			}
 			loader.load(url, (collada) => {
@@ -93,13 +80,7 @@ export class ThreeModel3D extends ThreeObject implements Model3DRenderInterface<
 				resolve(this);
 			},() => {
 				// progress not implemented yet
-			},(error: Error) => {
-				let err = new Err({
-					message: "Could not load Collada model.",
-					originalError: error
-				});
-				reject(err);
-			});
+			},reject);
 		});
 	}
 
@@ -110,7 +91,7 @@ export class ThreeModel3D extends ThreeObject implements Model3DRenderInterface<
 		log.log("Loading FBX", url);
 		return new Promise((resolve, reject) => {
 			if(!url) {
-				reject(new Err("Model3DModel does not have a main file."));
+				reject(new Error("Model3DModel does not have a main file."));
 				return;
 			}
 			loader.load(url, (fbx: Group) => {
@@ -120,13 +101,7 @@ export class ThreeModel3D extends ThreeObject implements Model3DRenderInterface<
 				resolve(this);
 			},() => {
 				// progress not implemented yet
-			},(error: ErrorEvent) => {
-				let err = new Err({
-					message: "Could not load Fbx model.",
-					originalError: error
-				});
-				reject(err);
-			});
+			},reject);
 		});
 	}
 }

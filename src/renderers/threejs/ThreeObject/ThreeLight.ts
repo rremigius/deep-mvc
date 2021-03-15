@@ -1,15 +1,15 @@
 import ThreeObject from "@/renderers/threejs/ThreeObject";
-import {AmbientLight, Color, Light, Object3D} from "three";
+import {AmbientLight, Color, Light} from "three";
 import LightRenderInterface from "@/renderers/common/ObjectRenderInterface/LightRenderInterface";
-import {injectableObjectRender} from "@/renderers/inversify";
+import {injectable} from "@/renderers/inversify";
 import threeContainer from "@/renderers/threejs/inversify";
 
 export enum LightType {
 	AMBIENT
 }
 
-@injectableObjectRender(threeContainer, "LightRenderInterface")
-export default class ThreeLight extends ThreeObject implements LightRenderInterface<Object3D> {
+@injectable(threeContainer, "LightRenderInterface")
+export default class ThreeLight extends ThreeObject implements LightRenderInterface {
 	light:Light;
 	color:number|string;
 	lightType:LightType;
@@ -19,7 +19,7 @@ export default class ThreeLight extends ThreeObject implements LightRenderInterf
 		this.lightType = LightType.AMBIENT;
 		this.color = 0xffffff;
 		this.light = this.createLight(this.lightType);
-		this.getRenderObject().add(this.light);
+		this.getObject3D().add(this.light);
 	}
 
 	createLight(type:LightType) {

@@ -1,4 +1,3 @@
 import ObjectRenderInterface from "../ObjectRenderInterface";
 
-export default interface SceneRenderInterface<T> extends ObjectRenderInterface<T> {
-}
+export default interface SceneRenderInterface extends ObjectRenderInterface {}

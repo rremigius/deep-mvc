@@ -1,12 +1,12 @@
-import EventInterface, {callback} from "@/EventInterface";
+import EventEmitter, {callback} from "@/EventEmitter";
 
 export default class EventListener<T> {
-	private readonly event:EventInterface<T>
+	private readonly event:EventEmitter<T>
 	private readonly callback:callback<T>;
 
 	remove:boolean = false;
 
-	constructor(event:EventInterface<T>, callback:callback<T>) {
+	constructor(event:EventEmitter<T>, callback:callback<T>) {
 		this.event = event;
 		this.callback = callback;
 	}

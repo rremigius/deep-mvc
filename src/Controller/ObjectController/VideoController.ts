@@ -1,18 +1,18 @@
 import ObjectController from "@/Controller/ObjectController";
 import VideoModel from "@/models/Object3DModel/VideoModel";
-import {injectableController} from "../inversify";
+import {injectable} from "../inversify";
 import VideoRenderInterface from "@/renderers/common/ObjectRenderInterface/VideoRenderInterface";
 import Log from "@/log";
 
 const log = Log.instance("xrengine/video");
 
-@injectableController()
+@injectable()
 export default class VideoController extends ObjectController {
 	static ModelClass = VideoModel;
 
 	log = log;
 
-	private videoRender: VideoRenderInterface<unknown> = this.renderFactory.create<VideoRenderInterface<unknown>>("VideoRenderInterface");
+	private videoRender: VideoRenderInterface = this.renderFactory.create<VideoRenderInterface>("VideoRenderInterface");
 
 	get xrVideo() {
 		return <VideoModel>this.model;

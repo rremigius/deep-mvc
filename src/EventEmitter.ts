@@ -14,7 +14,7 @@ function getTypeName(type:unknown) {
 }
 
 export type callback<T> = (payload:T)=>void
-export default class EventInterface<T> {
+export default class EventEmitter<T> {
 	private listeners:callback<T>[] = [];
 
 	type?:TypeClass<T>;
@@ -64,34 +64,34 @@ export default class EventInterface<T> {
 
 export class Events {
 	private readonly $allowDynamicEvents:boolean;
-	private readonly $byName:Record<string,EventInterface<unknown>> = {};
+	private readonly $byName:Record<string,EventEmitter<unknown>> = {};
 
 	constructor(allowDynamicEvents:boolean = false) {
 		this.$allowDynamicEvents = allowDynamicEvents;
 	}
 
 	/**
-	 * Creates an EventInterface and registers it.
+	 * Creates an EventEmitter and registers it.
 	 * @param EventClass
 	 * @param name
 	 */
-	$event<T>(EventClass:Constructor<T>, name?:string):EventInterface<T> {
+	$event<T>(EventClass:Constructor<T>, name?:string):EventEmitter<T> {
 		if(!name) {
 			name = EventClass.name;
 		}
-		const event = new EventInterface<T>(EventClass);
+		const event = new EventEmitter<T>(EventClass);
 		return this.$register(event, name);
 	}
 
 	/**
-	 * Registers an EventInterface so it can be called by name.
+	 * Registers an EventEmitter so it can be called by name.
 	 * @param event
 	 * @param name
 	 */
-	$register<T>(event:EventInterface<T>, name:string):EventInterface<T> {
+	$register<T>(event:EventEmitter<T>, name:string):EventEmitter<T> {
 		// Register new
 		if(!(name in this.$byName)) {
-			this.$byName[name] = <EventInterface<unknown>>event;
+			this.$byName[name] = <EventEmitter<unknown>>event;
 			return event;
 		}
 		// Update existing
@@ -138,14 +138,14 @@ export class Events {
 	 * If the event is not predefined, and the Events instance allows dynamic events, it will create the event.
 	 * @param event
 	 */
-	$get(event:string|Class):EventInterface<unknown> {
+	$get(event:string|Class):EventEmitter<unknown> {
 		event = this.$getEventName(event);
 		if(!(event in this.$byName)) {
 			if (!this.$allowDynamicEvents) {
 				throw new Error(`Unknown event '${event}'.`);
 			}
 			// Define event on the fly
-			this.$byName[event] = new EventInterface<unknown>();
+			this.$byName[event] = new EventEmitter();
 		}
 
 		return this.$byName[event];

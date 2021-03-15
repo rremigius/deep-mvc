@@ -1,10 +1,8 @@
 import Vector3, {SparseVector3} from "@/renderers/common/Vector3";
 
-export default interface ObjectRenderInterface<T> {
-	getRenderObject():T;
-
-	add(object:ObjectRenderInterface<T>): this;
-	remove(object:ObjectRenderInterface<T>): this;
+export default interface ObjectRenderInterface {
+	add(object:ObjectRenderInterface): this;
+	remove(object:ObjectRenderInterface): this;
 
 	getPosition():Vector3;
 	setPosition(position:Vector3|SparseVector3):void;

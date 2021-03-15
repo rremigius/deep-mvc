@@ -11,7 +11,7 @@ import GraphRenderInterface, {
 } from "@/renderers/common/ObjectRenderInterface/GraphRenderInterface";
 import ThreeCamera from "./ThreeCamera";
 import ThreeForceGraph from "three-forcegraph";
-import {injectableObjectRender} from "@/renderers/inversify";
+import {injectable} from "@/renderers/inversify";
 import threeContainer from "@/renderers/threejs/inversify";
 import Log from "@/log";
 
@@ -20,8 +20,8 @@ const colorAlpha = (str: string) => tinycolor(str).getAlpha();
 
 const log = Log.instance("Engine/Renderer/ThreeGraph");
 
-@injectableObjectRender(threeContainer, "GraphRenderInterface")
-export default class ThreeGraph extends ThreeObject implements GraphRenderInterface<Object3D> {
+@injectable(threeContainer, "GraphRenderInterface")
+export default class ThreeGraph extends ThreeObject implements GraphRenderInterface {
 
 	// Cache
 	private sphereGeometries: Record<number, SphereGeometry> = {};
@@ -45,7 +45,7 @@ export default class ThreeGraph extends ThreeObject implements GraphRenderInterf
 		super();
 
 		this.graph = new ThreeForceGraph();
-		this.getRenderObject().add(this.graph);
+		this.getObject3D().add(this.graph);
 	}
 
 	createNodeLabel(graphNode: GraphNode) {
@@ -90,12 +90,12 @@ export default class ThreeGraph extends ThreeObject implements GraphRenderInterf
 		this.graph.graphData(data);
 	}
 
-	setup(setup:GraphSetup<Object3D>) {
+	setup(setup:GraphSetup) {
 		if(!(setup.camera instanceof ThreeCamera)) {
 			log.error("Camera is not a THREE Camera.", setup.camera);
 			return;
 		}
-		this.camera = setup.camera.getRenderObject();
+		this.camera = setup.camera.getObject3D();
 	}
 
 	config(config:GraphConfig) {

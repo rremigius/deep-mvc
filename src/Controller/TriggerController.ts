@@ -1,4 +1,4 @@
-import Controller, {ControllerAction, ControllerEvent, injectableController} from "@/Controller";
+import Controller, {ControllerAction, ControllerEvent, injectable} from "@/Controller";
 import Log from "@/log";
 import TriggerModel from "@/models/TriggerModel";
 import {forEach, isEmpty, isPlainObject, isString} from 'lodash';
@@ -9,7 +9,7 @@ const log = Log.instance("controller/trigger");
 
 type UnknownTrigger = TriggerModel<ControllerEvent<unknown>,ControllerAction<unknown>>;
 
-@injectableController()
+@injectable()
 export default class TriggerController extends Controller {
 	static ModelClass = TriggerModel;
 
@@ -38,7 +38,7 @@ export default class TriggerController extends Controller {
 	}
 
 	startListening() {
-		const source = this.source.get();
+		const source = this.source.get() || this.defaultController;
 		const events = source ? source.events : this.eventBus;
 		const eventName = this.triggerModel.event.name;
 		const callback = this.onEvent.bind(this);
@@ -65,7 +65,7 @@ export default class TriggerController extends Controller {
 
 	onEvent(event:unknown) {
 		if(!(event instanceof ControllerEvent)) {
-			throw this.error("Cannot listen to non-ControllerEvents", event);
+			throw this.error("Cannot handle non-ControllerEvents", event);
 		}
 		const data = event.data;
 		if(this.triggerModel.condition && !this.triggerModel.condition.eval(data)) {
@@ -112,7 +112,12 @@ export default class TriggerController extends Controller {
 			}
 		}
 
-		const action = target.actions.$get(this.triggerModel.action.name);
+		let action;
+		try {
+			action = target.actions.$get(this.triggerModel.action.name);
+		} catch(e) {
+			throw new Error(`Unknown action '${this.triggerModel.action.name}' on ${target.static.name}.`);
+		}
 		if(!isSubClass(action.type, ControllerAction)) {
 			throw new Error("Trigger action is not a ControllerAction.");
 		}

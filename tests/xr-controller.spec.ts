@@ -1,9 +1,9 @@
 import {assert} from 'chai';
-import Controller, {injectableController} from "@/Controller";
+import Controller, {injectable as injectableController} from "@/Controller";
 import BehaviourModel from "@/models/BehaviourModel";
-import {collection, Collection, injectable, MozelFactory, property, reference} from "mozel";
+import {collection, Collection, MozelFactory, property, reference, injectable} from "mozel";
 import ControllerFactory from "@/Controller/ControllerFactory";
-import EngineInterface, {EngineEvents} from "@/Engine/EngineInterface";
+import EngineInterface, {EngineActions, EngineEvents} from "@/Engine/EngineInterface";
 import {FrameListener} from "@/Engine";
 import {Container} from "inversify";
 import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
@@ -11,7 +11,6 @@ import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
 import ControllerList from "@/Controller/ControllerList";
 import {isNil} from 'lodash';
 import ModelControllerSync from "@/Controller/ModelControllerSync";
-import {Events} from "@/EventInterface";
 
 const modelContainer = new Container({autoBindInjectable:true});
 const controllerContainer = new Container({autoBindInjectable:true});
@@ -27,7 +26,7 @@ class FooModel extends BehaviourModel {
 	childFoos!:Collection<FooModel>;
 }
 
-@injectableController(controllerContainer)
+@injectableController()
 class FooController extends Controller {
 	static ModelClass = FooModel;
 
@@ -44,11 +43,11 @@ class FooController extends Controller {
 }
 
 class MockEngine implements EngineInterface {
-	camera:CameraRenderInterface<unknown> = new ThreeCamera();
+	camera:CameraRenderInterface = new ThreeCamera();
 	addFrameListener(f:FrameListener) { };
-	callAction(action: string, payload: any) { }
 	removeFrameListener(f: FrameListener) { }
 	events = new EngineEvents();
+	actions = new EngineActions();
 }
 
 describe('Controller', () => {

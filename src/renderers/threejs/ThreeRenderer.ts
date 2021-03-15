@@ -1,14 +1,17 @@
 import RendererInterface from "@/renderers/common/RendererInterface";
-import {Color, Object3D, Vector2, WebGLRenderer} from 'three';
-import Err from "@utils/error";
-import {injectableRenderClass} from "@/renderers/inversify";
+import {Color, Vector2, WebGLRenderer} from 'three';
 import threeContainer from "@/renderers/threejs/inversify";
 import ThreeScene from "@/renderers/threejs/ThreeObject/ThreeScene";
 import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
+import ThreeInteractionManager from "@/renderers/threejs/ThreeInteractionManager";
+import {injectable} from "@/renderers/inversify";
+import {CSS3DRenderer} from "three-css3drenderer";
 
-@injectableRenderClass(threeContainer, "RendererInterface")
-export default class ThreeRenderer implements RendererInterface<Object3D> {
+@injectable(threeContainer, "RendererInterface")
+export default class ThreeRenderer implements RendererInterface {
 	renderer:WebGLRenderer;
+	interactionManager:ThreeInteractionManager = new ThreeInteractionManager();
+	css3DRenderer = new CSS3DRenderer();
 
 	constructor() {
 		const renderer = new WebGLRenderer({alpha: true});
@@ -19,22 +22,59 @@ export default class ThreeRenderer implements RendererInterface<Object3D> {
 		renderer.domElement.style.left = '0px';
 
 		this.renderer = renderer;
+
+		this.createCSS3DRenderer();
+	}
+
+	createCSS3DRenderer() {
+		this.css3DRenderer = new CSS3DRenderer();
+		this.copySizeToCSS3D();
+		this.copyPositionToCSS3D();
+	}
+
+	copyPositionToCSS3D() {
+		const target = this.css3DRenderer.domElement;
+		const source = this.renderer.domElement;
+		target.style.position = source.style.position;
+		target.style.top = source.style.top;
+		target.style.left = source.style.left;
+	}
+
+	copySizeToCSS3D() {
+		const target = this.css3DRenderer.domElement;
+		const source = this.renderer.domElement;
+		target.style.width = source.style.width;
+		target.style.height = source.style.height;
+		target.style.marginLeft = source.style.marginLeft;
+		target.style.marginTop = source.style.marginTop;
+	}
+
+	attachTo(element: HTMLElement): void {
+		element.append(this.renderer.domElement);
+		element.append(this.css3DRenderer.getDOMElement());
+		this.copyPositionToCSS3D();
+		this.copySizeToCSS3D();
+    }
+
+	detach(): void {
+		this.renderer.domElement.remove();
+		this.css3DRenderer.getDOMElement().remove();
 	}
 
 	render(scene: any, camera: any): void {
 		// if scene type is not `any`, typescript will complain abot instanceof "has type that is not related"
 		if(!(scene instanceof ThreeScene)) {
-			throw new Err({message: "Invalid ThreeScene.", data: scene});
+			throw new Error("Invalid ThreeScene.");
 		}
 		if(!(camera instanceof ThreeCamera)) {
-			throw new Err({message:"Invalid ThreeCamera.", data: camera});
+			throw new Error("Invalid ThreeCamera.");
 		}
 
-		this.renderer.render(scene.getRenderObject(), camera.getRenderObject());
-	}
+		this.renderer.render(scene.getObject3D(), camera.getObject3D());
+		this.css3DRenderer.render(scene, camera);
 
-	getDOMElement() {
-		return this.renderer.domElement;
+		this.interactionManager.scene = scene;
+		this.interactionManager.camera = camera;
 	}
 
 	getSize() {
@@ -45,9 +85,11 @@ export default class ThreeRenderer implements RendererInterface<Object3D> {
 
 	setSize(width: number, height:number) {
 		this.renderer.setSize(width, height);
+		this.css3DRenderer.setSize(width, height);
+		this.copySizeToCSS3D();
 	}
 
-	getWebGLRenderer() {
-		return this.renderer;
+	destroy() {
+		this.interactionManager.destroy();
 	}
 }

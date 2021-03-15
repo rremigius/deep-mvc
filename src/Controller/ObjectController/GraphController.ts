@@ -1,7 +1,7 @@
 import GrapohModel from "@/models/Object3DModel/GraphModel";
 import GraphLinkModel from "@/models/Object3DModel/GraphModel/GraphLinkModel";
 import GraphNodeModel from "@/models/Object3DModel/GraphModel/GraphNodeModel";
-import {injectableController} from "@/Controller";
+import {injectable} from "@/Controller";
 import ControllerModel from "@/models/ControllerModel";
 import ObjectController from "@/Controller/ObjectController";
 import GraphRenderInterface from "@/renderers/common/ObjectRenderInterface/GraphRenderInterface";
@@ -13,7 +13,7 @@ const log = Log.instance("engine/controller/graphcontroller");
 
 type Link = {source:alphanumeric,target:alphanumeric,graphLink:GraphLinkModel};
 
-@injectableController()
+@injectable()
 export default class GraphController extends ObjectController {
 	static ModelClass = GrapohModel;
 
@@ -21,7 +21,7 @@ export default class GraphController extends ObjectController {
 		return <GrapohModel>this.model;
 	}
 
-	graph?:GraphRenderInterface<unknown>;
+	graph?:GraphRenderInterface;
 
 	debugGenerateData() {
 		const N = 50;
@@ -86,7 +86,7 @@ export default class GraphController extends ObjectController {
 			}))
 		};
 
-		this.graph = this.renderFactory.create<GraphRenderInterface<unknown>>("GraphRenderInterface");
+		this.graph = this.renderFactory.create<GraphRenderInterface>("GraphRenderInterface");
 		if(this.engine.camera) {
 			this.graph.setup({camera: this.engine.camera});
 		}

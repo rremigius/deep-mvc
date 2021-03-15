@@ -1,16 +1,15 @@
 import ThreeObject from "@/renderers/threejs/ThreeObject";
 import VideoRenderInterface, {createVideo} from "@/renderers/common/ObjectRenderInterface/VideoRenderInterface";
-import {DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Object3D, PlaneGeometry, VideoTexture} from "three";
-import {injectableObjectRender} from "@/renderers/inversify";
+import {DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, VideoTexture} from "three";
+import {injectable} from "@/renderers/inversify";
 import threeContainer from "@/renderers/threejs/inversify";
-import VideoModel from "@common/models/Object3DModel/VideoModel";
-import Err from "@utils/error";
-import Log from "@utils/log";
+import VideoModel from "@/models/Object3DModel/VideoModel";
+import Log from "@/log";
 
-const log = Log.instance("renderer/xrthreevideo");
+const log = Log.instance("renderer/xr-three-video");
 
-@injectableObjectRender(threeContainer, "VideoRenderInterface")
-export default class ThreeVideo extends ThreeObject implements VideoRenderInterface<Object3D> {
+@injectable(threeContainer, "VideoRenderInterface")
+export default class ThreeVideo extends ThreeObject implements VideoRenderInterface {
 	video?: HTMLVideoElement;
 	videoTexture?: VideoTexture;
 	loaded:boolean = false;
@@ -51,10 +50,7 @@ export default class ThreeVideo extends ThreeObject implements VideoRenderInterf
 	async load(xrVideo: VideoModel):Promise<this> {
 		return new Promise((resolve, reject) => {
 			if (!xrVideo.file || !xrVideo.file.url) {
-				const err = new Err({
-					message: "Video has no video file. Cannot load.",
-					data: this
-				});
+				const err = new Error("Video has no video file. Cannot load.");
 				log.error(err.message);
 				reject(err);
 				return;
@@ -71,7 +67,7 @@ export default class ThreeVideo extends ThreeObject implements VideoRenderInterf
 			});
 			this.video.addEventListener('error', (error) => {
 				log.error("Could not load video: " + error);
-				reject(new Err("Could not load video: " + error));
+				reject(new Error("Could not load video: " + error));
 			});
 
 			const videoTexture = new VideoTexture(this.video);

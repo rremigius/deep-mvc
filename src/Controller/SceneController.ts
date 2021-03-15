@@ -1,26 +1,26 @@
-import Controller, {injectableController} from "@/Controller";
+import Controller, {injectable} from "@/Controller";
 import ControllerModel from "@/models/ControllerModel";
 import ObjectController from "@/Controller/ObjectController";
 import SceneModel from "@/models/SceneModel";
 import TriggerController from "./TriggerController";
-import ControllerRootRenderInterface from "@/renderers/common/ObjectRenderInterface/ControllerRootRenderInterface";
+import RootObjectRender from "@/renderers/common/ObjectRenderInterface/RootObjectRenderInterface";
 import ControllerList from "@/Controller/ControllerList";
 
-@injectableController()
+@injectable()
 export default class SceneController extends Controller {
 	static ModelClass = SceneModel;
 
 	objects!:ControllerList<ObjectController>; // will be set on init
 	triggers!:ControllerList<TriggerController>; // will be set on init
 
-	private _root!:ControllerRootRenderInterface<unknown>;
+	private _root!:RootObjectRender;
 	get root() { return this._root; }
 	get xrScene() { return <SceneModel>this.model; }
 
 	init(model:ControllerModel) {
 		super.init(model);
 
-		this._root = this.renderFactory.create<ControllerRootRenderInterface<unknown>>("RootObjectRenderInterface");
+		this._root = this.renderFactory.create<RootObjectRender>("RootObjectRenderInterface");
 
 		// Setup objects list
 		this.objects = new ControllerList<ObjectController>(); // create it manually so we can add event listeners

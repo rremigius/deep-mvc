@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {describe} from 'mocha';
-import EngineInterface, {EngineEvents} from "@/Engine/EngineInterface";
+import EngineInterface, {EngineActions, EngineEvents} from "@/Engine/EngineInterface";
 import {FrameListener} from "@/Engine";
 import {MozelFactory} from "mozel";
 import TriggerController from "@/Controller/TriggerController";
@@ -12,7 +12,7 @@ import SceneModel from "@/models/SceneModel";
 import ObjectModel from "@/models/ObjectModel";
 import SceneController from "@/Controller/SceneController";
 import "@/Controller/all";
-import threeContainer from "@/renderers/threejs/inversify";
+import "@/renderers/headless/all";
 import RenderFactory from "@/renderers/RenderFactory";
 import ActionModel from "@/models/ActionModel";
 import TriggerModel from "@/models/TriggerModel";
@@ -20,13 +20,15 @@ import ConditionModel from "@/models/ConditionModel";
 import BehaviourModel from "@/models/BehaviourModel";
 import BehaviourController from "@/Controller/BehaviourController";
 import {ControllerAction, ControllerEvent} from "@/Controller";
+import "jsdom-global";
+import headlessContainer from "@/renderers/headless/inversify";
 
 class MockEngine implements EngineInterface {
-	camera:CameraRenderInterface<unknown> = new ThreeCamera();
+	camera:CameraRenderInterface = new ThreeCamera();
 	addFrameListener(f:FrameListener) { };
-	callAction(action: string, payload: unknown) { };
 	removeFrameListener(f: FrameListener) { };
 	events = new EngineEvents();
+	actions = new EngineActions();
 }
 
 class Factory {
@@ -40,7 +42,7 @@ class Factory {
 		if(config) {
 			controllerContainer.parent = controllerContainer
 		}
-		controllerContainer.bind(RenderFactory).toConstantValue(new RenderFactory(threeContainer));
+		controllerContainer.bind(RenderFactory).toConstantValue(new RenderFactory(headlessContainer));
 		this.controller = new ControllerFactory(new MockEngine(), controllerContainer);
 	}
 }
@@ -117,7 +119,7 @@ describe('TriggerController', () => {
 		triggerCtl.start();
 
 		const eventBus = triggerCtl.eventBus;
-		eventBus.$fire(FooEvent, { foo: expected });
+		eventBus.$fire(FooEvent, new FooEvent(undefined, { foo: expected }));
 	});
 	it('with condition is not fired if condition is not met.', done=>{
 		const factory = new Factory();
@@ -160,7 +162,7 @@ describe('TriggerController', () => {
 		negativeTrigger.start();
 		positiveTrigger.start();
 
-		foo.events.$fire(FooEvent);
+		foo.events.$fire(FooEvent, new FooEvent(undefined, {foo: {}}));
 	});
 	it('with default controller uses that controller for actions and events if no behaviour specified.', done=>{
 		const factory = new Factory();
@@ -183,7 +185,7 @@ describe('TriggerController', () => {
 		triggerController.setDefaultController(controller);
 		triggerController.start();
 
-		controller.events.$fire(FooEvent);
+		controller.events.$fire(FooEvent, new FooEvent(controller, {foo:{}}));
 	});
 	it('can be used on SceneController, ObjectController and BehaviourController.', done=>{
 		const factory = new Factory();
@@ -207,14 +209,14 @@ describe('TriggerController', () => {
 					gid: 'obj',
 					triggers: [{
 						event: {source: {gid: 'bvr'}, name: BehaviourEvent.name },
-						action: {target: {gid:'scene'}, name: BehaviourAction.name }
+						action: {target: {gid:'scene'}, name: SceneAction.name }
 					}], // from another to another
 					behaviours: [
 						factory.model.create(BehaviourModel, {
 							gid: 'bvr',
 							triggers: [{
 								event: {source: {gid:'obj'}, name: ObjectEvent.name},
-								action: {name: SceneAction.name}
+								action: {name: BehaviourAction.name}
 							}] // from another to here
 						})
 					]
@@ -245,9 +247,9 @@ describe('TriggerController', () => {
 
 		scene.start(); // start event listeners
 
-		scene.events.$fire(SceneEvent);
-		object.events.$fire(ObjectEvent);
-		behaviour.events.$fire(BehaviourEvent);
+		scene.events.$fire(SceneEvent, new SceneEvent(scene));
+		object.events.$fire(ObjectEvent, new ObjectEvent(object));
+		behaviour.events.$fire(BehaviourEvent, new BehaviourEvent(behaviour));
 
 		assert.equal(count, 3, "All 3 actions triggered.");
 		done();

@@ -1,6 +1,6 @@
 import BehaviourController from "@/Controller/BehaviourController";
 import TweenBehaviourModel from "@/models/BehaviourModel/TweenBehaviourModel";
-import {ControllerEvent, ControllerEvents, injectableController} from "@/Controller";
+import {ControllerEvent, ControllerEvents, injectable} from "@/Controller";
 import TweenStepModel from "@/models/BehaviourModel/TweenBehaviourModel/TweenStepModel";
 import Log from "@/log";
 import {TimelineMax, TweenLite} from "gsap";
@@ -16,7 +16,7 @@ class TweenBehaviourControllerEvents extends ControllerEvents {
 	completed = this.$event(TweenCompletedEvent);
 }
 
-@injectableController()
+@injectable()
 export default class TweenBehaviourController extends BehaviourController {
 	static ModelClass = TweenBehaviourModel;
 

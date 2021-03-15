@@ -1,5 +1,5 @@
 import ObjectRenderInterface from "../ObjectRenderInterface";
 
-export default interface CameraRenderInterface<T> extends ObjectRenderInterface<T> {
+export default interface CameraRenderInterface extends ObjectRenderInterface {
 	setAspectRatio(ratio:number):void;
 }

@@ -1,9 +1,9 @@
-import Controller, {injectableController} from "@/Controller";
+import Controller, {injectable} from "@/Controller";
 import BehaviourModel from "@/models/BehaviourModel";
 import TriggerController from "@/Controller/TriggerController";
 import ControllerList from "@/Controller/ControllerList";
 
-@injectableController()
+@injectable()
 export default class BehaviourController extends Controller {
 	static ModelClass = BehaviourModel;
 

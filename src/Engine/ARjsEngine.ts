@@ -76,7 +76,7 @@ export default class ARjsEngine extends Engine {
 
 		THREEx.ArToolkitContext.baseURL = '../';
 
-		const camera = parts.camera.getRenderObject();
+		const camera = parts.camera.getObject3D();
 
 		log.info("Setting up ARToolkit...");
 		this.arSource = new THREEx.ArToolkitSource({

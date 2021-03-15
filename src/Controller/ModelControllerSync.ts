@@ -3,7 +3,7 @@ import Mozel from "mozel";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import {get, set} from 'lodash';
 import Log from "@/log";
-import {Events} from "@/EventInterface";
+import {Events} from "@/EventEmitter";
 
 const log = Log.instance("engine/controller/sync");
 

@@ -1,9 +1,9 @@
-import {inject, injectable, LazyServiceIdentifer} from "inversify";
+import {inject, injectable as invInjectable, LazyServiceIdentifer} from "inversify";
 import ControllerFactory, {ControllerModelType} from "@/Controller/ControllerFactory";
 import Log from "@/log";
 import Loader from "deep-loader";
 import EngineInterface, {EngineInterfaceType} from "@/Engine/EngineInterface";
-import {injectableController} from "@/Controller/inversify";
+import {injectable} from "@/Controller/inversify";
 import EventListener from "@/EventListener";
 import RenderFactory from "@/renderers/RenderFactory";
 import ControllerList from "@/Controller/ControllerList";
@@ -12,10 +12,9 @@ import {alphanumeric, Collection, Registry} from "mozel";
 import ControllerModel from "@/models/ControllerModel";
 import {check, Constructor, instanceOf} from "validation-kit";
 import EventBus from "@/EventBus";
-import EventInterface, {callback, Events} from "@/EventInterface";
-import {isArray} from "lodash";
+import EventEmitter, {callback, Events} from "@/EventEmitter";
 
-export {injectableController};
+export {injectable};
 
 const log = Log.instance("controller");
 
@@ -32,9 +31,9 @@ export class ControllerAction<T> {
 }
 
 export class ControllerEvent<T extends object|void|unknown> {
-	origin:Controller;
+	origin?:Controller;
 	data:T;
-	constructor(origin:Controller, data:T) {
+	constructor(origin:Controller|undefined, data:T) {
 		this.origin = origin;
 		this.data = data;
 	}
@@ -52,13 +51,9 @@ export class ControllerEvents extends Events {
 	}
 }
 
-export class ControllerActions extends Events {
-	constructor() {
-		super(true);
-	}
-}
+export class ControllerActions extends Events {}
 
-@injectable()
+@invInjectable()
 export default class Controller {
 	static ModelClass:(typeof ControllerModel); // should be set for each extending class
 
@@ -80,7 +75,7 @@ export default class Controller {
 	events = new ControllerEvents();
 	actions = new ControllerActions();
 
-	private eventListeners:EventListener<EventInterface<unknown>>[] = [];
+	private eventListeners:EventListener<EventEmitter<unknown>>[] = [];
 	private readonly controllerSyncs:ModelControllerSync<Controller>[];
 
 	_started:boolean = false;
@@ -155,7 +150,7 @@ export default class Controller {
 		return new Error(""+args[0]);
 	}
 
-	registerAction<T>(ActionClass:Constructor<T>, callback:callback<T>, name?:string):EventInterface<T> {
+	registerAction<T>(ActionClass:Constructor<T>, callback:callback<T>, name?:string):EventEmitter<T> {
 		if(!name) name = ActionClass.name;
 		const event = this.actions.$event(ActionClass, name);
 		// TS: The runtime type checking should take care of the event before it fires
@@ -175,12 +170,12 @@ export default class Controller {
 	}
 
 	/**
-	 * Starts listening to an event of the target EventInterfacer, storing the callback locally to be destroyed and
+	 * Starts listening to an event of the target EventEmitterr, storing the callback locally to be destroyed and
 	 * unsubscribed when the Controller is destroyed.
 	 * @param event
 	 * @param callback
 	 */
-	listenTo<T>(event:EventInterface<T>, callback:callback<T>) {
+	listenTo<T>(event:EventEmitter<T>, callback:callback<T>) {
 		const eventListener = new EventListener(event, callback);
 		eventListener.start();
 		// TS: we can't use the event listener callbacks in this class anyway

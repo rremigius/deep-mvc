@@ -1,6 +1,6 @@
 import Controller from "@/Controller";
 import {clone, isArray, isFunction, isMatch} from 'lodash';
-import EventInterface, {Events} from "@/EventInterface";
+import EventEmitter, {Events} from "@/EventEmitter";
 
 export class ControllerAddedEvent<T extends Controller> {
 	constructor(public controller: T) {}
@@ -10,8 +10,9 @@ export class ControllerRemovedEvent<T extends Controller> {
 }
 
 class ControllerListEvents<T extends Controller> extends Events {
-	added = this.$register(new EventInterface<ControllerAddedEvent<T>>(ControllerAddedEvent), ControllerAddedEvent.name);
-	removed = this.$register(new EventInterface<ControllerRemovedEvent<T>>(ControllerRemovedEvent), ControllerRemovedEvent.name);
+	// Using $register for generic type definition on EventEmitter
+	added = this.$register(new EventEmitter<ControllerAddedEvent<T>>(ControllerAddedEvent), ControllerAddedEvent.name);
+	removed = this.$register(new EventEmitter<ControllerRemovedEvent<T>>(ControllerRemovedEvent), ControllerRemovedEvent.name);
 }
 
 export default class ControllerList<T extends Controller> {

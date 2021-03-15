@@ -25,5 +25,8 @@
     "tinycolor2": "^1.4.2",
     "tsconfig-paths": "^3.9.0",
     "validation-kit": "git+https://github.com/rremigius/validation-kit.git"
+  },
+  "devDependencies": {
+    "jsdom-global": "^3.0.2"
   }
 }

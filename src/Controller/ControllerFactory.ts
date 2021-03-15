@@ -7,7 +7,7 @@ import EngineInterface, {EngineInterfaceType} from "@/Engine/EngineInterface";
 import {Registry} from "mozel";
 import Log from "@/log";
 import EventBus from "@/EventBus";
-import {Events} from "@/EventInterface";
+import {Events} from "@/EventEmitter";
 
 const log = Log.instance("controller-factory");
 

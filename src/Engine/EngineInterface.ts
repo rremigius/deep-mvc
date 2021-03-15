@@ -1,6 +1,6 @@
 import {FrameListener} from "@/Engine";
 import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
-import {Events} from "@/EventInterface";
+import {Events} from "@/EventEmitter";
 
 export class MarkerDetectedEvent {
 	constructor(public id:string, public first:boolean) {}
@@ -10,15 +10,19 @@ export class EngineEvents extends Events {
 	markerDetected = this.$event(MarkerDetectedEvent);
 }
 
+export class EngineActions extends Events {
+
+}
+
 /**
  * Interface needed to prevent circular dependencies between Engine and Controller
  */
 interface EngineInterface {
-	camera?:CameraRenderInterface<unknown>;
+	camera?:CameraRenderInterface;
 	addFrameListener:(f:FrameListener)=>void;
 	removeFrameListener:(f:FrameListener)=>void;
-	callAction:(action:string, payload?:unknown)=>void;
 	events:EngineEvents;
+	actions:EngineActions;
 }
 
 export default EngineInterface;
