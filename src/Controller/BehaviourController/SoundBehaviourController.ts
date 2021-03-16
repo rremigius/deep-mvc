@@ -1,5 +1,5 @@
 import BehaviourController from "@/Controller/BehaviourController";
-import {ControllerAction, ControllerEvent, injectable} from "@/Controller";
+import {ControllerAction, ControllerActions, ControllerEvent, injectable} from "@/Controller";
 import Log from "@/log";
 // import {Howl } from 'howler';
 
@@ -7,12 +7,16 @@ import SoundBehaviourModel from "@/models/BehaviourModel/SoundBehaviourModel";
 
 const log = Log.instance("object/behaviour/Sound");
 export class PlayAction extends ControllerAction<void> {}
+export class PlayActions extends ControllerActions {
+	play = this.$action(PlayAction);
+}
 
 @injectable()
 export default class SoundBehaviourController extends BehaviourController {
 	static ModelClass = SoundBehaviourModel;
 
 	log = log;
+	actions = new PlayActions();
 
 	get soundBehaviour() {
 		return <SoundBehaviourModel>this.model;
@@ -21,9 +25,7 @@ export default class SoundBehaviourController extends BehaviourController {
 	init(model:SoundBehaviourModel) {
 		super.init(model);
 
-		this.registerAction(PlayAction, () => {
-			this.play();
-		});
+		this.actions.play.on(this.play.bind(this));
 	}
 
 	play() {

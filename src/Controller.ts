@@ -51,7 +51,11 @@ export class ControllerEvents extends Events {
 	}
 }
 
-export class ControllerActions extends Events {}
+export class ControllerActions extends Events {
+	$action<T>(ActionClass:Constructor<T>) {
+		return this.$event(ActionClass);
+	}
+}
 
 @invInjectable()
 export default class Controller {
@@ -148,14 +152,6 @@ export default class Controller {
 	protected error(...args:unknown[]) {
 		this.log.error(...args);
 		return new Error(""+args[0]);
-	}
-
-	registerAction<T>(ActionClass:Constructor<T>, callback:callback<T>, name?:string):EventEmitter<T> {
-		if(!name) name = ActionClass.name;
-		const event = this.actions.$event(ActionClass, name);
-		// TS: The runtime type checking should take care of the event before it fires
-		this.actions.$on(name, callback as callback<unknown>);
-		return event;
 	}
 
 	/**

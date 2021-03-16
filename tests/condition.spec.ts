@@ -5,22 +5,26 @@ import {MozelFactory} from "mozel";
 import ConditionEqualsModel from "@/models/ConditionModel/ConditionEqualsModel";
 
 describe('ConditionModel', () => {
-	it('.eval runs the evaluator property', () => {
-		let called = false;
+	describe(".eval", () => {
+		it('runs the evaluator property', () => {
+			let called = false;
 
-		const factory = new MozelFactory();
+			const factory = new MozelFactory();
 
-		const condition = factory.create<ConditionModel<string>>(ConditionModel, {
-			evaluator: (data:string) => {
-				assert.equal(data,'foo', "Event data in evaluator correct");
-				called = true;
-				return true;
-			}
+			const condition = factory.create<ConditionModel<string>>(ConditionModel, {
+				evaluator: (data:string) => {
+					assert.equal(data,'foo', "Event data in evaluator correct");
+					called = true;
+					return true;
+				}
+			});
+			assert.equal(condition.eval('foo'), true);
+			assert.equal(called, true, "Evaluator function called");
 		});
-		assert.equal(condition.eval('foo'), true);
-		assert.equal(called, true, "Evaluator function called");
 	});
-	it('ConditionEquals compares all keys and values in `check` property on equality.', ()=>{
+});
+describe("ConditionEqualsModel", () => {
+	it('compares all keys and values in `check` property on equality.', ()=>{
 		const factory = new MozelFactory();
 
 		type FooBar = { foo?:string, bar?:number };

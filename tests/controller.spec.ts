@@ -51,77 +51,6 @@ class MockEngine implements EngineInterface {
 }
 
 describe('Controller', () => {
-	it('.onResolveReferences can resolve other Controllers from the Registry', () => {
-		// Create instances
-		const modelFactory = new MozelFactory(modelContainer);
-		const foo = modelFactory.create<FooModel>(FooModel, {
-			gid: 1,
-			childFoos: [
-				{
-					gid: 11,
-					childFoos: [
-						{ gid: 111 }
-					]
-				},
-				{
-					gid: 12,
-					otherFoo: { gid: 111 }
-				}
-			]
-		});
-
-		const factory = new ControllerFactory(new MockEngine(), controllerContainer);
-		const controller = factory.create<FooController>(FooController, foo, true);
-
-		const gid11 = controller.childFoos.find({gid: 11});
-		const gid12 = controller.childFoos.find({gid: 12});
-		assert.ok(gid11 instanceof Controller, "Child with GID 11 is an Controller.");
-		assert.ok(gid12 instanceof Controller, "Child with GID 12 is an Controller.");
-		assert.equal(gid11 && gid11.childFoos.find({gid:111}), gid12 && gid12.otherFoo);
-	});
-	it('.setupControllerSync syncs controller references based on model and model based on controller.', ()=>{
-		// Create instances
-		const modelFactory = new MozelFactory(modelContainer);
-		const container = new Container({autoBindInjectable:true});
-
-		class BarModel extends BehaviourModel {
-			static get type() { return 'BarModel'; }
-
-			@property(BarModel)
-			childBar?:BarModel;
-
-			@property(BarModel, {reference})
-			otherBar?:BarModel;
-		}
-
-		@injectableController(container)
-		class BarController extends Controller {
-			static ModelClass = BarModel;
-
-			childBarSync:ModelControllerSync<BarController> = this.createControllerSync<BarController>('childBar', BarController, true);
-			otherBarSync:ModelControllerSync<BarController> = this.createControllerSync<BarController>('otherBar', BarController);
-		}
-
-		const barModel = modelFactory.create(BarModel, {
-			gid: 1,
-			childBar: {gid: 2},
-			otherBar: {gid: 2}
-		}, true);
-
-		const factory = new ControllerFactory(new MockEngine(), container);
-		const bar = factory.create<BarController>(BarController, barModel, true);
-
-		assert.equal(bar.childBarSync.get(), bar.otherBarSync.get(), "Child and reference refer to same Controller");
-
-		barModel.childBar = modelFactory.create(BarModel, {gid: 3});
-		assert.equal(bar.childBarSync.get()!.gid, 3, "Child controller updated");
-
-		barModel.otherBar = modelFactory.create(BarModel, {gid: 4});
-		assert.equal(bar.otherBarSync.get(), undefined, "Non-existing GID on reference model does not resolve");
-
-		barModel.otherBar = barModel.childBar;
-		assert.equal(bar.otherBarSync.get(), bar.childBarSync.get(), "Setting reference to same model will resolve to same controller");
-	});
 	it('changing children in Controller syncs with Model and vice versa.', () => {
 		const modelFactory = new MozelFactory(modelContainer);
 		const controllerFactory = new ControllerFactory(new MockEngine(), controllerContainer);
@@ -155,5 +84,80 @@ describe('Controller', () => {
 		assert.ok(isNil(fooController.childFoos.find({gid: 'foo1'})), "Controller was removed from Model");
 		assert.ok(isNil(fooModel.childFoos.find({gid: 'foo2'})), "Model was removed from Controller.");
 		assert.ok(isNil(fooController.childFoos.find({gid: 'foo2'})), "Controller was removed from Controller.");
+	});
+	describe(".onResolveReferences", () => {
+		it('can resolve other Controllers from the Registry', () => {
+			// Create instances
+			const modelFactory = new MozelFactory(modelContainer);
+			const foo = modelFactory.create<FooModel>(FooModel, {
+				gid: 1,
+				childFoos: [
+					{
+						gid: 11,
+						childFoos: [
+							{ gid: 111 }
+						]
+					},
+					{
+						gid: 12,
+						otherFoo: { gid: 111 }
+					}
+				]
+			});
+
+			const factory = new ControllerFactory(new MockEngine(), controllerContainer);
+			const controller = factory.create<FooController>(FooController, foo, true);
+
+			const gid11 = controller.childFoos.find({gid: 11});
+			const gid12 = controller.childFoos.find({gid: 12});
+			assert.ok(gid11 instanceof Controller, "Child with GID 11 is a Controller.");
+			assert.ok(gid12 instanceof Controller, "Child with GID 12 is a Controller.");
+			assert.equal(gid11 && gid11.childFoos.find({gid:111}), gid12 && gid12.otherFoo);
+		});
+	});
+	describe(".setupControllerSync", () => {
+		it('syncs controller references based on model and model based on controller.', ()=>{
+			// Create instances
+			const modelFactory = new MozelFactory(modelContainer);
+			const container = new Container({autoBindInjectable:true});
+
+			class BarModel extends BehaviourModel {
+				static get type() { return 'BarModel'; }
+
+				@property(BarModel)
+				childBar?:BarModel;
+
+				@property(BarModel, {reference})
+				otherBar?:BarModel;
+			}
+
+			@injectableController(container)
+			class BarController extends Controller {
+				static ModelClass = BarModel;
+
+				childBarSync:ModelControllerSync<BarController> = this.createControllerSync<BarController>('childBar', BarController, true);
+				otherBarSync:ModelControllerSync<BarController> = this.createControllerSync<BarController>('otherBar', BarController);
+			}
+
+			const barModel = modelFactory.create(BarModel, {
+				gid: 1,
+				childBar: {gid: 2},
+				otherBar: {gid: 2}
+			}, true);
+
+			const factory = new ControllerFactory(new MockEngine(), container);
+			const bar = factory.create<BarController>(BarController, barModel, true);
+
+			assert.equal(bar.childBarSync.get(), bar.otherBarSync.get(), "Child and reference refer to same Controller");
+
+			barModel.childBar = modelFactory.create(BarModel, {gid: 3});
+			assert.equal(bar.childBarSync.get()!.gid, 3, "Child controller updated");
+
+			barModel.otherBar = modelFactory.create(BarModel, {gid: 4});
+			assert.equal(bar.otherBarSync.get(), undefined, "Non-existing GID on reference model does not resolve");
+
+			barModel.otherBar = barModel.childBar;
+			assert.equal(bar.otherBarSync.get(), bar.childBarSync.get(), "Setting reference to same model will resolve to same controller");
+		});
 	});
 });

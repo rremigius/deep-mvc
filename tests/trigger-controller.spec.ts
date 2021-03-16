@@ -74,10 +74,10 @@ describe('TriggerController', () => {
 		const foo = factory.controller.create(BehaviourController, fooModel, true);
 		const bar = factory.controller.create(BehaviourController, barModel, true);
 
-		foo.registerAction(BarAction, () => {
+		foo.actions.$action(BarAction).on(() => {
 			assert.ok(false, "BarAction on Foo was avoided");
 		});
-		bar.registerAction(BarAction, action => {
+		bar.actions.$action(BarAction).on(action => {
 			assert.deepEqual(action && action.data.bar, expected, "BarAction on Bar called with correct data");
 			done();
 		});
@@ -110,7 +110,7 @@ describe('TriggerController', () => {
 
 		// Create Controllers
 		const behaviourCtl = factory.controller.create(BehaviourController, barBehaviourModel, true);
-		behaviourCtl.registerAction(BarAction, received => {
+		behaviourCtl.actions.$action(BarAction).on(received => {
 			assert.equal(received && received.data.bar, expected);
 			done();
 		});
@@ -148,10 +148,10 @@ describe('TriggerController', () => {
 		const negative = factory.controller.create(BehaviourController, negativeModel, true);
 		const positive = factory.controller.create(BehaviourController, positiveModel, true);
 
-		negative.registerAction(BarAction, () => {
+		negative.actions.$action(BarAction).on(() => {
 			assert.ok(false, "Non-matching trigger did not call target action.");
 		});
-		positive.registerAction(BarAction, () => {
+		positive.actions.$action(BarAction).on(() => {
 			assert.ok(true, "Matching trigger called target action.");
 			done();
 		});
@@ -168,7 +168,7 @@ describe('TriggerController', () => {
 		const factory = new Factory();
 		const model = factory.model.create(BehaviourModel);
 		const controller = factory.controller.create(BehaviourController, model);
-		controller.registerAction(BarAction, () => {
+		controller.actions.$action(BarAction).on(() => {
 			assert.ok(true, "Action called on default controller.");
 			done();
 		});
@@ -232,15 +232,15 @@ describe('TriggerController', () => {
 			throw new Error("Objects were not retrieved correctly from Registry.");
 		}
 
-		scene.registerAction(SceneAction, ()=>{
+		scene.actions.$action(SceneAction).on(()=>{
 			assert.ok(true, "SceneAction fired.");
 			count++;
 		});
-		object.registerAction(ObjectAction, ()=>{
+		object.actions.$action(ObjectAction).on(()=>{
 			assert.ok(true, "ObjectAction fired.");
 			count++;
 		});
-		behaviour.registerAction(BehaviourAction, ()=>{
+		behaviour.actions.$action(BehaviourAction).on(()=>{
 			assert.ok(true, "BehaviourAction fired. ");
 			count++;
 		});
@@ -293,15 +293,15 @@ describe('TriggerController', () => {
 	//
 	// 	let actionShouldBeCalled = 'foo';
 	// 	let count = 0;
-	// 	foo.registerAction('fooAction', ()=>{
+	// 	foo.actions.$action('fooAction', ()=>{
 	// 		assert.ok(actionShouldBeCalled === 'foo', "Foo action was called correctly");
 	// 		count++;
 	// 	});
-	// 	bar.registerAction('barAction', ()=>{
+	// 	bar.actions.$action('barAction', ()=>{
 	// 		assert.ok(actionShouldBeCalled === 'bar', "Bar action was called correctly");
 	// 		count++;
 	// 	});
-	// 	qux.registerAction('barAction', ()=>{
+	// 	qux.actions.$action('barAction', ()=>{
 	// 		assert.ok(actionShouldBeCalled === 'qux', "Qux action was called correctly");
 	// 		count++;
 	// 	});
