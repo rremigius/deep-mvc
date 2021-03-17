@@ -22,6 +22,7 @@ import BehaviourController from "@/Controller/BehaviourController";
 import {ControllerAction, ControllerEvent} from "@/Controller";
 import "jsdom-global";
 import headlessContainer from "@/renderers/headless/inversify";
+import ConditionEqualsModel from "@/models/ConditionModel/ConditionEqualsModel";
 
 class MockEngine implements EngineInterface {
 	camera:CameraRenderInterface = new ThreeCamera();
@@ -71,8 +72,8 @@ describe('TriggerController', () => {
 
 		const expected = {};
 
-		const foo = factory.controller.create(BehaviourController, fooModel, true);
-		const bar = factory.controller.create(BehaviourController, barModel, true);
+		const foo = factory.controller.createAndResolveReferences(fooModel, BehaviourController);
+		const bar = factory.controller.createAndResolveReferences(barModel, BehaviourController);
 
 		foo.actions.$action(BarAction).on(() => {
 			assert.ok(false, "BarAction on Foo was avoided");
@@ -82,7 +83,7 @@ describe('TriggerController', () => {
 			done();
 		});
 
-		const trigger = factory.controller.create(TriggerController, triggerModel, true);
+		const trigger = factory.controller.createAndResolveReferences(triggerModel, TriggerController);
 		trigger.start();
 
 		foo.events.$fire(FooEvent, new FooEvent(foo, {foo: expected}));
@@ -109,13 +110,13 @@ describe('TriggerController', () => {
 		const expected = {};
 
 		// Create Controllers
-		const behaviourCtl = factory.controller.create(BehaviourController, barBehaviourModel, true);
+		const behaviourCtl = factory.controller.create(barBehaviourModel, BehaviourController);
 		behaviourCtl.actions.$action(BarAction).on(received => {
 			assert.equal(received && received.data.bar, expected);
 			done();
 		});
 
-		const triggerCtl = factory.controller.create(TriggerController, triggerModel, true);
+		const triggerCtl = factory.controller.create(triggerModel, TriggerController);
 		triggerCtl.start();
 
 		const eventBus = triggerCtl.eventBus;
@@ -131,22 +132,22 @@ describe('TriggerController', () => {
 		const negativeTriggerModel = factory.model.create<TriggerModel<FooEvent, BarAction>>(TriggerModel, {
 			event: { source: fooModel, name: FooEvent.name },
 			action: { target: negativeModel, name: BarAction.name },
-			condition: factory.model.create<ConditionModel<FooEvent>>(ConditionModel, {
-				evaluator: ()=>false
+			condition: factory.model.create<ConditionEqualsModel<FooEvent>>(ConditionEqualsModel, {
+				check: {data: {foo: { xyz: 'IncorrectValue' }}}
 			})
 		});
 
 		const positiveTriggerModel = factory.model.create<TriggerModel<FooEvent, BarAction>>(TriggerModel, {
 			event: { source: fooModel, name: FooEvent.name },
 			action: { target: positiveModel, name: BarAction.name },
-			condition: factory.model.create<ConditionModel<FooEvent>>(ConditionModel, {
-				evaluator: ()=>true
+			condition: factory.model.create<ConditionEqualsModel<FooEvent>>(ConditionEqualsModel, {
+				check: {data: {foo: { value: 123 }}}
 			})
 		});
 
-		const foo = factory.controller.create(BehaviourController, fooModel, true);
-		const negative = factory.controller.create(BehaviourController, negativeModel, true);
-		const positive = factory.controller.create(BehaviourController, positiveModel, true);
+		const foo = factory.controller.create(fooModel, BehaviourController);
+		const negative = factory.controller.create(negativeModel, BehaviourController);
+		const positive = factory.controller.create(positiveModel, BehaviourController);
 
 		negative.actions.$action(BarAction).on(() => {
 			assert.ok(false, "Non-matching trigger did not call target action.");
@@ -156,18 +157,18 @@ describe('TriggerController', () => {
 			done();
 		});
 
-		const negativeTrigger = factory.controller.create(TriggerController, negativeTriggerModel, true);
-		const positiveTrigger = factory.controller.create(TriggerController, positiveTriggerModel, true);
+		const negativeTrigger = factory.controller.createAndResolveReferences(negativeTriggerModel);
+		const positiveTrigger = factory.controller.createAndResolveReferences(positiveTriggerModel);
 
 		negativeTrigger.start();
 		positiveTrigger.start();
 
-		foo.events.$fire(FooEvent, new FooEvent(undefined, {foo: {}}));
+		foo.events.$fire(FooEvent, new FooEvent(undefined, {foo: {value: 123}}));
 	});
 	it('with default controller uses that controller for actions and events if no behaviour specified.', done=>{
 		const factory = new Factory();
 		const model = factory.model.create(BehaviourModel);
-		const controller = factory.controller.create(BehaviourController, model);
+		const controller = factory.controller.create(model, BehaviourController);
 		controller.actions.$action(BarAction).on(() => {
 			assert.ok(true, "Action called on default controller.");
 			done();
@@ -181,7 +182,7 @@ describe('TriggerController', () => {
 				name: BarAction.name
 			}
 		});
-		const triggerController = factory.controller.create(TriggerController, triggerModel);
+		const triggerController = factory.controller.create(triggerModel, TriggerController);
 		triggerController.setDefaultController(controller);
 		triggerController.start();
 
@@ -223,7 +224,7 @@ describe('TriggerController', () => {
 				})
 			]
 		}, true);
-		const scene = factory.controller.create(SceneController, sceneModel, true);
+		const scene = factory.controller.create(sceneModel, SceneController);
 
 		const object = factory.controller.registry.byGid('obj');
 		const behaviour = factory.controller.registry.byGid('bvr');

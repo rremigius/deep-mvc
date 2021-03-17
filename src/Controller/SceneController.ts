@@ -15,22 +15,26 @@ export default class SceneController extends Controller {
 
 	private _root!:RootObjectRender;
 	get root() { return this._root; }
-	get xrScene() { return <SceneModel>this.model; }
+
+	model!:SceneModel; // TS: initialized in super constructor
 
 	init(model:ControllerModel) {
 		super.init(model);
 
 		this._root = this.renderFactory.create<RootObjectRender>("RootObjectRenderInterface");
 
-		// Setup objects list
-		this.objects = new ControllerList<ObjectController>(); // create it manually so we can add event listeners
-		this.objects.events.added.on(event => this.onObjectAdded(event.controller));
-		this.objects.events.removed.on(event => this.onObjectRemoved(event.controller));
-		this.setupControllerList(this.objects, this.xrScene.objects, ObjectController);
+		// Create objects
+		this.objects = this.controllers(this.model.$property('objects'), ObjectController, objects => {
+			this.objects = objects
+			this.objects.events.added.on(event => this.onObjectAdded(event.controller));
+			this.objects.events.removed.on(event => this.onObjectRemoved(event.controller));
+		}).get();
 
 		// Create triggers
-		this.triggers = this.createControllerList(this.xrScene.triggers, TriggerController);
-		this.triggers.each(trigger => trigger.setDefaultController(this));
+		this.triggers = this.controllers(this.model.$property('triggers'), TriggerController, triggers => {
+			this.triggers = triggers;
+			this.triggers.each(trigger => trigger.setDefaultController(this));
+		}).get();
 	}
 
 	onObjectAdded(xrObjectController:ObjectController) {

@@ -68,4 +68,8 @@ export default class ControllerList<T extends Controller> {
 			}
 		}
 	}
+
+	destroy() {
+		this.list.forEach(controller => controller.destroy());
+	}
 }

@@ -76,15 +76,15 @@ export default class ControllerFactory {
 	 * Note: Factory has no knowledge of subclasses of Controller (among other reasons to prevent circular dependencies).
 	 * @param {typeof Controller} ExpectedClass
 	 * @param {model} model
-	 * @param {boolean}	root					Set to true if the call is outside hierarchical intialisation (i.e. init method).
-	 * 																Will call the hierarchyUpdated lifecycle event.
+	 * @param {boolean}	root		Set to true if the call is outside hierarchical intialisation (i.e. init method).
+	 *								Will call the hierarchyUpdated lifecycle event.
 	 */
-	create<T extends Controller>(ExpectedClass:ControllerConstructor<T>, model:ControllerModel, root:boolean = false):T {
+	create<T extends Controller>(model:ControllerModel, ExpectedClass?:ControllerConstructor<T>):T {
 		function isT(model:any) : model is T {
-			return model instanceof ExpectedClass;
+			return !ExpectedClass || model instanceof ExpectedClass;
 		}
 		// Other way of saying `model instanceof ExpectedClass.ModelClass`, which TypeScript does not allow because ModelClass is not a constructor type
-		if(!isSubClass(model.constructor, ExpectedClass.ModelClass)) {
+		if(ExpectedClass && !isSubClass(model.constructor, ExpectedClass.ModelClass)) {
 			const message = `${ExpectedClass.name} expects ${ExpectedClass.ModelClass.name}`;
 			log.error(message, model);
 			throw new Error(message);
@@ -102,18 +102,38 @@ export default class ControllerFactory {
 			controller = container.getNamed<Controller>(Controller, model.static.type);
 			// Store in Registry
 			this.registry.register(controller);
-			if(root) {
-				controller.resolveReferences();
-			}
 		} catch(e) {
 			const message = `Controller creation failed for ${model.static.name}: ${e.message}`;
 			log.error(message, model);
 			throw new Error(message);
 		}
 		if(!isT(controller)) {
-			const message = "Created Controller was not an " + ExpectedClass.name;
+			// TS: isT can only return false if ExpectedClass is defined
+			const message = "Created Controller was not an " + ExpectedClass!.name;
 			log.error(message, controller, model);
 			throw new Error(message);
+		}
+		return controller;
+	}
+
+	createAndResolveReferences<T extends Controller>(model:ControllerModel, ExpectedClass?:ControllerConstructor<T>):T {
+		const controller = this.create<T>(model, ExpectedClass);
+		controller.resolveReferences();
+		return controller;
+	}
+
+	resolve<T extends Controller>(model:ControllerModel, ExpectedControllerClass:ControllerConstructor<T>, createNonExisting:boolean) {
+		let controller = this.registry.byGid(model.gid);
+
+		// Create the controller if it doesn't exist (unless if it's a reference).
+		if(!controller && createNonExisting) {
+			controller = this.createAndResolveReferences(model, ExpectedControllerClass);
+		}
+		if(!controller) {
+			throw new Error(`Could not resolve Controller by GID ${model.gid}.`);
+		}
+		if(!(controller instanceof ExpectedControllerClass)) {
+			throw new Error(`Model GID resolved to '${controller.constructor.name}' rather than '${ExpectedControllerClass.name}'`);
 		}
 		return controller;
 	}

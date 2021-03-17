@@ -10,7 +10,8 @@ import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/Came
 import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
 import ControllerList from "@/Controller/ControllerList";
 import {isNil} from 'lodash';
-import ModelControllerSync from "@/Controller/ModelControllerSync";
+import ControllerSync from "@/Controller/ControllerSync";
+import ControllerModel from "@/models/ControllerModel";
 
 const modelContainer = new Container({autoBindInjectable:true});
 const controllerContainer = new Container({autoBindInjectable:true});
@@ -30,12 +31,20 @@ class FooModel extends BehaviourModel {
 class FooController extends Controller {
 	static ModelClass = FooModel;
 
-	childFoos:ControllerList<FooController> = this.createControllerList(this.foo.childFoos, FooController);
 	otherFoo?:FooController;
+	childFoos:ControllerList<FooController> = new ControllerList<FooController>();
 
 	get foo():FooModel {
 		return <FooModel>this.model;
 	}
+
+	init(model: ControllerModel) {
+		super.init(model);
+
+		this.controller(this.foo.$property('otherFoo'), FooController, otherFoo => this.otherFoo = otherFoo);
+		this.controllers(this.foo.$property('childFoos'), FooController, childFoos => this.childFoos = childFoos);
+	}
+
 	onResolveReferences() {
 		super.onResolveReferences();
 		this.otherFoo = this.resolveReference<FooController>(FooController, this.foo.otherFoo);
@@ -51,15 +60,14 @@ class MockEngine implements EngineInterface {
 }
 
 describe('Controller', () => {
-	it('changing children in Controller syncs with Model and vice versa.', () => {
+	it('changing children in Mozel reflects in Controller', () => {
 		const modelFactory = new MozelFactory(modelContainer);
 		const controllerFactory = new ControllerFactory(new MockEngine(), controllerContainer);
 
 		const fooModel = modelFactory.create(FooModel, {}, true);
-		const fooController = controllerFactory.create(FooController, fooModel, true);
+		const fooController = controllerFactory.create(fooModel, FooController);
 
 		fooModel.childFoos.add(modelFactory.create(FooModel, {gid: 'foo1'}));
-		fooController.childFoos.add(controllerFactory.create(FooController, modelFactory.create(FooModel, {gid: 'foo2'})));
 
 		// Check if non-exisitng models/controllers still return false on find
 		assert.notOk(fooModel.childFoos.find({gid: 'nonexistent'}) instanceof FooModel, "Non-existing Model GID is not found");
@@ -106,7 +114,7 @@ describe('Controller', () => {
 			});
 
 			const factory = new ControllerFactory(new MockEngine(), controllerContainer);
-			const controller = factory.create<FooController>(FooController, foo, true);
+			const controller = factory.createAndResolveReferences(foo, FooController);
 
 			const gid11 = controller.childFoos.find({gid: 11});
 			const gid12 = controller.childFoos.find({gid: 12});
@@ -115,8 +123,8 @@ describe('Controller', () => {
 			assert.equal(gid11 && gid11.childFoos.find({gid:111}), gid12 && gid12.otherFoo);
 		});
 	});
-	describe(".setupControllerSync", () => {
-		it('syncs controller references based on model and model based on controller.', ()=>{
+	describe(".controller", () => {
+		it('syncs controller references based on model', ()=>{
 			// Create instances
 			const modelFactory = new MozelFactory(modelContainer);
 			const container = new Container({autoBindInjectable:true});
@@ -134,9 +142,10 @@ describe('Controller', () => {
 			@injectableController(container)
 			class BarController extends Controller {
 				static ModelClass = BarModel;
+				model!:BarModel; // TS: initialized in super constructor
 
-				childBarSync:ModelControllerSync<BarController> = this.createControllerSync<BarController>('childBar', BarController, true);
-				otherBarSync:ModelControllerSync<BarController> = this.createControllerSync<BarController>('otherBar', BarController);
+				childBar?:BarController = this.controller(this.model.$p('childBar'), BarController, bar => this.childBar = bar).get();
+				otherBar?:BarController = this.controller(this.model.$p('otherBar'), BarController, bar => this.otherBar = bar).get();
 			}
 
 			const barModel = modelFactory.create(BarModel, {
@@ -146,18 +155,18 @@ describe('Controller', () => {
 			}, true);
 
 			const factory = new ControllerFactory(new MockEngine(), container);
-			const bar = factory.create<BarController>(BarController, barModel, true);
+			const bar = factory.createAndResolveReferences<BarController>(barModel, BarController);
 
-			assert.equal(bar.childBarSync.get(), bar.otherBarSync.get(), "Child and reference refer to same Controller");
+			assert.equal(bar.childBar, bar.otherBar, "Child and reference refer to same Controller");
 
 			barModel.childBar = modelFactory.create(BarModel, {gid: 3});
-			assert.equal(bar.childBarSync.get()!.gid, 3, "Child controller updated");
+			assert.equal(bar.childBar!.gid, 3, "Child controller updated");
 
 			barModel.otherBar = modelFactory.create(BarModel, {gid: 4});
-			assert.equal(bar.otherBarSync.get(), undefined, "Non-existing GID on reference model does not resolve");
+			assert.equal(bar.otherBar, undefined, "Non-existing GID on reference model does not resolve");
 
 			barModel.otherBar = barModel.childBar;
-			assert.equal(bar.otherBarSync.get(), bar.childBarSync.get(), "Setting reference to same model will resolve to same controller");
+			assert.equal(bar.otherBar, bar.childBar, "Setting reference to same model will resolve to same controller");
 		});
 	});
 });

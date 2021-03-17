@@ -2,7 +2,7 @@ import Controller, {ControllerAction, ControllerEvent, injectable} from "@/Contr
 import Log from "@/log";
 import TriggerModel from "@/models/TriggerModel";
 import {forEach, isEmpty, isPlainObject, isString} from 'lodash';
-import ModelControllerSync from "@/Controller/ModelControllerSync";
+import ControllerSync from "@/Controller/ControllerSync";
 import {isSubClass} from "validation-kit";
 
 const log = Log.instance("controller/trigger");
@@ -14,9 +14,10 @@ export default class TriggerController extends Controller {
 	static ModelClass = TriggerModel;
 
 	private defaultController?:Controller;
+	model!:TriggerModel<any,any>; // TS: initialized in super constructor
 
-	public source:ModelControllerSync<Controller> = this.createControllerSync('event.source', Controller);
-	public target:ModelControllerSync<Controller> = this.createControllerSync('action.target', Controller);
+	public source?:Controller = this.controller(this.model.event.$p('source'), Controller, controller => this.source = controller).get();
+	public target?:Controller = this.controller(this.model.action.$p('target'), Controller, controller => this.target = controller).get();
 
 	get triggerModel() {
 		return <UnknownTrigger>this.model;
@@ -38,7 +39,7 @@ export default class TriggerController extends Controller {
 	}
 
 	startListening() {
-		const source = this.source.get() || this.defaultController;
+		const source = this.source || this.defaultController;
 		const events = source ? source.events : this.eventBus;
 		const eventName = this.triggerModel.event.name;
 		const callback = this.onEvent.bind(this);
@@ -54,10 +55,10 @@ export default class TriggerController extends Controller {
 		return this.triggerModel.event.name;
 	}
 	getSource() {
-		return this.source.get() || this.defaultController;
+		return this.source || this.defaultController;
 	}
 	getTarget() {
-		return this.target.get() || this.defaultController;
+		return this.target || this.defaultController;
 	}
 	getAction() {
 		return this.triggerModel.action.name;

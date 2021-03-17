@@ -2,24 +2,20 @@ import Controller, {injectable} from "@/Controller";
 import ControllerModel from "@/models/ControllerModel";
 import Log from "@/log";
 import ObjectModel from "@/models/ObjectModel";
-import BehaviourController from "./BehaviourController";
 import Vector3Model from "@/models/Vector3Model";
 import RootObjectRenderInterface, {ObjectClickEvent} from "@/renderers/common/ObjectRenderInterface/RootObjectRenderInterface";
 import Vector3 from "@/renderers/common/Vector3";
 import TriggerController from "@/Controller/TriggerController";
-import ControllerList from "@/Controller/ControllerList";
 import {check, instanceOf} from "validation-kit";
 import {isNumber} from "lodash";
 import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
+import TriggerModel from "@/models/TriggerModel";
 
 const log = Log.instance("Engine/Object");
 
 @injectable()
 export default class ObjectController extends Controller {
 	static ModelClass = ObjectModel;
-
-	behaviours:ControllerList<BehaviourController> = this.createControllerList(this.xrObject.behaviours, BehaviourController);
-	triggers!:ControllerList<TriggerController>;
 
 	log = log;
 
@@ -34,7 +30,7 @@ export default class ObjectController extends Controller {
 		this._root.events.click.on(event => this.onClick(event));
 
 		// Watch the model for changes
-		this.xrObject.$watch({
+		this.object.$watch({
 			path: 'position',
 			deep: true,
 			immediate: true,
@@ -43,7 +39,7 @@ export default class ObjectController extends Controller {
 				this.onPositionChanged($position);
 			}
 		});
-		this.xrObject.$watch({
+		this.object.$watch({
 			path: 'scale',
 			deep: true,
 			immediate: true,
@@ -53,8 +49,9 @@ export default class ObjectController extends Controller {
 			}
 		});
 
-		this.triggers = this.createControllerList(this.xrObject.triggers, TriggerController);
-		this.triggers.each(trigger => trigger.setDefaultController(this));
+		this.controllers(this.object.$p('triggers').name, TriggerController, triggers => {
+			triggers.each(trigger => trigger.setDefaultController(this));
+		});
 	}
 
 	// For override
@@ -62,7 +59,7 @@ export default class ObjectController extends Controller {
 
 	}
 
-	get xrObject() {
+	get object() {
 		return <ObjectModel>this.model;
 	}
 
