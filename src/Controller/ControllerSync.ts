@@ -15,6 +15,7 @@ export default class ControllerSync<P extends ControllerModel, C extends Control
 	}
 
 	protected syncValue(model:P, createNonExisting:boolean) {
+		if(!model) return undefined;
 		return this.factory.resolve<C>(model, this.SyncType, createNonExisting);
 	}
 }

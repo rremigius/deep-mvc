@@ -65,7 +65,7 @@ describe('Controller', () => {
 		const controllerFactory = new ControllerFactory(new MockEngine(), controllerContainer);
 
 		const fooModel = modelFactory.create(FooModel, {}, true);
-		const fooController = controllerFactory.create(fooModel, FooController);
+		const fooController = controllerFactory.createAndResolveReferences(fooModel, FooController);
 
 		fooModel.childFoos.add(modelFactory.create(FooModel, {gid: 'foo1'}));
 
@@ -75,25 +75,17 @@ describe('Controller', () => {
 
 		let foo1Model = fooModel.childFoos.find({gid: 'foo1'});
 		let foo1Controller = fooController.childFoos.find({gid: 'foo1'});
-		let foo2Model = fooModel.childFoos.find({gid: 'foo2'});
-		let foo2Controller = fooController.childFoos.find({gid: 'foo2'});
 		assert.ok(foo1Model instanceof FooModel, "Model was added from Model.");
 		assert.ok(foo1Controller instanceof FooController, "Controller was added from Model");
-		assert.ok(foo2Model instanceof FooModel, "Model was added from Controller.");
-		assert.ok(foo2Controller instanceof FooController, "Controller was added from Controller.");
 
 		assert.equal(foo1Controller && foo1Controller.model, foo1Model, "Controller added from Model has reference to Model in Model hierarchy.");
-		assert.equal(foo2Controller && foo2Controller.model, foo2Model, "Controller added from Controller has reference to Model in Model hierarchy.");
 
 		foo1Model && fooModel.childFoos.remove(foo1Model);
-		foo2Controller && fooController.childFoos.remove(foo2Controller);
 
 		assert.ok(isNil(fooModel.childFoos.find({gid: 'foo1'})), "Model was removed from Model.");
 		assert.ok(isNil(fooController.childFoos.find({gid: 'foo1'})), "Controller was removed from Model");
-		assert.ok(isNil(fooModel.childFoos.find({gid: 'foo2'})), "Model was removed from Controller.");
-		assert.ok(isNil(fooController.childFoos.find({gid: 'foo2'})), "Controller was removed from Controller.");
 	});
-	describe(".onResolveReferences", () => {
+	describe("onResolveReferences", () => {
 		it('can resolve other Controllers from the Registry', () => {
 			// Create instances
 			const modelFactory = new MozelFactory(modelContainer);
@@ -123,7 +115,7 @@ describe('Controller', () => {
 			assert.equal(gid11 && gid11.childFoos.find({gid:111}), gid12 && gid12.otherFoo);
 		});
 	});
-	describe(".controller", () => {
+	describe("controller", () => {
 		it('syncs controller references based on model', ()=>{
 			// Create instances
 			const modelFactory = new MozelFactory(modelContainer);
@@ -162,8 +154,12 @@ describe('Controller', () => {
 			barModel.childBar = modelFactory.create(BarModel, {gid: 3});
 			assert.equal(bar.childBar!.gid, 3, "Child controller updated");
 
-			barModel.otherBar = modelFactory.create(BarModel, {gid: 4});
-			assert.equal(bar.otherBar, undefined, "Non-existing GID on reference model does not resolve");
+			try {
+				barModel.otherBar = modelFactory.create(BarModel, {gid: 4});
+				assert.ok(false, "Non-existing GID on reference model does not resolve");
+			} catch(e) {
+				assert.ok(true, "Non-existing GID on reference model does not resolve");
+			}
 
 			barModel.otherBar = barModel.childBar;
 			assert.equal(bar.otherBar, bar.childBar, "Setting reference to same model will resolve to same controller");

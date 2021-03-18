@@ -99,7 +99,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 		this.events.changed.fire(new ValueChangeEvent<T>(changePath, isReference, output, old));
 	}
 
-	protected syncValue(value:P|undefined, createNonExisting:boolean):T {
+	protected syncValue(value:P|undefined, createNonExisting:boolean):T|undefined {
 		throw new Error("Not Implemented");
 	}
 
