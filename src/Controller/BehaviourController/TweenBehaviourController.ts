@@ -9,8 +9,8 @@ import {extend, get} from 'lodash';
 
 const log = Log.instance("Engine/Behaviour/Tween");
 
-class TweenStartedEvent extends ControllerEvent<void> {}
-class TweenCompletedEvent extends ControllerEvent<void> {}
+class TweenStartedEvent extends ControllerEvent<object> {}
+class TweenCompletedEvent extends ControllerEvent<object> {}
 class TweenBehaviourControllerEvents extends ControllerEvents {
 	started = this.$event(TweenStartedEvent);
 	completed = this.$event(TweenCompletedEvent);

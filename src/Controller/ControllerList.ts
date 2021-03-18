@@ -37,6 +37,10 @@ export default class ControllerList<T extends Controller> {
 		return !!this.list.find(item => item === controller);
 	}
 
+	get(index:number) {
+		return this.list[index];
+	}
+
 	remove(controller:T|T[]|((controller:T)=>boolean)):number {
 		if(isArray(controller)) {
 			return controller.reduce((sum:number, item:T) => this.remove(item), 0);

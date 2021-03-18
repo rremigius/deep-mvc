@@ -48,11 +48,11 @@ class Factory {
 	}
 }
 
-class FooEvent extends ControllerEvent<{foo:object}> {}
-class BarAction extends ControllerAction<{bar:object}> {}
+class FooEvent extends ControllerEvent<{foo:string}> {}
+class BarAction extends ControllerAction<{bar:string}> {}
 
 describe('TriggerController', () => {
-	it('listens to an event on a Behaviour and calls an action on its target Behaviour', done => {
+	it('listens to an event on source Behaviour and calls an action on its target Behaviour', done => {
 		const factory = new Factory();
 
 		const fooModel = factory.model.create<BehaviourModel>(BehaviourModel, {gid: 'fooBehaviour'});
@@ -70,7 +70,7 @@ describe('TriggerController', () => {
 			mapping: {bar: "foo"}
 		}, true);
 
-		const expected = {};
+		const expected = 'bar';
 
 		const foo = factory.controller.createAndResolveReferences(fooModel, BehaviourController);
 		const bar = factory.controller.createAndResolveReferences(barModel, BehaviourController);
@@ -98,7 +98,7 @@ describe('TriggerController', () => {
 		const triggerModel = factory.model.create<TriggerModel<FooEvent, BarAction>>(TriggerModel, {
 			gid: 'trigger',
 			event: {
-				name:FooEvent.name
+				name: FooEvent.name
 			},
 			action: factory.model.create(ActionModel, { // just to show that you can also mix Models with plain data
 				target: barBehaviourModel,
@@ -107,7 +107,7 @@ describe('TriggerController', () => {
 			mapping: { bar: "foo"} // Try putting different values here :)
 		});
 
-		const expected = {};
+		const expected = 'correct';
 
 		// Create Controllers
 		const behaviourCtl = factory.controller.create(barBehaviourModel, BehaviourController);
@@ -116,7 +116,7 @@ describe('TriggerController', () => {
 			done();
 		});
 
-		const triggerCtl = factory.controller.create(triggerModel, TriggerController);
+		const triggerCtl = factory.controller.createAndResolveReferences(triggerModel, TriggerController);
 		triggerCtl.start();
 
 		const eventBus = triggerCtl.eventBus;
@@ -129,11 +129,14 @@ describe('TriggerController', () => {
 		const negativeModel = factory.model.create(BehaviourModel, {gid: 'negative'});
 		const positiveModel = factory.model.create(BehaviourModel, {gid: 'positive'});
 
+		const correctValue = 'correct';
+		const incorrectValue = 'incorrect';
+
 		const negativeTriggerModel = factory.model.create<TriggerModel<FooEvent, BarAction>>(TriggerModel, {
 			event: { source: fooModel, name: FooEvent.name },
 			action: { target: negativeModel, name: BarAction.name },
 			condition: factory.model.create<ConditionEqualsModel<FooEvent>>(ConditionEqualsModel, {
-				check: {data: {foo: { xyz: 'IncorrectValue' }}}
+				check: { foo: incorrectValue }
 			})
 		});
 
@@ -141,7 +144,7 @@ describe('TriggerController', () => {
 			event: { source: fooModel, name: FooEvent.name },
 			action: { target: positiveModel, name: BarAction.name },
 			condition: factory.model.create<ConditionEqualsModel<FooEvent>>(ConditionEqualsModel, {
-				check: {data: {foo: { value: 123 }}}
+				check: { foo: correctValue }
 			})
 		});
 
@@ -163,7 +166,7 @@ describe('TriggerController', () => {
 		negativeTrigger.start();
 		positiveTrigger.start();
 
-		foo.events.$fire(FooEvent, new FooEvent(undefined, {foo: {value: 123}}));
+		foo.events.$fire(FooEvent, new FooEvent(undefined, {foo: correctValue}));
 	});
 	it('with default controller uses that controller for actions and events if no behaviour specified.', done=>{
 		const factory = new Factory();
@@ -186,17 +189,17 @@ describe('TriggerController', () => {
 		triggerController.setDefaultController(controller);
 		triggerController.start();
 
-		controller.events.$fire(FooEvent, new FooEvent(controller, {foo:{}}));
+		controller.events.$fire(FooEvent, new FooEvent(controller, {foo: 'bar'}));
 	});
 	it('can be used on SceneController, ObjectController and BehaviourController.', done=>{
 		const factory = new Factory();
 
-		class SceneEvent extends ControllerEvent<void> {}
-		class ObjectEvent extends ControllerEvent<void> {}
-		class BehaviourEvent extends ControllerEvent<void> {}
-		class SceneAction extends ControllerAction<void> {}
-		class ObjectAction extends ControllerAction<void> {}
-		class BehaviourAction extends ControllerAction<void> {}
+		class SceneEvent extends ControllerEvent<object> {}
+		class ObjectEvent extends ControllerEvent<object> {}
+		class BehaviourEvent extends ControllerEvent<object> {}
+		class SceneAction extends ControllerAction<object> {}
+		class ObjectAction extends ControllerAction<object> {}
+		class BehaviourAction extends ControllerAction<object> {}
 
 		let count = 0;
 		const sceneModel = factory.model.create(SceneModel, {
@@ -224,7 +227,7 @@ describe('TriggerController', () => {
 				})
 			]
 		}, true);
-		const scene = factory.controller.create(sceneModel, SceneController);
+		const scene = factory.controller.createAndResolveReferences(sceneModel, SceneController);
 
 		const object = factory.controller.registry.byGid('obj');
 		const behaviour = factory.controller.registry.byGid('bvr');

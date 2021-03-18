@@ -129,8 +129,8 @@ export class Events {
 	 * @param payload
 	 */
 	$fire(event:string|Class, payload?:unknown) {
-		const eventInterface = this.$get(event);
-		eventInterface.fire(payload);
+		const eventEmitter = this.$get(event);
+		eventEmitter.fire(payload);
 	}
 
 	/**

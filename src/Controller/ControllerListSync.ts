@@ -5,11 +5,13 @@ import {check, Constructor, instanceOf} from "validation-kit";
 import ControllerModel from "@/models/ControllerModel";
 import Controller, {ControllerConstructor} from "@/Controller";
 import ControllerFactory from "@/Controller/ControllerFactory";
+import {callback} from "@/EventEmitter";
 
 export default class ControllerListSync<P extends ControllerModel, C extends Controller> extends PropertySync<Collection<P>, ControllerList<C>> {
 	ControllerModelClass:Constructor<P>;
 	ControllerClass:ControllerConstructor<C>;
 	factory:ControllerFactory;
+	current!:ControllerList<C>; // TS: we make sure it's always set by syncValue
 
 	constructor(watchModel:Mozel, path:string, PropertyType:Constructor<P>, SyncType:ControllerConstructor<C>, factory:ControllerFactory) {
 		super(watchModel, path, Collection, ControllerList);
@@ -46,5 +48,16 @@ export default class ControllerListSync<P extends ControllerModel, C extends Con
 	get() {
 		const current = super.get();
 		return current || new ControllerList<C>();
+	}
+
+	getIndex(index:number) {
+		return this.current.get(index);
+	}
+
+	init(callback: callback<ControllerList<C>>) {
+		super.init(event => {
+			callback(this.current); // TS: in syncValue, we make sure we always return a value
+		});
+		return this;
 	}
 }

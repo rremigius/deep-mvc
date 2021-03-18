@@ -1,13 +1,10 @@
 import Controller from "@/Controller";
-import Mozel from "mozel";
-import ControllerFactory from "@/Controller/ControllerFactory";
+import Mozel, {Collection} from "mozel";
 import {isString} from 'lodash';
-import Log from "@/log";
-import {Events} from "@/EventEmitter";
+import {callback, Events} from "@/EventEmitter";
 import Property, {PropertyType, PropertyValue} from "mozel/dist/Property";
-import {check, Class, Constructor, instanceOf} from "validation-kit";
-
-const log = Log.instance("engine/controller/sync");
+import {check, Constructor, instanceOf} from "validation-kit";
+import ControllerList from "@/Controller/ControllerList";
 
 export class ValueChangeEvent<T> {
 	constructor(
@@ -87,16 +84,30 @@ export default class PropertySync<P extends PropertyValue,T> {
 		if(!property) throw new Error(`Change path does not match any property on ${this.model.constructor.name}: ${changePath}.`);
 
 		const isReference = property.isReference;
+		if(isReference && !this.resolveReferences) {
+			return; // should not try to resolve references (yet)
+		}
 
 		if(value !== undefined && !this.isPropertyType(value)) {
 			throw new Error("New property value is not of expected type.");
 		}
 
-		let output = this.syncValue(value, !isReference || this.resolveReferences);
+		let output = this.syncValue(value, true);
 
 		const old = this.current;
 		this.current = output;
 		this.events.changed.fire(new ValueChangeEvent<T>(changePath, isReference, output, old));
+	}
+
+	/**
+	 * Register an intialization callback to be called when the value changes.
+	 * @param callback
+	 */
+	init(callback:callback<T|undefined>) {
+		this.events.changed.on(event => {
+			callback(event.current);
+		});
+		return this;
 	}
 
 	protected syncValue(value:P|undefined, createNonExisting:boolean):T|undefined {

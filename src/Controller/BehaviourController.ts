@@ -7,12 +7,7 @@ export default class BehaviourController extends Controller {
 	static ModelClass:typeof BehaviourModel = BehaviourModel;
 	model!:BehaviourModel;
 
-	init(xrObject:BehaviourModel) {
-		super.init(xrObject);
-
-		// Create triggers
-		this.controllers(this.model.$p('triggers'), TriggerController, list => {
-			list.each(trigger => trigger.setDefaultController(this));
-		});
-	}
+	triggers = this.controllers(this.model.$('triggers'), TriggerController).init(list => {
+		list.each(trigger => trigger.setDefaultController(this));
+	});
 }

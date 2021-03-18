@@ -1,11 +1,8 @@
 import Model from "mozel";
-import {ControllerEvent} from "@/Controller";
+import {ControllerEvent, ControllerEventData} from "@/Controller";
 
-// Out-of the box for ControllerEvent conditions
-export type ConditionType<T> = T extends ControllerEvent<infer E> ? E : T;
-
-export default class ConditionModel<T> extends Model {
-	eval(data:ConditionType<T>):boolean {
+export default class ConditionModel<E extends ControllerEvent<any>> extends Model {
+	eval(data:ControllerEventData<E>):boolean {
 		throw new Error("Not implemented")
 	}
 }

@@ -97,16 +97,10 @@ export default class ControllerFactory {
 
 		let container = this.extendDIContainer(model);
 
-		let controller;
-		try {
-			controller = container.getNamed<Controller>(Controller, model.static.type);
-			// Store in Registry
-			this.registry.register(controller);
-		} catch(e) {
-			const message = `Controller creation failed for ${model.static.name}: ${e.message}`;
-			log.error(message, model);
-			throw new Error(message);
-		}
+		const controller = container.getNamed<Controller>(Controller, model.static.type);
+
+		// Store in Registry
+		this.registry.register(controller);
 		if(!isT(controller)) {
 			// TS: isT can only return false if ExpectedClass is defined
 			const message = "Created Controller was not an " + ExpectedClass!.name;
@@ -127,7 +121,7 @@ export default class ControllerFactory {
 
 		// Create the controller if it doesn't exist (unless if it's a reference).
 		if(!controller && createNonExisting) {
-			controller = this.createAndResolveReferences(model, ExpectedControllerClass);
+			controller = this.create(model, ExpectedControllerClass);
 		}
 		if(!controller) {
 			throw new Error(`Could not resolve Controller by GID ${model.gid}.`);

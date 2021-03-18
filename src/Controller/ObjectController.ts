@@ -9,7 +9,7 @@ import TriggerController from "@/Controller/TriggerController";
 import {check, instanceOf} from "validation-kit";
 import {isNumber} from "lodash";
 import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
-import TriggerModel from "@/models/TriggerModel";
+import BehaviourController from "@/Controller/BehaviourController";
 
 const log = Log.instance("Engine/Object");
 
@@ -21,6 +21,12 @@ export default class ObjectController extends Controller {
 
 	private _root!:RootObjectRenderInterface;
 	get root(){ return this._root; };
+
+	behaviours = this.controllers(this.object.$('behaviours'), BehaviourController);
+
+	triggers = this.controllers(this.object.$('triggers'), TriggerController).init( triggers => {
+		triggers.each(trigger => trigger.setDefaultController(this));
+	});
 
 	init(xrObject:ControllerModel) {
 		super.init(xrObject);
@@ -47,10 +53,6 @@ export default class ObjectController extends Controller {
 				const $scale = check<number>(scale, isNumber, 'scale');
 				this.onScaleChanged($scale);
 			}
-		});
-
-		this.controllers(this.object.$p('triggers').name, TriggerController, triggers => {
-			triggers.each(trigger => trigger.setDefaultController(this));
 		});
 	}
 

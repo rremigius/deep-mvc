@@ -8,9 +8,9 @@ import EventListener from "@/EventListener";
 import RenderFactory from "@/renderers/RenderFactory";
 import ControllerList from "@/Controller/ControllerList";
 import ControllerSync from "@/Controller/ControllerSync";
-import Mozel, {alphanumeric, Collection, Registry} from "mozel";
+import {alphanumeric, Registry} from "mozel";
 import ControllerModel from "@/models/ControllerModel";
-import {check, Constructor, instanceOf} from "validation-kit";
+import {Constructor} from "validation-kit";
 import EventBus from "@/EventBus";
 import EventEmitter, {callback, Events} from "@/EventEmitter";
 import ControllerListSync from "@/Controller/ControllerListSync";
@@ -26,6 +26,7 @@ export type ControllerConstructor<T extends Controller> = {
 	ModelClass:(typeof ControllerModel);
 };
 
+export type ControllerActionData<E> = E extends ControllerAction<infer D> ? D : object;
 export class ControllerAction<T> {
 	data:T;
 	constructor(data:T) {
@@ -33,17 +34,19 @@ export class ControllerAction<T> {
 	}
 }
 
-export class ControllerEvent<T extends object|void|unknown> {
+export class ControllerEvent<T extends object> {
 	origin?:Controller;
 	data:T;
-	constructor(origin:Controller|undefined, data:T) {
+	// TS: don't understand why {} would not be assignable to type T
+	constructor(origin:Controller|undefined, data:T = {} as any) {
 		this.origin = origin;
 		this.data = data;
 	}
 }
+export type ControllerEventData<E> = E extends ControllerEvent<infer D> ? D : object;
 
-export class ControllerEnabledEvent extends ControllerEvent<void> { }
-export class ControllerDisabledEvent extends ControllerEvent<void> { }
+export class ControllerEnabledEvent extends ControllerEvent<object> { }
+export class ControllerDisabledEvent extends ControllerEvent<object> { }
 
 export class ControllerEvents extends Events {
 	enabled = this.$event(ControllerEnabledEvent)
@@ -62,7 +65,7 @@ export class ControllerActions extends Events {
 
 @invInjectable()
 export default class Controller {
-	static ModelClass:(typeof ControllerModel); // should be set for each extending class
+	static ModelClass:(typeof ControllerModel) = ControllerModel; // should be set for each extending class
 
 	readonly gid:alphanumeric;
 
@@ -155,19 +158,16 @@ export default class Controller {
 
 	controller<P extends ControllerModel, T extends Controller>(
 		modelPath:string|Property,
-		ControllerClass:ControllerConstructor<T>,
-		init?:callback<T|undefined>
+		ControllerClass:ControllerConstructor<T>
 	) {
 		if(modelPath instanceof Property) {
 			modelPath = modelPath.getPathFrom(this.model);
 		}
 		const sync = new ControllerSync(this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
+		sync.startWatching();
 
 		sync.events.changed.on(event => {
 			this.replace(event.path, event.current, event.isReference);
-			if(init) {
-				init(event.current);
-			}
 		});
 		this.propertySyncs.push(sync);
 
@@ -176,13 +176,13 @@ export default class Controller {
 
 	controllers<P extends ControllerModel, T extends Controller>(
 		modelPath:string|Property,
-		ControllerClass:ControllerConstructor<T>,
-		init?:callback<ControllerList<T>>
+		ControllerClass:ControllerConstructor<T>
 	) {
 		if(modelPath instanceof Property) {
 			modelPath = modelPath.getPathFrom(this.model);
 		}
 		const sync = new ControllerListSync(this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
+		sync.startWatching();
 
 		sync.events.changed.on(event => {
 			const oldList = this.children[event.path];
@@ -194,10 +194,6 @@ export default class Controller {
 
 			if(!(event.current instanceof ControllerList)) {
 				throw this.error(`Expected ControllerList at model path ${modelPath}.`, event.current);
-			}
-			if(init) {
-				// For type convenience, we return an empty ControllerList instead of undefined.
-				init(event.current || new ControllerList<T>());
 			}
 			if(!event.isReference) {
 				this.children[event.path] = <ControllerList<Controller>><unknown>event.current;
@@ -245,11 +241,6 @@ export default class Controller {
 		return eventListener;
 	}
 
-	resolveReference<T extends Controller>(ExpectedClass:ControllerConstructor<T>, model?:ControllerModel, createNonExisting=false):T|undefined {
-		if(!model) return undefined;
-		return this.factory.resolve<T>(model, ExpectedClass, createNonExisting);
-	}
-
 	isFrameListener() {
 		return this.onFrame !== Controller.prototype.onFrame;
 	}
@@ -270,22 +261,11 @@ export default class Controller {
 	}
 
 	resolveReferences() {
-		this.startModelSynchronization();
-		this.onResolveReferences();
-		this.forEachChild(child => child.resolveReferences());
-	}
-
-	startModelSynchronization() {
-		for(let propertySync of this.propertySyncs) {
-			propertySync.startWatching();
-		}
-	}
-
-	synchronizeReferences() {
 		this.propertySyncs.forEach(sync => {
 			sync.resolveReferences = true;
 			sync.sync();
 		});
+		this.forEachChild(child => child.resolveReferences());
 	}
 
 	async load() {
@@ -305,7 +285,7 @@ export default class Controller {
 		}
 	}
 	start(enabled:boolean = true) {
-		log.info(`${this.name} starting...`);
+		log.info(`${this} starting...`);
 		this._started = true;
 		this.onStart();
 

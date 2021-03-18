@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import Controller, {injectable as injectableController} from "@/Controller";
 import BehaviourModel from "@/models/BehaviourModel";
-import {collection, Collection, MozelFactory, property, reference, injectable} from "mozel";
+import {collection, Collection, injectable, MozelFactory, property, reference} from "mozel";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import EngineInterface, {EngineActions, EngineEvents} from "@/Engine/EngineInterface";
 import {FrameListener} from "@/Engine";
@@ -10,7 +10,6 @@ import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/Came
 import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
 import ControllerList from "@/Controller/ControllerList";
 import {isNil} from 'lodash';
-import ControllerSync from "@/Controller/ControllerSync";
 import ControllerModel from "@/models/ControllerModel";
 
 const modelContainer = new Container({autoBindInjectable:true});
@@ -31,23 +30,11 @@ class FooModel extends BehaviourModel {
 class FooController extends Controller {
 	static ModelClass = FooModel;
 
-	otherFoo?:FooController;
-	childFoos:ControllerList<FooController> = new ControllerList<FooController>();
+	otherFoo = this.controller(this.foo.$property('otherFoo'), FooController);
+	childFoos = this.controllers(this.foo.$property('childFoos'), FooController);
 
 	get foo():FooModel {
 		return <FooModel>this.model;
-	}
-
-	init(model: ControllerModel) {
-		super.init(model);
-
-		this.controller(this.foo.$property('otherFoo'), FooController, otherFoo => this.otherFoo = otherFoo);
-		this.controllers(this.foo.$property('childFoos'), FooController, childFoos => this.childFoos = childFoos);
-	}
-
-	onResolveReferences() {
-		super.onResolveReferences();
-		this.otherFoo = this.resolveReference<FooController>(FooController, this.foo.otherFoo);
 	}
 }
 
@@ -71,10 +58,10 @@ describe('Controller', () => {
 
 		// Check if non-exisitng models/controllers still return false on find
 		assert.notOk(fooModel.childFoos.find({gid: 'nonexistent'}) instanceof FooModel, "Non-existing Model GID is not found");
-		assert.notOk(fooController.childFoos.find({gid: 'nonexistent'}) instanceof FooController, "Non-existing Controller GID is not found.")
+		assert.notOk(fooController.childFoos.get().find({gid: 'nonexistent'}) instanceof FooController, "Non-existing Controller GID is not found.")
 
 		let foo1Model = fooModel.childFoos.find({gid: 'foo1'});
-		let foo1Controller = fooController.childFoos.find({gid: 'foo1'});
+		let foo1Controller = fooController.childFoos.get().find({gid: 'foo1'});
 		assert.ok(foo1Model instanceof FooModel, "Model was added from Model.");
 		assert.ok(foo1Controller instanceof FooController, "Controller was added from Model");
 
@@ -83,7 +70,7 @@ describe('Controller', () => {
 		foo1Model && fooModel.childFoos.remove(foo1Model);
 
 		assert.ok(isNil(fooModel.childFoos.find({gid: 'foo1'})), "Model was removed from Model.");
-		assert.ok(isNil(fooController.childFoos.find({gid: 'foo1'})), "Controller was removed from Model");
+		assert.ok(isNil(fooController.childFoos.get().find({gid: 'foo1'})), "Controller was removed from Model");
 	});
 	describe("onResolveReferences", () => {
 		it('can resolve other Controllers from the Registry', () => {
@@ -108,11 +95,11 @@ describe('Controller', () => {
 			const factory = new ControllerFactory(new MockEngine(), controllerContainer);
 			const controller = factory.createAndResolveReferences(foo, FooController);
 
-			const gid11 = controller.childFoos.find({gid: 11});
-			const gid12 = controller.childFoos.find({gid: 12});
+			const gid11 = controller.childFoos.get().find({gid: 11});
+			const gid12 = controller.childFoos.get().find({gid: 12});
 			assert.ok(gid11 instanceof Controller, "Child with GID 11 is a Controller.");
 			assert.ok(gid12 instanceof Controller, "Child with GID 12 is a Controller.");
-			assert.equal(gid11 && gid11.childFoos.find({gid:111}), gid12 && gid12.otherFoo);
+			assert.equal(gid11!.childFoos.get().find({gid:111}), gid12!.otherFoo.get());
 		});
 	});
 	describe("controller", () => {
@@ -136,8 +123,8 @@ describe('Controller', () => {
 				static ModelClass = BarModel;
 				model!:BarModel; // TS: initialized in super constructor
 
-				childBar?:BarController = this.controller(this.model.$p('childBar'), BarController, bar => this.childBar = bar).get();
-				otherBar?:BarController = this.controller(this.model.$p('otherBar'), BarController, bar => this.otherBar = bar).get();
+				childBar = this.controller(this.model.$('childBar'), BarController)
+				otherBar = this.controller(this.model.$('otherBar'), BarController)
 			}
 
 			const barModel = modelFactory.create(BarModel, {
@@ -149,10 +136,10 @@ describe('Controller', () => {
 			const factory = new ControllerFactory(new MockEngine(), container);
 			const bar = factory.createAndResolveReferences<BarController>(barModel, BarController);
 
-			assert.equal(bar.childBar, bar.otherBar, "Child and reference refer to same Controller");
+			assert.equal(bar.childBar.get(), bar.otherBar.get(), "Child and reference refer to same Controller");
 
 			barModel.childBar = modelFactory.create(BarModel, {gid: 3});
-			assert.equal(bar.childBar!.gid, 3, "Child controller updated");
+			assert.equal(bar.childBar.get()!.gid, 3, "Child controller updated");
 
 			try {
 				barModel.otherBar = modelFactory.create(BarModel, {gid: 4});
@@ -162,7 +149,7 @@ describe('Controller', () => {
 			}
 
 			barModel.otherBar = barModel.childBar;
-			assert.equal(bar.otherBar, bar.childBar, "Setting reference to same model will resolve to same controller");
+			assert.equal(bar.otherBar.get(), bar.childBar.get(), "Setting reference to same model will resolve to same controller");
 		});
 	});
 });

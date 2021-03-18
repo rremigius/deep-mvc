@@ -1,16 +1,15 @@
-import ConditionModel, {ConditionType} from "@/models/ConditionModel";
-import {property, required, GenericMozel} from "mozel";
+import ConditionModel from "@/models/ConditionModel";
+import {GenericMozel, property, required} from "mozel";
 
 import {findKey} from 'lodash';
+import {ControllerEvent, ControllerEventData} from "@/Controller";
 
-type Data = {[key:string]:any}
-
-export default class ConditionEqualsModel<T extends Data> extends ConditionModel<T> {
+export default class ConditionEqualsModel<E extends ControllerEvent<any>> extends ConditionModel<E> {
 
 	@property(GenericMozel, {required})
-	check!:GenericMozel<T>;
+	check!:GenericMozel<ControllerEventData<E>>;
 
-	eval(data:ConditionType<T>): boolean {
+	eval(data:ControllerEventData<E>): boolean {
 		const match = this.check.exportGeneric();
 		let noMatch = findKey(match, (value:any, key:string) => {
 			return data[key] !== match[key];

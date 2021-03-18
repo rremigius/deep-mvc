@@ -7,7 +7,7 @@ import {isSubClass} from "validation-kit";
 
 const log = Log.instance("controller/trigger");
 
-type UnknownTrigger = TriggerModel<ControllerEvent<unknown>,ControllerAction<unknown>>;
+type UnknownTrigger = TriggerModel<ControllerEvent<object>,ControllerAction<object>>;
 
 @injectable()
 export default class TriggerController extends Controller {
@@ -16,8 +16,8 @@ export default class TriggerController extends Controller {
 	private defaultController?:Controller;
 	model!:TriggerModel<any,any>; // TS: initialized in super constructor
 
-	public source?:Controller = this.controller(this.model.event.$p('source'), Controller, controller => this.source = controller).get();
-	public target?:Controller = this.controller(this.model.action.$p('target'), Controller, controller => this.target = controller).get();
+	source = this.controller(this.model.event.$('source'), Controller);
+	target = this.controller(this.model.action.$('target'), Controller);
 
 	get triggerModel() {
 		return <UnknownTrigger>this.model;
@@ -39,7 +39,7 @@ export default class TriggerController extends Controller {
 	}
 
 	startListening() {
-		const source = this.source || this.defaultController;
+		const source = this.getSource();
 		const events = source ? source.events : this.eventBus;
 		const eventName = this.triggerModel.event.name;
 		const callback = this.onEvent.bind(this);
@@ -55,10 +55,10 @@ export default class TriggerController extends Controller {
 		return this.triggerModel.event.name;
 	}
 	getSource() {
-		return this.source || this.defaultController;
+		return this.source.get() || this.defaultController;
 	}
 	getTarget() {
-		return this.target || this.defaultController;
+		return this.target.get() || this.defaultController;
 	}
 	getAction() {
 		return this.triggerModel.action.name;

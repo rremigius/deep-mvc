@@ -3,14 +3,15 @@ import {assert} from 'chai';
 import ConditionModel from "@/models/ConditionModel";
 import {MozelFactory} from "mozel";
 import ConditionEqualsModel from "@/models/ConditionModel/ConditionEqualsModel";
+import {ControllerEvent} from "@/Controller";
 
 describe("ConditionEqualsModel", () => {
 	it('compares all keys and values in `check` property on equality.', ()=>{
 		const factory = new MozelFactory();
 
-		type FooBar = { foo?:string, bar?:number };
+		class FooEvent extends ControllerEvent<{foo?:string, bar?:number}> {}
 
-		const condition = factory.create<ConditionEqualsModel<FooBar>>(ConditionEqualsModel, {
+		const condition = factory.create<ConditionEqualsModel<FooEvent>>(ConditionEqualsModel, {
 			check: { // type-checked
 				foo: 'abc',
 				bar: 123
