@@ -23,6 +23,10 @@ export default class EventEmitter<T> {
 		this.type = runtimeType;
 	}
 
+	listenerCount() {
+		return this.listeners.length;
+	}
+
 	on(listener:callback<T>) {
 		this.listeners.push(listener);
 	}

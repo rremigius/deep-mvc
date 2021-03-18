@@ -151,5 +151,41 @@ describe('Controller', () => {
 			barModel.otherBar = barModel.childBar;
 			assert.equal(bar.otherBar.get(), bar.childBar.get(), "Setting reference to same model will resolve to same controller");
 		});
+		describe("init", () => {
+			it("registered event listeners", () => {
+				const container = new Container({autoBindInjectable:true});
+
+				@injectableController(container)
+				class FooController extends Controller {
+					static ModelClass = FooModel;
+					model!:FooModel;
+
+					foo = this.controller(this.model.$('otherFoo'), FooController).init(foo => {
+						if(!foo) return;
+						foo.events.enabled.on(()=>{});
+					});
+				}
+				const factory = new ControllerFactory(new MockEngine(), container);
+
+				const fooModel = FooModel.create<FooModel>({gid:1});
+				const fooCtrl = factory.createAndResolveReferences(fooModel, FooController);
+
+				assert.equal(fooCtrl.foo.get(), undefined, "Subcontroller not set yet.");
+
+				// Set first time
+				const fooModel2 = FooModel.create<FooModel>({gid:2});
+				fooModel.otherFoo = fooModel2;
+
+				const fooCtrl2 = fooCtrl.foo.get();
+				assert.instanceOf(fooCtrl2, FooController, "Subcontroller set.");
+				assert.equal(fooCtrl2!.events.enabled.listenerCount(), 1, "One listener set.");
+
+				// Unset and set second time
+				fooModel.otherFoo = undefined;
+				fooModel.otherFoo = fooModel2;
+
+				assert.equal(fooCtrl2!.events.enabled.listenerCount(), 1, "Still one listener set.");
+			});
+		});
 	});
 });
