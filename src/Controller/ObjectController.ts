@@ -10,6 +10,7 @@ import {check, instanceOf} from "validation-kit";
 import {isNumber} from "lodash";
 import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
 import BehaviourController from "@/Controller/BehaviourController";
+import ControllerList from "@/Controller/ControllerList";
 
 const log = Log.instance("Engine/Object");
 
@@ -22,14 +23,17 @@ export default class ObjectController extends Controller {
 	private _root!:RootObjectRenderInterface;
 	get root(){ return this._root; };
 
-	behaviours = this.controllers(this.object.$('behaviours'), BehaviourController);
-
-	triggers = this.controllers(this.object.$('triggers'), TriggerController).init( triggers => {
-		triggers.each(trigger => trigger.setDefaultController(this));
-	});
+	behaviours!:ControllerList<BehaviourController>;
+	triggers!:ControllerList<TriggerController>;
 
 	init(xrObject:ControllerModel) {
 		super.init(xrObject);
+
+		this.behaviours = this.controllers(this.object.$('behaviours'), BehaviourController);
+
+		this.triggers = this.controllers(this.object.$('triggers'), TriggerController);
+		this.triggers.events.added.on(event => event.controller.setDefaultController(this));
+		this.triggers.events.removed.on(event => event.controller.setDefaultController(undefined));
 
 		this._root = this.renderFactory.create<RootObjectRenderInterface>("RootObjectRenderInterface");
 		this._root.gid = xrObject.gid;

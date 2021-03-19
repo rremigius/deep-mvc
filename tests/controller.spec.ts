@@ -8,9 +8,7 @@ import {FrameListener} from "@/Engine";
 import {Container} from "inversify";
 import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
 import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
-import ControllerList from "@/Controller/ControllerList";
 import {isNil} from 'lodash';
-import ControllerModel from "@/models/ControllerModel";
 
 const modelContainer = new Container({autoBindInjectable:true});
 const controllerContainer = new Container({autoBindInjectable:true});
@@ -58,10 +56,10 @@ describe('Controller', () => {
 
 		// Check if non-exisitng models/controllers still return false on find
 		assert.notOk(fooModel.childFoos.find({gid: 'nonexistent'}) instanceof FooModel, "Non-existing Model GID is not found");
-		assert.notOk(fooController.childFoos.get().find({gid: 'nonexistent'}) instanceof FooController, "Non-existing Controller GID is not found.")
+		assert.notOk(fooController.childFoos.find({gid: 'nonexistent'}) instanceof FooController, "Non-existing Controller GID is not found.")
 
 		let foo1Model = fooModel.childFoos.find({gid: 'foo1'});
-		let foo1Controller = fooController.childFoos.get().find({gid: 'foo1'});
+		let foo1Controller = fooController.childFoos.find({gid: 'foo1'});
 		assert.ok(foo1Model instanceof FooModel, "Model was added from Model.");
 		assert.ok(foo1Controller instanceof FooController, "Controller was added from Model");
 
@@ -70,7 +68,7 @@ describe('Controller', () => {
 		foo1Model && fooModel.childFoos.remove(foo1Model);
 
 		assert.ok(isNil(fooModel.childFoos.find({gid: 'foo1'})), "Model was removed from Model.");
-		assert.ok(isNil(fooController.childFoos.get().find({gid: 'foo1'})), "Controller was removed from Model");
+		assert.ok(isNil(fooController.childFoos.find({gid: 'foo1'})), "Controller was removed from Model");
 	});
 	describe("onResolveReferences", () => {
 		it('can resolve other Controllers from the Registry', () => {
@@ -95,11 +93,11 @@ describe('Controller', () => {
 			const factory = new ControllerFactory(new MockEngine(), controllerContainer);
 			const controller = factory.createAndResolveReferences(foo, FooController);
 
-			const gid11 = controller.childFoos.get().find({gid: 11});
-			const gid12 = controller.childFoos.get().find({gid: 12});
+			const gid11 = controller.childFoos.find({gid: 11});
+			const gid12 = controller.childFoos.find({gid: 12});
 			assert.ok(gid11 instanceof Controller, "Child with GID 11 is a Controller.");
 			assert.ok(gid12 instanceof Controller, "Child with GID 12 is a Controller.");
-			assert.equal(gid11!.childFoos.get().find({gid:111}), gid12!.otherFoo.get());
+			assert.equal(gid11!.childFoos.find({gid:111}), gid12!.otherFoo.get());
 		});
 	});
 	describe("controller", () => {
@@ -150,42 +148,6 @@ describe('Controller', () => {
 
 			barModel.otherBar = barModel.childBar;
 			assert.equal(bar.otherBar.get(), bar.childBar.get(), "Setting reference to same model will resolve to same controller");
-		});
-		describe("init", () => {
-			it("registered event listeners", () => {
-				const container = new Container({autoBindInjectable:true});
-
-				@injectableController(container)
-				class FooController extends Controller {
-					static ModelClass = FooModel;
-					model!:FooModel;
-
-					foo = this.controller(this.model.$('otherFoo'), FooController).init(foo => {
-						if(!foo) return;
-						foo.events.enabled.on(()=>{});
-					});
-				}
-				const factory = new ControllerFactory(new MockEngine(), container);
-
-				const fooModel = FooModel.create<FooModel>({gid:1});
-				const fooCtrl = factory.createAndResolveReferences(fooModel, FooController);
-
-				assert.equal(fooCtrl.foo.get(), undefined, "Subcontroller not set yet.");
-
-				// Set first time
-				const fooModel2 = FooModel.create<FooModel>({gid:2});
-				fooModel.otherFoo = fooModel2;
-
-				const fooCtrl2 = fooCtrl.foo.get();
-				assert.instanceOf(fooCtrl2, FooController, "Subcontroller set.");
-				assert.equal(fooCtrl2!.events.enabled.listenerCount(), 1, "One listener set.");
-
-				// Unset and set second time
-				fooModel.otherFoo = undefined;
-				fooModel.otherFoo = fooModel2;
-
-				assert.equal(fooCtrl2!.events.enabled.listenerCount(), 1, "Still one listener set.");
-			});
 		});
 	});
 });

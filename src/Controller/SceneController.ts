@@ -4,18 +4,14 @@ import ObjectController from "@/Controller/ObjectController";
 import SceneModel from "@/models/SceneModel";
 import TriggerController from "./TriggerController";
 import RootObjectRender from "@/renderers/common/ObjectRenderInterface/RootObjectRenderInterface";
+import ControllerList from "@/Controller/ControllerList";
 
 @injectable()
 export default class SceneController extends Controller {
 	static ModelClass = SceneModel;
 
-	objects = this.controllers(this.model.$('objects'), ObjectController).init( objects => {
-		objects.events.added.on(event => this.onObjectAdded(event.controller));
-		objects.events.removed.on(event => this.onObjectRemoved(event.controller));
-	});
-	triggers = this.controllers(this.model.$('triggers'), TriggerController).init(triggers => {
-		triggers.each(trigger => trigger.setDefaultController(this));
-	});
+	objects!:ControllerList<ObjectController>;
+	triggers!:ControllerList<TriggerController>;
 
 	private _root!:RootObjectRender;
 	get root() { return this._root; }
@@ -25,13 +21,21 @@ export default class SceneController extends Controller {
 	init(model:ControllerModel) {
 		super.init(model);
 		this._root = this.renderFactory.create<RootObjectRender>("RootObjectRenderInterface");
+
+		this.objects = this.controllers(this.model.$('objects'), ObjectController);
+		this.objects.events.added.on(event => this.onObjectAdded(event.controller));
+		this.objects.events.removed.on(event => this.onObjectRemoved(event.controller));
+
+		this.triggers = this.controllers(this.model.$('triggers'), TriggerController);
+		this.triggers.events.added.on(event => event.controller.setDefaultController(this));
+		this.triggers.events.removed.on(event => event.controller.setDefaultController(undefined));
 	}
 
-	onObjectAdded(xrObjectController:ObjectController) {
-		this.root.add(xrObjectController.root);
+	onObjectAdded(objectController:ObjectController) {
+		this.root.add(objectController.root);
 	}
 
-	onObjectRemoved(xrObjectController:ObjectController) {
-		this.root.remove(xrObjectController.root);
+	onObjectRemoved(objectController:ObjectController) {
+		this.root.remove(objectController.root);
 	}
 }

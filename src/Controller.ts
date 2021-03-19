@@ -7,13 +7,12 @@ import {injectable} from "@/Controller/inversify";
 import EventListener from "@/EventListener";
 import RenderFactory from "@/renderers/RenderFactory";
 import ControllerList from "@/Controller/ControllerList";
-import ControllerSync from "@/Controller/ControllerSync";
+import ControllerSlot from "@/Controller/ControllerSync";
 import {alphanumeric, Registry} from "mozel";
 import ControllerModel from "@/models/ControllerModel";
 import {Constructor} from "validation-kit";
 import EventBus from "@/EventBus";
 import EventEmitter, {callback, Events} from "@/EventEmitter";
-import ControllerListSync from "@/Controller/ControllerListSync";
 import PropertySync from "@/Controller/PropertySync";
 import Property from "mozel/dist/Property";
 
@@ -163,7 +162,7 @@ export default class Controller {
 		if(modelPath instanceof Property) {
 			modelPath = modelPath.getPathFrom(this.model);
 		}
-		const sync = new ControllerSync(this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
+		const sync = new ControllerSlot(this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
 		sync.startWatching();
 
 		sync.events.changed.on(event => {
@@ -181,30 +180,16 @@ export default class Controller {
 		if(modelPath instanceof Property) {
 			modelPath = modelPath.getPathFrom(this.model);
 		}
-		const sync = new ControllerListSync(this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
-		sync.startWatching();
+		const list = new ControllerList<T>(this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
+		list.startWatching();
 
-		sync.events.changed.on(event => {
-			const oldList = this.children[event.path];
-			if(oldList instanceof ControllerList) {
-				oldList.each(controller => controller.destroy());
-			}
-			delete this.children[event.path];
-			if(!event.current) return;
+		this.children[modelPath] = list as unknown as ControllerList<Controller>;
+		this.propertySyncs.push(list);
 
-			if(!(event.current instanceof ControllerList)) {
-				throw this.error(`Expected ControllerList at model path ${modelPath}.`, event.current);
-			}
-			if(!event.isReference) {
-				this.children[event.path] = <ControllerList<Controller>><unknown>event.current;
-			}
-		});
-		this.propertySyncs.push(sync);
-
-		return sync;
+		return list;
 	}
 
-	replace(path:string, newOne?:Controller|ControllerList<any>, isReference = false) {
+	replace(path:string, newOne?:Controller, isReference = false) {
 		const oldOne = this.children[path];
 		if(oldOne) oldOne.destroy();
 		delete this.children[path];

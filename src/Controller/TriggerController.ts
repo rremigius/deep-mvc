@@ -47,7 +47,7 @@ export default class TriggerController extends Controller {
 		this.listenToEventName(events, eventName, callback);
 	}
 
-	setDefaultController(controller:Controller) {
+	setDefaultController(controller?:Controller) {
 		this.defaultController = controller;
 	}
 

@@ -92,7 +92,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 			throw new Error("New property value is not of expected type.");
 		}
 
-		let output = this.syncValue(value, true);
+		let output = this.syncValue(value);
 
 		const old = this.current;
 		this.current = output;
@@ -103,14 +103,14 @@ export default class PropertySync<P extends PropertyValue,T> {
 	 * Register an intialization callback to be called when the value changes.
 	 * @param callback
 	 */
-	init(callback:callback<T|undefined>) {
+	changed(callback:callback<T|undefined>) {
 		this.events.changed.on(event => {
 			callback(event.current);
 		});
 		return this;
 	}
 
-	protected syncValue(value:P|undefined, createNonExisting:boolean):T|undefined {
+	protected syncValue(value:P|undefined):T|undefined {
 		throw new Error("Not Implemented");
 	}
 
