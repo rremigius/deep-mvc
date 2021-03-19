@@ -26,6 +26,7 @@ export default class TriggerController extends Controller {
 	init(xrTrigger:UnknownTrigger) {
 		super.init(xrTrigger);
 
+		// TODO: Should restart listening when source/target change
 		this.triggerModel.$watch({
 			path: 'event.name',
 			immediate: true,

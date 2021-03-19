@@ -61,6 +61,7 @@ export default class ControllerList<C extends Controller> extends PropertySync<C
 
 		// Remove listeners from current collection
 		if(this.currentCollection) {
+			// TODO: test if indeed listeners do not linger when Collection is transferred
 			this.currentCollection.removeAddedListener(this.addedListener);
 			this.currentCollection.removeRemovedListener(this.removedListener);
 		}

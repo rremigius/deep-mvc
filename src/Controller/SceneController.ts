@@ -21,7 +21,7 @@ export default class SceneController extends Controller {
 	init(model:ControllerModel) {
 		super.init(model);
 		this._root = this.renderFactory.create<RootObjectRender>("RootObjectRenderInterface");
-
+		
 		this.objects = this.controllers(this.model.$('objects'), ObjectController);
 		this.objects.events.added.on(event => this.onObjectAdded(event.controller));
 		this.objects.events.removed.on(event => this.onObjectRemoved(event.controller));
