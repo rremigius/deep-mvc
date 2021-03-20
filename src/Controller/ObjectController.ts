@@ -1,4 +1,4 @@
-import Controller, {injectable} from "@/Controller";
+import Controller, {controllers, injectable} from "@/Controller";
 import ControllerModel from "@/models/ControllerModel";
 import Log from "@/log";
 import ObjectModel from "@/models/ObjectModel";
@@ -17,21 +17,21 @@ const log = Log.instance("Engine/Object");
 @injectable()
 export default class ObjectController extends Controller {
 	static ModelClass = ObjectModel;
+	model!:ObjectModel;
 
 	log = log;
 
 	private _root!:RootObjectRenderInterface;
 	get root(){ return this._root; };
 
+	@controllers('behaviours', BehaviourController)
 	behaviours!:ControllerList<BehaviourController>;
+	@controllers('triggers', TriggerController)
 	triggers!:ControllerList<TriggerController>;
 
 	init(xrObject:ControllerModel) {
 		super.init(xrObject);
 
-		this.behaviours = this.controllers(this.object.$('behaviours'), BehaviourController);
-
-		this.triggers = this.controllers(this.object.$('triggers'), TriggerController);
 		this.triggers.events.added.on(event => event.controller.setDefaultController(this));
 		this.triggers.events.removed.on(event => event.controller.setDefaultController(undefined));
 

@@ -1,4 +1,4 @@
-import Controller, {ControllerAction, ControllerEvent, injectable} from "@/Controller";
+import Controller, {controller, ControllerAction, ControllerEvent, injectable} from "@/Controller";
 import Log from "@/log";
 import TriggerModel from "@/models/TriggerModel";
 import {forEach, isEmpty, isPlainObject, isString} from 'lodash';
@@ -12,11 +12,13 @@ type UnknownTrigger = TriggerModel<ControllerEvent<object>,ControllerAction<obje
 @injectable()
 export default class TriggerController extends Controller {
 	static ModelClass = TriggerModel;
-
-	private defaultController?:Controller;
 	model!:TriggerModel<any,any>; // TS: initialized in super constructor
 
+	private defaultController?:Controller;
+
+	@controller('event.source')
 	source!:ControllerSlot<Controller>;
+	@controller('action.target')
 	target!:ControllerSlot<Controller>;
 
 	get triggerModel() {
@@ -26,10 +28,7 @@ export default class TriggerController extends Controller {
 	init(xrTrigger:UnknownTrigger) {
 		super.init(xrTrigger);
 
-		this.source = this.controller(this.model.event.$('source'), Controller);
 		this.source.init(()=>this.restartListening());
-
-		this.target = this.controller(this.model.action.$('target'), Controller);
 
 		this.triggerModel.$watch({
 			path: 'event.name',

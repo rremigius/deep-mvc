@@ -66,13 +66,13 @@ export class ControllerActions extends Events {
 
 // DECORATORS
 
-export function controller(modelPath:string, ExpectedControllerClass:ControllerConstructor<any>) {
+export function controller(modelPath:string, ExpectedControllerClass:ControllerConstructor<any> = Controller) {
 	return function (target: Controller, propertyName: string) {
 		target.static.defineControllerSlot(propertyName, modelPath, ExpectedControllerClass);
 	};
 }
 
-export function controllers(modelPath:string, ExpectedControllerClass:ControllerConstructor<any>) {
+export function controllers(modelPath:string, ExpectedControllerClass:ControllerConstructor<any> = Controller) {
 	return function (target: Controller, propertyName: string) {
 		target.static.defineControllerList(propertyName, modelPath, ExpectedControllerClass);
 	}
