@@ -123,7 +123,6 @@ export default class Controller {
 	readonly renderFactory:RenderFactory;
 
 	children:Record<string, ControllerSlot<Controller>|ControllerList<Controller>> = {};
-	propertySyncs:PropertySync<any,any>[] = [];
 
 	loading:Loader;
 
@@ -302,11 +301,12 @@ export default class Controller {
 	}
 
 	resolveReferences() {
-		this.propertySyncs.forEach(sync => {
+		for(let path in this.children) {
+			const sync = this.children[path];
 			sync.resolveReferences = true;
 			sync.sync();
-		});
-		this.forEachChild(child => child.resolveReferences());
+		}
+		this.forEachChild(controller => controller.resolveReferences());
 	}
 
 	async load() {

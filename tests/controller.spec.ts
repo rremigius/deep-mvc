@@ -73,36 +73,6 @@ describe('Controller', () => {
 		assert.ok(isNil(fooModel.childFoos.find({gid: 'foo1'})), "Model was removed from Model.");
 		assert.ok(isNil(fooController.childFoos.find({gid: 'foo1'})), "Controller was removed from Model");
 	});
-	describe("onResolveReferences", () => {
-		it('can resolve other Controllers from the Registry', () => {
-			// Create instances
-			const modelFactory = new MozelFactory(modelContainer);
-			const foo = modelFactory.create<FooModel>(FooModel, {
-				gid: 1,
-				childFoos: [
-					{
-						gid: 11,
-						childFoos: [
-							{ gid: 111 }
-						]
-					},
-					{
-						gid: 12,
-						otherFoo: { gid: 111 }
-					}
-				]
-			});
-
-			const factory = new ControllerFactory(controllerContainer);
-			const controller = factory.createAndResolveReferences(foo, FooController);
-
-			const gid11 = controller.childFoos.find({gid: 11});
-			const gid12 = controller.childFoos.find({gid: 12});
-			assert.ok(gid11 instanceof Controller, "Child with GID 11 is a Controller.");
-			assert.ok(gid12 instanceof Controller, "Child with GID 12 is a Controller.");
-			assert.equal(gid11!.childFoos.find({gid:111}), gid12!.otherFoo.get());
-		});
-	});
 	describe("controller", () => {
 		it('syncs controller references based on model', ()=>{
 			// Create instances
@@ -151,6 +121,34 @@ describe('Controller', () => {
 
 			barModel.otherBar = barModel.childBar;
 			assert.equal(bar.otherBar.get(), bar.childBar.get(), "Setting reference to same model will resolve to same controller");
+		});
+		it('can resolve other Controllers from the Registry', () => {
+			// Create instances
+			const modelFactory = new MozelFactory(modelContainer);
+			const foo = modelFactory.create<FooModel>(FooModel, {
+				gid: 1,
+				childFoos: [
+					{
+						gid: 11,
+						childFoos: [
+							{ gid: 111 }
+						]
+					},
+					{
+						gid: 12,
+						otherFoo: { gid: 111 }
+					}
+				]
+			});
+
+			const factory = new ControllerFactory(controllerContainer);
+			const controller = factory.createAndResolveReferences(foo, FooController);
+
+			const gid11 = controller.childFoos.find({gid: 11});
+			const gid12 = controller.childFoos.find({gid: 12});
+			assert.ok(gid11 instanceof Controller, "Child with GID 11 is a Controller.");
+			assert.ok(gid12 instanceof Controller, "Child with GID 12 is a Controller.");
+			assert.equal(gid11!.childFoos.find({gid:111}), gid12!.otherFoo.get());
 		});
 	});
 	describe("@controller and @controllerList", () => {

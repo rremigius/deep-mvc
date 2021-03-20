@@ -23,14 +23,6 @@ import "jsdom-global";
 import headlessContainer from "@/renderers/headless/inversify";
 import ConditionEqualsModel from "@/models/ConditionModel/ConditionEqualsModel";
 
-class MockEngine implements EngineInterface {
-	camera:CameraRenderInterface = new ThreeCamera();
-	addFrameListener(f:FrameListener) { };
-	removeFrameListener(f: FrameListener) { };
-	events = new EngineEvents();
-	actions = new EngineActions();
-}
-
 class Factory {
 	model:MozelFactory;
 	controller:ControllerFactory;
@@ -43,7 +35,7 @@ class Factory {
 			controllerContainer.parent = controllerContainer
 		}
 		controllerContainer.bind(RenderFactory).toConstantValue(new RenderFactory(headlessContainer));
-		this.controller = new ControllerFactory(new MockEngine(), controllerContainer);
+		this.controller = new ControllerFactory(controllerContainer);
 	}
 }
 
