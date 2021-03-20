@@ -75,7 +75,7 @@ export default class Controller {
 	readonly eventBus:EventBus;
 	readonly renderFactory:RenderFactory;
 
-	children:Record<string, Controller|ControllerList<Controller>> = {};
+	children:Record<string, ControllerSlot<Controller>|ControllerList<Controller>> = {};
 	propertySyncs:PropertySync<any,any>[] = [];
 
 	loading:Loader;
@@ -165,10 +165,7 @@ export default class Controller {
 		const sync = new ControllerSlot<T>(this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
 		sync.startWatching();
 
-		sync.events.changed.on(event => {
-			this.replace(event.path, event.current, event.isReference);
-		});
-		this.propertySyncs.push(sync);
+		this.children[modelPath] = sync as unknown as ControllerSlot<Controller>;
 
 		return sync;
 	}
@@ -184,21 +181,8 @@ export default class Controller {
 		list.startWatching();
 
 		this.children[modelPath] = list as unknown as ControllerList<Controller>;
-		this.propertySyncs.push(list);
 
 		return list;
-	}
-
-	replace(path:string, newOne?:Controller, isReference = false) {
-		const oldOne = this.children[path];
-		if(oldOne) oldOne.destroy();
-		delete this.children[path];
-
-		if(!newOne) return;
-
-		if(!isReference) {
-			this.children[path] = newOne;
-		}
 	}
 
 	/**
@@ -233,12 +217,18 @@ export default class Controller {
 	/**
 	 * Runs the given callback on all children.
 	 * @param callback
+	 * @param [includeReferences]
 	 */
-	forEachChild(callback:(child:Controller)=>void) {
+	forEachChild(callback:(child:Controller)=>void, includeReferences = false) {
 		for(let path in this.children) {
 			const child = this.children[path];
-			if(child instanceof Controller) {
-				callback(child);
+
+			if(!includeReferences && child.isReference) continue;
+
+			if(child instanceof ControllerSlot) {
+				const controller = child.get();
+				if(!controller) continue;
+				callback(controller);
 			} else if (child instanceof ControllerList) {
 				child.each(callback);
 			}

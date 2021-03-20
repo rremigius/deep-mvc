@@ -35,6 +35,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 
 	watching:boolean = false;
 	resolveReferences:boolean = false;
+	isReference:boolean = false;
 
 	/**
 	 * @param watchModel
@@ -83,8 +84,8 @@ export default class PropertySync<P extends PropertyValue,T> {
 		const property = parent.$property(prop as any);
 		if(!property) throw new Error(`Change path does not match any property on ${this.model.constructor.name}: ${changePath}.`);
 
-		const isReference = property.isReference;
-		if(isReference && !this.resolveReferences) {
+		this.isReference = property.isReference;
+		if(this.isReference && !this.resolveReferences) {
 			return; // should not try to resolve references (yet)
 		}
 
@@ -96,7 +97,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 
 		const old = this.current;
 		this.current = output;
-		this.events.changed.fire(new ValueChangeEvent<T>(changePath, isReference, output, old));
+		this.events.changed.fire(new ValueChangeEvent<T>(changePath, this.isReference, output, old));
 	}
 
 	/**

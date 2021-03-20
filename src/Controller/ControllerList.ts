@@ -140,6 +140,10 @@ export default class ControllerList<C extends Controller> extends PropertySync<C
 		}
 	}
 
+	count() {
+		return this.current.length;
+	}
+
 	destroy() {
 		this.current.forEach(controller => controller.destroy());
 	}

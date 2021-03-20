@@ -8,6 +8,7 @@ import {Registry} from "mozel";
 import Log from "@/log";
 import EventBus from "@/EventBus";
 import {Events} from "@/EventEmitter";
+import BaseEngine from "@/BaseEngine";
 
 const log = Log.instance("controller-factory");
 
@@ -19,18 +20,18 @@ export default class ControllerFactory {
 	// If not set in constructor params, will be set in constructor. And readonly, so will always have value.
 	readonly diContainer!:Container;
 
-	readonly xrEngineInterface:EngineInterface;
+	readonly engine:EngineInterface;
 	public eventBus:Events;
 	public readonly registry:Registry<Controller>;
 
 	constructor(
-		@inject(EngineInterfaceType) @optional() xrEngineInterface:EngineInterface,
 		@inject('container') @optional() diContainer?:Container,
 		@inject(EventBus) @optional() eventBus?:Events,
-		@inject(Registry) @optional() controllerRegistry?:Registry<Controller>
+		@inject(Registry) @optional() controllerRegistry?:Registry<Controller>,
+		@inject(EngineInterfaceType) @optional() engine?:EngineInterface,
 	) {
 		this.registry = controllerRegistry || new Registry<Controller>();
-		this.xrEngineInterface = xrEngineInterface;
+		this.engine = engine || new BaseEngine();
 		this.eventBus = eventBus || new Events(true);
 
 		const localContainer = new Container({autoBindInjectable:true});
@@ -42,8 +43,8 @@ export default class ControllerFactory {
 		localContainer.bind(ControllerFactory).toConstantValue(this);
 		localContainer.bind(Registry).toConstantValue(this.registry);
 		localContainer.bind(EventBus).toConstantValue(this.eventBus);
-		if(this.xrEngineInterface) {
-			localContainer.bind(EngineInterfaceType).toConstantValue(this.xrEngineInterface);
+		if(this.engine) {
+			localContainer.bind(EngineInterfaceType).toConstantValue(this.engine);
 		}
 
 		// Given container gets priority, then localContainer, then default
@@ -89,12 +90,6 @@ export default class ControllerFactory {
 			log.error(message, model);
 			throw new Error(message);
 		}
-		if(!model.static.hasOwnProperty('type')) {
-			const message = `${model.static.name} has no specifically defined static 'type'.`;
-			log.error(message, model);
-			throw new Error(message);
-		}
-
 		let container = this.extendDIContainer(model);
 
 		const controller = container.getNamed<Controller>(Controller, model.static.type);
