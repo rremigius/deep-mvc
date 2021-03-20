@@ -100,12 +100,23 @@ export default class PropertySync<P extends PropertyValue,T> {
 	}
 
 	/**
-	 * Register an intialization callback to be called when the value changes.
+	 * Register an intialization callback to be called on every new value.
 	 * @param callback
 	 */
-	changed(callback:callback<T|undefined>) {
+	init(callback:callback<T|undefined>) {
 		this.events.changed.on(event => {
 			callback(event.current);
+		});
+		return this;
+	}
+
+	/**
+	 * Register a deinitialization callback to be called on every value before it gets overwritten
+	 * @param callback
+	 */
+	deinit(callback:callback<T|undefined>) {
+		this.events.changed.on(event => {
+			callback(event.old);
 		});
 		return this;
 	}

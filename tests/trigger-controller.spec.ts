@@ -16,7 +16,6 @@ import "@/renderers/headless/all";
 import RenderFactory from "@/renderers/RenderFactory";
 import ActionModel from "@/models/ActionModel";
 import TriggerModel from "@/models/TriggerModel";
-import ConditionModel from "@/models/ConditionModel";
 import BehaviourModel from "@/models/BehaviourModel";
 import BehaviourController from "@/Controller/BehaviourController";
 import {ControllerAction, ControllerEvent} from "@/Controller";
@@ -49,6 +48,8 @@ class Factory {
 }
 
 class FooEvent extends ControllerEvent<{foo:string}> {}
+class FooAction extends ControllerAction<{foo:string}> {}
+class BarEvent extends ControllerEvent<{bar:string}> {}
 class BarAction extends ControllerAction<{bar:string}> {}
 
 describe('TriggerController', () => {
@@ -258,84 +259,75 @@ describe('TriggerController', () => {
 		assert.equal(count, 3, "All 3 actions triggered.");
 		done();
 	});
-	// it('can change event and action at runtime.', done => {
-	// 	const factory = new Factory();
-	// 	const sceneModel = factory.model.create(SceneModel, {
-	// 		objects: [
-	// 			factory.model.create(ObjectModel, {
-	// 				gid: 'foo',
-	// 				triggers: [
-	// 					factory.model.create(TriggerModel, {
-	// 						gid: 'trigger',
-	// 						event: {
-	// 							source: {gid: 'bar'},
-	// 							name: 'barEvent'
-	// 						},
-	// 						action: {
-	// 							name: 'fooAction'
-	// 						}
-	// 					})
-	// 				]
-	// 			}),
-	// 			factory.model.create(ObjectModel, {
-	// 				gid: 'bar'
-	// 			}),
-	// 			factory.model.create(ObjectModel, {
-	// 				gid: 'qux'
-	// 			})
-	// 		]
-	// 	}, true);
-	// 	const scene = factory.controller.create(SceneController, sceneModel, true);
-	// 	const foo = factory.controller.registry.byGid('foo');
-	// 	const bar = factory.controller.registry.byGid('bar');
-	// 	const qux = factory.controller.registry.byGid('qux');
-	// 	const triggerController = factory.controller.registry.byGid<TriggerController>('trigger');
-	//
-	// 	if(!foo || !bar || !qux || !triggerController) {
-	// 		throw new Error("Objects were not retrieved correctly from Registry.");
-	// 	}
-	//
-	// 	let actionShouldBeCalled = 'foo';
-	// 	let count = 0;
-	// 	foo.actions.$action('fooAction', ()=>{
-	// 		assert.ok(actionShouldBeCalled === 'foo', "Foo action was called correctly");
-	// 		count++;
-	// 	});
-	// 	bar.actions.$action('barAction', ()=>{
-	// 		assert.ok(actionShouldBeCalled === 'bar', "Bar action was called correctly");
-	// 		count++;
-	// 	});
-	// 	qux.actions.$action('barAction', ()=>{
-	// 		assert.ok(actionShouldBeCalled === 'qux', "Qux action was called correctly");
-	// 		count++;
-	// 	});
-	//
-	// 	scene.start(); // start watchers and listeners
-	//
-	// 	foo.fireEvent('fooEvent');
-	// 	bar.fireEvent('barEvent');
-	//
-	// 	const triggerModel = factory.model.registry.byGid('trigger');
-	// 	if(!(triggerModel instanceof TriggerModel)) {
-	// 		throw new Error("Unexpected value for triggerModel");
-	// 	}
-	//
-	// 	triggerModel.event.source = undefined;
-	// 	triggerModel.event.name = 'fooEvent';
-	// 	triggerModel.action.target = factory.model.registry.byGid('bar');
-	// 	triggerModel.action.name = 'barAction';
-	//
-	// 	actionShouldBeCalled = 'bar';
-	//
-	// 	foo.fireEvent('fooEvent');
-	// 	bar.fireEvent('barEvent');
-	//
-	// 	triggerController.target.set(qux);
-	// 	actionShouldBeCalled = 'qux';
-	//
-	// 	foo.fireEvent('fooEvent');
-	//
-	// 	assert.equal(count, 3, "The right number of actions was executed");
-	// 	done();
-	// });
+	it('can change event and action at runtime.', done => {
+		const factory = new Factory();
+		const sceneModel = factory.model.create(SceneModel, {
+			objects: [
+				factory.model.create(ObjectModel, {
+					gid: 'foo',
+					triggers: [
+						factory.model.create(TriggerModel, {
+							gid: 'trigger',
+							event: {
+								source: {gid: 'bar'},
+								name: BarEvent.name
+							},
+							action: {
+								name: FooAction.name
+							}
+						})
+					]
+				}),
+				factory.model.create(ObjectModel, {
+					gid: 'bar'
+				})
+			]
+		}, true);
+		const scene = factory.controller.createAndResolveReferences(sceneModel, SceneController);
+		const foo = factory.controller.registry.byGid('foo');
+		const bar = factory.controller.registry.byGid('bar');
+		const triggerController = factory.controller.registry.byGid<TriggerController>('trigger');
+
+		if(!foo || !bar || !triggerController) {
+			throw new Error("Objects were not retrieved correctly from Registry.");
+		}
+
+		foo.events.$event(FooEvent);
+		bar.events.$event(BarEvent);
+
+		let actionShouldBeCalled = 'foo';
+		let count = 0;
+		foo.actions.$action(FooAction).on(()=>{
+			assert.ok(actionShouldBeCalled === 'foo', "Foo action was called correctly");
+			count++;
+		});
+		bar.actions.$action(BarAction).on(()=>{
+			assert.ok(actionShouldBeCalled === 'bar', "Bar action was called correctly");
+			count++;
+		});
+
+		scene.start(); // start watchers and listeners
+
+		// BarEvent should trigger FooAction
+		bar.events.$fire(BarEvent, new BarEvent(bar));
+
+		const triggerModel = factory.model.registry.byGid('trigger');
+		if(!(triggerModel instanceof TriggerModel)) {
+			throw new Error("Unexpected value for triggerModel");
+		}
+
+		// Set new event and target
+		triggerModel.event.source = undefined; // will resolve to Foo
+		triggerModel.event.name = FooEvent.name;
+		triggerModel.action.target = factory.model.registry.byGid('bar');
+		triggerModel.action.name = BarAction.name;
+
+		actionShouldBeCalled = 'bar';
+
+		// FooEvent should trigger BarAction
+		foo.events.$fire(FooEvent, new FooEvent(foo));
+
+		assert.equal(count, 2, "The right number of actions was executed");
+		done();
+	});
 });

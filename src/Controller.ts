@@ -7,7 +7,7 @@ import {injectable} from "@/Controller/inversify";
 import EventListener from "@/EventListener";
 import RenderFactory from "@/renderers/RenderFactory";
 import ControllerList from "@/Controller/ControllerList";
-import ControllerSlot from "@/Controller/ControllerSync";
+import ControllerSlot from "@/Controller/ControllerSlot";
 import {alphanumeric, Registry} from "mozel";
 import ControllerModel from "@/models/ControllerModel";
 import {Constructor} from "validation-kit";
@@ -155,14 +155,14 @@ export default class Controller {
 		return new Error(""+args[0]);
 	}
 
-	controller<P extends ControllerModel, T extends Controller>(
+	controller<T extends Controller>(
 		modelPath:string|Property,
 		ControllerClass:ControllerConstructor<T>
 	) {
 		if(modelPath instanceof Property) {
 			modelPath = modelPath.getPathFrom(this.model);
 		}
-		const sync = new ControllerSlot(this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
+		const sync = new ControllerSlot<T>(this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
 		sync.startWatching();
 
 		sync.events.changed.on(event => {

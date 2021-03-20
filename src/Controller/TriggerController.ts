@@ -2,7 +2,7 @@ import Controller, {ControllerAction, ControllerEvent, injectable} from "@/Contr
 import Log from "@/log";
 import TriggerModel from "@/models/TriggerModel";
 import {forEach, isEmpty, isPlainObject, isString} from 'lodash';
-import ControllerSync from "@/Controller/ControllerSync";
+import ControllerSlot from "@/Controller/ControllerSlot";
 import {isSubClass} from "validation-kit";
 
 const log = Log.instance("controller/trigger");
@@ -16,8 +16,8 @@ export default class TriggerController extends Controller {
 	private defaultController?:Controller;
 	model!:TriggerModel<any,any>; // TS: initialized in super constructor
 
-	source = this.controller(this.model.event.$('source'), Controller);
-	target = this.controller(this.model.action.$('target'), Controller);
+	source!:ControllerSlot<Controller>;
+	target!:ControllerSlot<Controller>;
 
 	get triggerModel() {
 		return <UnknownTrigger>this.model;
@@ -26,17 +26,28 @@ export default class TriggerController extends Controller {
 	init(xrTrigger:UnknownTrigger) {
 		super.init(xrTrigger);
 
-		// TODO: Should restart listening when source/target change
+		this.source = this.controller(this.model.event.$('source'), Controller);
+		this.source.init(()=>this.restartListening());
+
+		this.target = this.controller(this.model.action.$('target'), Controller);
+
 		this.triggerModel.$watch({
 			path: 'event.name',
 			immediate: true,
 			handler: ()=> {
-				if (this._started) {
-					this.stopListening();
-					this.startListening();
-				}
+				this.restartListening();
 			}
 		});
+	}
+
+	/**
+	 * Start listening to a new source.
+	 */
+	restartListening() {
+		if (this._started) {
+			this.stopListening();
+			this.startListening();
+		}
 	}
 
 	startListening() {
