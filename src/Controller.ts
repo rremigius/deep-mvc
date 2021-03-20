@@ -43,6 +43,8 @@ export class ControllerEvent<T extends object> {
 	}
 }
 export type ControllerEventData<E> = E extends ControllerEvent<infer D> ? D : object;
+export type ControllerSlotDefinition = {property:string, modelPath:string, ExpectedControllerClass:ControllerConstructor<any>};
+export type ControllerListDefinition = {property:string, modelPath:string, ExpectedControllerClass:ControllerConstructor<any>};
 
 export class ControllerEnabledEvent extends ControllerEvent<object> { }
 export class ControllerDisabledEvent extends ControllerEvent<object> { }
@@ -62,9 +64,54 @@ export class ControllerActions extends Events {
 	}
 }
 
+// DECORATORS
+
+export function controller(modelPath:string, ExpectedControllerClass:ControllerConstructor<any>) {
+	return function (target: Controller, propertyName: string) {
+		target.static.defineControllerSlot(propertyName, modelPath, ExpectedControllerClass);
+	};
+}
+
+export function controllers(modelPath:string, ExpectedControllerClass:ControllerConstructor<any>) {
+	return function (target: Controller, propertyName: string) {
+		target.static.defineControllerList(propertyName, modelPath, ExpectedControllerClass);
+	}
+}
+
 @invInjectable()
 export default class Controller {
 	static ModelClass:(typeof ControllerModel) = ControllerModel; // should be set for each extending class
+
+	static createFactory() {
+		return new ControllerFactory();
+	}
+
+	private static _classControllerSlotDefinitions: ControllerSlotDefinition[] = [];
+	private static _classControllerListDefinitions: ControllerListDefinition[] = [];
+
+	public static get classControllerSlotDefinitions() {
+		// Override _classPropertyDefinitions so this class has its own set and it will not add its properties to its parent
+		if (!this.hasOwnProperty('_classControllerSlotDefinitions')) {
+			this._classControllerSlotDefinitions = [];
+		}
+		return this._classControllerSlotDefinitions;
+	}
+
+	public static get classControllerListDefinitions() {
+		// Override _classPropertyDefinitions so this class has its own set and it will not add its properties to its parent
+		if (!this.hasOwnProperty('_classControllerListDefinitions')) {
+			this._classControllerListDefinitions = [];
+		}
+		return this._classControllerListDefinitions;
+	}
+
+	static defineControllerSlot(property:string, modelPath:string, ExpectedControllerClass:ControllerConstructor<any>) {
+		this.classControllerSlotDefinitions.push({property, modelPath, ExpectedControllerClass});
+	}
+
+	static defineControllerList(property:string, modelPath:string, ExpectedControllerClass:ControllerConstructor<any>) {
+		this.classControllerListDefinitions.push({property, modelPath, ExpectedControllerClass});
+	}
 
 	readonly gid:alphanumeric;
 
@@ -122,8 +169,27 @@ export default class Controller {
 			this.engine.addFrameListener(this);
 		}
 
+		this.initClassDefinitions();
 		this.init(model);
 		this.initialized = true;
+	}
+
+	initClassDefinitions() {
+		// To be called for each class on the prototype chain
+		const _defineData = (Class: typeof Controller) => {
+			if (Class !== Controller) {
+				// Define class properties of parent class
+				_defineData(Object.getPrototypeOf(Class));
+			}
+			// Define class properties of this class
+			Class.classControllerSlotDefinitions.forEach(definition => {
+				(this as any)[definition.property] = this.controller(definition.modelPath, definition.ExpectedControllerClass);
+			});
+			Class.classControllerListDefinitions.forEach(definition => {
+				(this as any)[definition.property] = this.controllers(definition.modelPath, definition.ExpectedControllerClass);
+			});
+		};
+		_defineData(this.static);
 	}
 
 	get static() {

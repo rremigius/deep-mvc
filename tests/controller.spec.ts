@@ -1,7 +1,7 @@
 import {assert} from 'chai';
-import Controller, {injectable as injectableController} from "@/Controller";
+import Controller, {controller, controllers, injectable as injectableController} from "@/Controller";
 import BehaviourModel from "@/models/BehaviourModel";
-import {collection, Collection, injectable, MozelFactory, property, reference} from "mozel";
+import Mozel, {collection, Collection, injectable, MozelFactory, property, reference, required} from "mozel";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import EngineInterface, {EngineActions, EngineEvents} from "@/Engine/EngineInterface";
 import {FrameListener} from "@/Engine";
@@ -9,6 +9,9 @@ import {Container} from "inversify";
 import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
 import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
 import {isNil} from 'lodash';
+import ControllerModel from "@/models/ControllerModel";
+import ControllerSlot from "@/Controller/ControllerSlot";
+import ControllerList from "@/Controller/ControllerList";
 
 const modelContainer = new Container({autoBindInjectable:true});
 const controllerContainer = new Container({autoBindInjectable:true});
@@ -47,7 +50,7 @@ class MockEngine implements EngineInterface {
 describe('Controller', () => {
 	it('changing children in Mozel reflects in Controller', () => {
 		const modelFactory = new MozelFactory(modelContainer);
-		const controllerFactory = new ControllerFactory(new MockEngine(), controllerContainer);
+		const controllerFactory = new ControllerFactory(controllerContainer);
 
 		const fooModel = modelFactory.create(FooModel, {}, true);
 		const fooController = controllerFactory.createAndResolveReferences(fooModel, FooController);
@@ -90,7 +93,7 @@ describe('Controller', () => {
 				]
 			});
 
-			const factory = new ControllerFactory(new MockEngine(), controllerContainer);
+			const factory = new ControllerFactory(controllerContainer);
 			const controller = factory.createAndResolveReferences(foo, FooController);
 
 			const gid11 = controller.childFoos.find({gid: 11});
@@ -131,7 +134,7 @@ describe('Controller', () => {
 				otherBar: {gid: 2}
 			}, true);
 
-			const factory = new ControllerFactory(new MockEngine(), container);
+			const factory = new ControllerFactory(container);
 			const bar = factory.createAndResolveReferences<BarController>(barModel, BarController);
 
 			assert.equal(bar.childBar.get(), bar.otherBar.get(), "Child and reference refer to same Controller");
@@ -148,6 +151,40 @@ describe('Controller', () => {
 
 			barModel.otherBar = barModel.childBar;
 			assert.equal(bar.otherBar.get(), bar.childBar.get(), "Setting reference to same model will resolve to same controller");
+		});
+	});
+	describe("@controller and @controllerList", () => {
+		it("create a ControllerSlot and ControllerList, respectively", () => {
+			class FooModel extends ControllerModel {
+				@property(String, {required})
+				name!:string;
+				@property(FooModel)
+				foo?:FooModel;
+				@collection(FooModel)
+				foos!:Collection<FooModel>;
+			}
+			const controllerFactory = Controller.createFactory();
+			const modelFactory = Mozel.createFactory();
+
+			@injectableController(controllerFactory.diContainer)
+			class FooController extends Controller {
+				static ModelClass = FooModel;
+				model!:FooModel;
+				@controller('foo', FooController)
+				foo!:ControllerSlot<FooController>;
+				@controllers('foos', FooController)
+				foos!:ControllerList<FooController>;
+			}
+
+			const fooModel = modelFactory.create(FooModel, {
+				foo: {name: 'foo1'},
+				foos: [{name: 'foo2'}]
+			});
+
+			const fooController = controllerFactory.createAndResolveReferences(fooModel, FooController);
+
+			assert.equal(fooController.foo.get()!.model, fooModel.foo, "ControllerSlot synchronized");
+			assert.equal(fooController.foos.getIndex(0).model, fooModel.foos.get(0), "ControllerList synchronized");
 		});
 	});
 });

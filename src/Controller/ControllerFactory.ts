@@ -19,7 +19,6 @@ export default class ControllerFactory {
 
 	// If not set in constructor params, will be set in constructor. And readonly, so will always have value.
 	readonly diContainer!:Container;
-
 	readonly engine:EngineInterface;
 	public eventBus:Events;
 	public readonly registry:Registry<Controller>;
