@@ -11,6 +11,7 @@ import {isNumber} from "lodash";
 import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
 import BehaviourController from "@/Controller/BehaviourController";
 import ControllerList from "@/Controller/ControllerList";
+import {schema} from "mozel";
 
 const log = Log.instance("Engine/Object");
 
@@ -24,9 +25,10 @@ export default class ObjectController extends Controller {
 	private _root!:RootObjectRenderInterface;
 	get root(){ return this._root; };
 
-	@controllers('behaviours', BehaviourController)
+	@controllers(schema(ObjectModel).behaviours, BehaviourController)
 	behaviours!:ControllerList<BehaviourController>;
-	@controllers('triggers', TriggerController)
+
+	@controllers(schema(ObjectModel).triggers, TriggerController)
 	triggers!:ControllerList<TriggerController>;
 
 	init(xrObject:ControllerModel) {

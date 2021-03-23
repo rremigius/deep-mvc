@@ -4,6 +4,7 @@ import TriggerModel from "@/models/TriggerModel";
 import {forEach, isEmpty, isPlainObject, isString} from 'lodash';
 import ControllerSlot from "@/Controller/ControllerSlot";
 import {isSubClass} from "validation-kit";
+import {schema} from "mozel";
 
 const log = Log.instance("controller/trigger");
 
@@ -16,9 +17,10 @@ export default class TriggerController extends Controller {
 
 	private defaultController?:Controller;
 
-	@controller('event.source')
+	@controller(schema(TriggerModel).event.source, Controller)
 	source!:ControllerSlot<Controller>;
-	@controller('action.target')
+
+	@controller(schema(TriggerModel).action.target, Controller)
 	target!:ControllerSlot<Controller>;
 
 	get triggerModel() {

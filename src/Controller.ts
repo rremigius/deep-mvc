@@ -14,11 +14,7 @@ import EventBus from "@/EventBus";
 import EventEmitter, {callback, Events} from "@/EventEmitter";
 import {isString} from 'lodash';
 import Property from "mozel/dist/Property";
-
-// Because for some reason it does not want to take it from validation-kit
-type Constructor<T> = {
-	new (...args: any[]): T;
-};
+import {Constructor} from "validation-kit";
 
 export {injectable};
 
