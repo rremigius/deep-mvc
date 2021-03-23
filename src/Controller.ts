@@ -8,13 +8,17 @@ import EventListener from "@/EventListener";
 import RenderFactory from "@/renderers/RenderFactory";
 import ControllerList from "@/Controller/ControllerList";
 import ControllerSlot from "@/Controller/ControllerSlot";
-import {alphanumeric, Registry} from "mozel";
+import {alphanumeric, CollectionSchema, MozelSchema, Registry} from "mozel";
 import ControllerModel from "@/models/ControllerModel";
-import {Constructor} from "validation-kit";
 import EventBus from "@/EventBus";
 import EventEmitter, {callback, Events} from "@/EventEmitter";
-import PropertySync from "@/Controller/PropertySync";
+import {isString} from 'lodash';
 import Property from "mozel/dist/Property";
+
+// Because for some reason it does not want to take it from validation-kit
+type Constructor<T> = {
+	new (...args: any[]): T;
+};
 
 export {injectable};
 
@@ -66,14 +70,22 @@ export class ControllerActions extends Events {
 
 // DECORATORS
 
-export function controller(modelPath:string, ExpectedControllerClass:ControllerConstructor<any> = Controller) {
+export function controller<C extends Controller, M extends C['model']>(
+	modelPath:string|MozelSchema<M>,
+	ExpectedControllerClass:ControllerConstructor<C>
+) {
 	return function (target: Controller, propertyName: string) {
+		if(!isString(modelPath)) modelPath = modelPath.$path;
 		target.static.defineControllerSlot(propertyName, modelPath, ExpectedControllerClass);
 	};
 }
 
-export function controllers(modelPath:string, ExpectedControllerClass:ControllerConstructor<any> = Controller) {
+export function controllers<C extends Controller, M extends C['model']>(
+	modelPath:string|CollectionSchema<M>,
+	ExpectedControllerClass:ControllerConstructor<C>
+) {
 	return function (target: Controller, propertyName: string) {
+		if(!isString(modelPath)) modelPath = modelPath.$path;
 		target.static.defineControllerList(propertyName, modelPath, ExpectedControllerClass);
 	}
 }

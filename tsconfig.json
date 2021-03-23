@@ -10,7 +10,13 @@
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./src/*"]
-		}
+		},
+		"lib": [
+			"esnext",
+			"dom",
+			"dom.iterable",
+			"scripthost"
+		]
 	},
 	"ts-node": {
 		"files": true

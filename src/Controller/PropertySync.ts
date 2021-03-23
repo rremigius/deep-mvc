@@ -1,10 +1,9 @@
 import Controller from "@/Controller";
-import Mozel, {Collection} from "mozel";
+import Mozel from "mozel";
 import {isString} from 'lodash';
 import {callback, Events} from "@/EventEmitter";
 import Property, {PropertyType, PropertyValue} from "mozel/dist/Property";
 import {check, Constructor, instanceOf} from "validation-kit";
-import ControllerList from "@/Controller/ControllerList";
 
 export class ValueChangeEvent<T> {
 	constructor(

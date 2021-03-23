@@ -5,15 +5,16 @@ import SceneModel from "@/models/SceneModel";
 import TriggerController from "./TriggerController";
 import RootObjectRender from "@/renderers/common/ObjectRenderInterface/RootObjectRenderInterface";
 import ControllerList from "@/Controller/ControllerList";
+import {schema} from "mozel";
 
 @injectable()
 export default class SceneController extends Controller {
 	static ModelClass = SceneModel;
 	model!:SceneModel;
 
-	@controllers('objects', ObjectController)
+	@controllers(schema(SceneModel).objects, ObjectController)
 	objects!:ControllerList<ObjectController>;
-	@controllers('triggers', TriggerController)
+	@controllers(schema(SceneModel).triggers, TriggerController)
 	triggers!:ControllerList<TriggerController>;
 
 	private _root!:RootObjectRender;
