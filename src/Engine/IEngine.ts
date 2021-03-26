@@ -1,17 +1,21 @@
 import {FrameListener} from "@/Engine";
 import ICameraView from "@/Engine/views/common/IObjectView/ICameraView";
-import {Events} from "@/EventEmitter";
+import {ControllerActions, ControllerEvents} from "@/Controller";
 
 export class MarkerDetectedEvent {
 	constructor(public id:string, public first:boolean) {}
 }
 
-export class EngineEvents extends Events {
+export class EngineEvents extends ControllerEvents {
 	markerDetected = this.$event(MarkerDetectedEvent);
 }
 
-export class EngineActions extends Events {
+export class EnginePauseAction {
+	constructor() {}
+}
 
+export class EngineActions extends ControllerActions {
+	pause = this.$action(EnginePauseAction);
 }
 
 /**
@@ -21,8 +25,8 @@ export default interface IEngine {
 	camera?:ICameraView;
 	addFrameListener:(f:FrameListener)=>void;
 	removeFrameListener:(f:FrameListener)=>void;
-	events:EngineEvents;
-	actions:EngineActions;
+	readonly events:EngineEvents;
+	readonly actions:EngineActions;
 }
 
 export const IEngineSymbol = Symbol("IEngine");
