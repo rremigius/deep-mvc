@@ -1,14 +1,12 @@
 import {Container, inject, injectable, optional} from "inversify";
-import { isSubClass} from "validation-kit";
+import {isSubClass} from "validation-kit";
 import Controller, {ControllerConstructor} from "@/Controller";
-import ControllerModel from "@/models/ControllerModel";
-import xrControllerContainer from "@/Controller/inversify";
-import EngineInterface, {EngineInterfaceType} from "@/Engine/EngineInterface";
+import ControllerModel from "@/ControllerModel";
+import controllerContainer from "@/Controller/dependencies";
 import {Registry} from "mozel";
 import Log from "@/log";
 import EventBus from "@/EventBus";
 import {Events} from "@/EventEmitter";
-import BaseEngine from "@/BaseEngine";
 
 const log = Log.instance("controller-factory");
 
@@ -18,41 +16,36 @@ export const ControllerModelType = Symbol.for('ControllerModel');
 export default class ControllerFactory {
 
 	// If not set in constructor params, will be set in constructor. And readonly, so will always have value.
-	readonly diContainer!:Container;
-	readonly engine:EngineInterface;
+	readonly dependencies!:Container;
 	public eventBus:Events;
 	public readonly registry:Registry<Controller>;
 
 	constructor(
 		@inject('container') @optional() diContainer?:Container,
 		@inject(EventBus) @optional() eventBus?:Events,
-		@inject(Registry) @optional() controllerRegistry?:Registry<Controller>,
-		@inject(EngineInterfaceType) @optional() engine?:EngineInterface,
+		@inject(Registry) @optional() controllerRegistry?:Registry<Controller>
 	) {
 		this.registry = controllerRegistry || new Registry<Controller>();
-		this.engine = engine || new BaseEngine();
 		this.eventBus = eventBus || new Events(true);
 
 		const localContainer = new Container({autoBindInjectable:true});
 
 		// Set default bindings as parent
-		localContainer.parent = xrControllerContainer;
+		localContainer.parent = controllerContainer;
+
+		// Given container gets priority, then localContainer, then default
+		if(diContainer) {
+			this.dependencies = diContainer;
+			this.dependencies.parent = localContainer;
+		} else {
+			this.dependencies = localContainer;
+		}
 
 		// Set scoped globals
 		localContainer.bind(ControllerFactory).toConstantValue(this);
 		localContainer.bind(Registry).toConstantValue(this.registry);
 		localContainer.bind(EventBus).toConstantValue(this.eventBus);
-		if(this.engine) {
-			localContainer.bind(EngineInterfaceType).toConstantValue(this.engine);
-		}
-
-		// Given container gets priority, then localContainer, then default
-		if(diContainer) {
-			this.diContainer = diContainer;
-			this.diContainer.parent = localContainer;
-		} else {
-			this.diContainer = localContainer;
-		}
+		localContainer.bind(Container).toConstantValue(this.dependencies);
 	}
 
 	/**
@@ -61,7 +54,7 @@ export default class ControllerFactory {
 	 */
 	extendDIContainer(model:ControllerModel) {
 		const extension = new Container({autoBindInjectable:true});
-		extension.parent = this.diContainer;
+		extension.parent = this.dependencies;
 
 		// ControllerModel needs a Model in the constructor so we inject it through the container.
 		extension.bind(ControllerModelType).toConstantValue(model);

@@ -3,10 +3,10 @@ import Controller from "threear/dist/Controller";
 import Engine from "@/Engine";
 
 import * as THREEAR from 'threear';
-import SceneModel from "@/models/SceneModel";
-import {MarkerDetectedEvent} from "@/Engine/EngineInterface";
-import ThreeRenderer from "@/renderers/threejs/ThreeRenderer";
-import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
+import SceneModel from "@/Engine/models/SceneModel";
+import {MarkerDetectedEvent} from "@/Engine/IEngine";
+import ThreeViewer from "@/Engine/views/threejs/ThreeViewer";
+import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 
 const log = Log.instance("Engine/THREEAR");
 
@@ -25,9 +25,9 @@ export default class ThreeAREngine extends Engine {
 		this.delaySceneStart = true;
 	}
 
-	checkRenderer(renderer:any):renderer is ThreeRenderer {
-		if(!(renderer instanceof ThreeRenderer)) {
-			throw new Error("Invalid WebGLRenderer");
+	checkViewer(renderer:any):renderer is ThreeViewer {
+		if(!(renderer instanceof ThreeViewer)) {
+			throw new Error("Invalid WebGLViewer");
 		}
 		return true;
 	}
@@ -45,13 +45,13 @@ export default class ThreeAREngine extends Engine {
 		const camera = parts.camera;
 
 		// Typeguard
-		if(!this.checkRenderer(renderer) || !this.checkCamera(camera)) {
+		if(!this.checkViewer(renderer) || !this.checkCamera(camera)) {
 			return parts;
 		}
 
 		//@ts-ignore (THREEAR messed up the SourceParameter type so it requires all properties although in the code it doesn't).
 		this.arSource = new THREEAR.Source({
-			renderer: renderer.getWebGLRenderer(),
+			renderer: renderer.getWebGLViewer(),
 			camera: camera.getObject3D(),
 			parent: container
 		});
@@ -68,7 +68,7 @@ export default class ThreeAREngine extends Engine {
 
 		let patternMarker = new THREEAR.PatternMarker({
 			patternUrl: this.xrScene.marker,
-			markerObject: this.rootObject.getRenderObject()
+			markerObject: this.rootObject.getViewObject()
 		});
 
 		// Because of the earlier ts-ignore, TS does not know we just set this.arController to a Controller.
@@ -140,10 +140,10 @@ export default class ThreeAREngine extends Engine {
 
 	onResize() {
 		super.onResize();
-		if(!this.checkRenderer(this.renderer)) return;
+		if(!this.checkViewer(this.renderer)) return;
 
 		if(this.renderer && this.arController && this.arSource) {
-			this.arController.onResize(this.renderer.getWebGLRenderer());
+			this.arController.onResize(this.renderer.getWebGLViewer());
 		}
 	}
 }

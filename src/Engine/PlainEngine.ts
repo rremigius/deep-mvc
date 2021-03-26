@@ -1,6 +1,6 @@
 import Engine from "@/Engine";
 import {OrbitControls} from "three-orbitcontrols-ts";
-import ThreeCamera from "../renderers/threejs/ThreeObject/ThreeCamera";
+import ThreeCamera from "../views/threejs/ThreeObject/ThreeCamera";
 import Err from "@utils/error";
 
 export default class PlainEngine extends Engine {

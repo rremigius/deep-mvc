@@ -1,8 +1,6 @@
 import {assert} from 'chai';
-
-import ConditionModel from "@/models/ConditionModel";
 import {MozelFactory} from "mozel";
-import ConditionEqualsModel from "@/models/ConditionModel/ConditionEqualsModel";
+import ConditionEqualsModel from "@/Engine/models/ConditionModel/ConditionEqualsModel";
 import {ControllerEvent} from "@/Controller";
 
 describe("ConditionEqualsModel", () => {

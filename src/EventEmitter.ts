@@ -70,6 +70,11 @@ export class Events {
 	private readonly $allowDynamicEvents:boolean;
 	private readonly $byName:Record<string,EventEmitter<unknown>> = {};
 
+	static getEventName(event:string|Class) {
+		if(isClass(event)) return event.name;
+		return event;
+	}
+
 	constructor(allowDynamicEvents:boolean = false) {
 		this.$allowDynamicEvents = allowDynamicEvents;
 	}
@@ -113,8 +118,8 @@ export class Events {
 	 * @param {callback} callback
 	 */
 	$on(event:string|Class, callback:callback<unknown>) {
-		const eventInterface = this.$get(event);
-		eventInterface.on(callback);
+		const Ievent = this.$get(event);
+		Ievent.on(callback);
 	}
 
 	/**
@@ -123,8 +128,8 @@ export class Events {
 	 * @param callback
 	 */
 	$off(event:string|Class, callback:callback<unknown>) {
-		const eventInterface = this.$get(event);
-		eventInterface.off(callback);
+		const Ievent = this.$get(event);
+		Ievent.off(callback);
 	}
 
 	/**
@@ -143,7 +148,7 @@ export class Events {
 	 * @param event
 	 */
 	$get(event:string|Class):EventEmitter<unknown> {
-		event = this.$getEventName(event);
+		event = Events.getEventName(event);
 		if(!(event in this.$byName)) {
 			if (!this.$allowDynamicEvents) {
 				throw new Error(`Unknown event '${event}'.`);
@@ -153,10 +158,5 @@ export class Events {
 		}
 
 		return this.$byName[event];
-	}
-
-	private $getEventName(event:string|Class) {
-		if(isClass(event)) return event.name;
-		return event;
 	}
 }

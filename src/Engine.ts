@@ -1,4 +1,4 @@
-import SceneModel from "@/models/SceneModel";
+import SceneModel from "@/Engine/models/SceneModel";
 
 import Log from "@/log";
 import Loading from "deep-loader";
@@ -7,18 +7,18 @@ import SceneController from "@/Controller/SceneController";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import {Container, inject} from "inversify";
 // Make THREE rendering classes available in THREE container
-import "./renderers/threejs/all";
-import threeContainer from "@/renderers/threejs/inversify";
+import "./views/threejs/all";
+import threeContainer from "@/Engine/views/threejs/dependencies";
 
 import {remove} from 'lodash';
 import EventBus from "@/EventBus";
-import SceneRenderInterface from "@/renderers/common/ObjectRenderInterface/SceneRenderInterface";
-import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
-import RenderFactory from "@/renderers/RenderFactory";
-import RendererInterface from "@/renderers/common/RendererInterface";
-import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
-import LightRenderInterface from "@/renderers/common/ObjectRenderInterface/LightRenderInterface";
-import EngineInterface, {EngineActions, EngineEvents} from "@/Engine/EngineInterface";
+import ISceneView from "@/Engine/views/common/IObjectView/ISceneView";
+import ICameraView from "@/Engine/views/common/IObjectView/ICameraView";
+import ViewFactory from "@/Engine/views/RenderFactory";
+import IViewer from "@/Engine/views/common/IViewer";
+import IView from "@/Engine/views/common/IObjectView";
+import ILightView from "@/Engine/views/common/IObjectView/ILightView";
+import IEngine, {EngineActions, EngineEvents} from "@/Engine/IEngine";
 import {Constructor} from "validation-kit";
 import EventEmitter, {callback} from "@/EventEmitter";
 
@@ -28,15 +28,15 @@ export type FrameListener = {
 	frame:()=>void
 };
 
-export default class Engine implements EngineInterface {
+export default class Engine implements IEngine {
 	protected delaySceneStart: boolean = false;
 
-	camera?:CameraRenderInterface
-	protected scene?:SceneRenderInterface;
-	protected renderer?:RendererInterface;
+	camera?:ICameraView
+	protected scene?:ISceneView;
+	protected renderer?:IViewer;
 
-	protected css3dRenderer?:RendererInterface;
-	protected rootObject:ObjectRenderInterface;
+	protected css3dViewer?:IViewer;
+	protected rootObject:IView;
 
 	protected container: HTMLElement;
 	protected xrScene: SceneModel;
@@ -46,7 +46,7 @@ export default class Engine implements EngineInterface {
 	public events = new EngineEvents();
 
 	/**
-	 * ControllerFactory to set up the Engine elements. Initialize with default container from Engine/inversify.
+	 * ControllerFactory to set up the Engine elements. Initialize with default container from Engine/dependencies.
 	 */
 	@inject(ControllerFactory)
 	protected xrControllerFactory!:ControllerFactory;
@@ -55,7 +55,7 @@ export default class Engine implements EngineInterface {
 
 	private running:boolean = false;
 	private readonly sceneController:SceneController;
-	protected readonly renderFactory:RenderFactory;
+	protected readonly renderFactory:ViewFactory;
 
 	readonly loading:Loading = new Loading('Engine');
 
@@ -65,14 +65,14 @@ export default class Engine implements EngineInterface {
 		this.container = container;
 		this.xrScene = xrScene;
 		this.eventBus = new EventBus();
-		this.renderFactory = this.createRenderFactory();
+		this.renderFactory = this.createViewFactory();
 
 		this.rootObject = this.createSceneRootObject();
 
 		const diContainer = new Container();
 
 		// Override RenderFactory with the given one
-		diContainer.bind<RenderFactory>(RenderFactory).toConstantValue(this.renderFactory);
+		diContainer.bind<ViewFactory>(ViewFactory).toConstantValue(this.renderFactory);
 
 		this.xrControllerFactory = new ControllerFactory(this, diContainer);
 
@@ -115,12 +115,12 @@ export default class Engine implements EngineInterface {
 		}
 	}
 
-	addToSceneRoot(object:ObjectRenderInterface) {
+	addToSceneRoot(object:IView) {
 		this.rootObject.add(object);
 	}
 
 	createSceneRootObject() {
-		const root = this.renderFactory.create<ObjectRenderInterface>("ObjectRenderInterface");
+		const root = this.renderFactory.create<IView>("IObjectView");
 		root.setName("Root");
 		return root;
 	}
@@ -131,14 +131,14 @@ export default class Engine implements EngineInterface {
 
 	/**
 	 * Creates the engine's Camera, Scene and Renderer, and attaches the renderer to the container.
-	 * Calls createCamera, createScene and createRenderer. Can be overridden if all three are returned, and the renderer is attached.
+	 * Calls createCamera, createScene and createViewer. Can be overridden if all three are returned, and the renderer is attached.
 	 *
 	 * @param {HTMLElement} container				The container to attach the renderer to.
-	 * @return {camera:Camera, scene:ObjectInterface, renderer:WebGLRenderer, attached:boolean}
+	 * @return {camera:Camera, scene:IObject, renderer:WebGLViewer, attached:boolean}
 	 */
 	async initEngine(container:HTMLElement) {
 		let camera = this.createCamera();
-		let renderer = this.createRenderer();
+		let renderer = this.createViewer();
 		let scene = this.createScene(camera);
 
 		return {camera, renderer, scene};
@@ -155,8 +155,8 @@ export default class Engine implements EngineInterface {
 	/**
 	 * Creates a Camera for use in the Engine.
 	 */
-	createCamera():CameraRenderInterface {
-		const camera = this.renderFactory.create<CameraRenderInterface>("CameraRenderInterface");
+	createCamera():ICameraView {
+		const camera = this.renderFactory.create<ICameraView>("ICameraView");
 		camera.setPosition({z: 5});
 
 		return camera;
@@ -165,26 +165,26 @@ export default class Engine implements EngineInterface {
 	/**
 	 * Creates a Renderer for use in the Engine
 	 */
-	createRenderer():RendererInterface {
-		return this.renderFactory.get<RendererInterface>("RendererInterface");
+	createViewer():IViewer {
+		return this.renderFactory.get<IViewer>("IViewer");
 	}
 
 	/**
 	 * Creates a RenderFactory for use in the Engine and Controllers
 	 */
-	createRenderFactory() {
-		return new RenderFactory(threeContainer);
+	createViewFactory() {
+		return new ViewFactory(threeContainer);
 	}
 
 	/**
-	 * Creates a SceneRenderInterface containing the camera and the sceneGroup.
-	 * @param {CameraRenderInterface} camera
+	 * Creates a ISceneView containing the camera and the sceneGroup.
+	 * @param {ICameraView} camera
 	 */
-	createScene(camera: CameraRenderInterface): SceneRenderInterface {
-		const scene = this.renderFactory.create<SceneRenderInterface>("SceneRenderInterface");
+	createScene(camera: ICameraView): ISceneView {
+		const scene = this.renderFactory.create<ISceneView>("ISceneView");
 
 		// Add lights
-		const light = this.renderFactory.create<LightRenderInterface>("LightRenderInterface");
+		const light = this.renderFactory.create<ILightView>("ILightView");
 		scene.add(light);
 
 		// Add camera
@@ -196,7 +196,7 @@ export default class Engine implements EngineInterface {
 	/**
 	 * Attaches the renderers to the container.
 	 * @param {HTMLElement} container
-	 * @param {RendererInterface} renderer	A specific renderer to attach.
+	 * @param {IViewer} renderer	A specific renderer to attach.
 	 */
 	attach(container:HTMLElement) {
 		this.container = container;
@@ -210,7 +210,7 @@ export default class Engine implements EngineInterface {
 
 	/**
 	 * Detaches the (given) renderer from the given container.
-	 * @param {WebGLRenderer} [renderer]
+	 * @param {WebGLViewer} [renderer]
 	 */
 	detach() {
 		if(!this.renderer) return;
@@ -280,8 +280,8 @@ export default class Engine implements EngineInterface {
 		if(this.renderer) {
 			this.renderer.render(this.scene, this.camera);
 		}
-		if(this.css3dRenderer) {
-			this.css3dRenderer.render(this.scene, this.camera);
+		if(this.css3dViewer) {
+			this.css3dViewer.render(this.scene, this.camera);
 		}
 	}
 

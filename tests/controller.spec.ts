@@ -1,15 +1,15 @@
 import {assert} from 'chai';
 import Controller, {controller, controllers, injectable as injectableController} from "@/Controller";
-import BehaviourModel from "@/models/BehaviourModel";
+import BehaviourModel from "@/Engine/models/BehaviourModel";
 import Mozel, {collection, Collection, injectable, MozelFactory, property, reference, required} from "mozel";
 import ControllerFactory from "@/Controller/ControllerFactory";
-import EngineInterface, {EngineActions, EngineEvents} from "@/Engine/EngineInterface";
+import IEngine, {EngineActions, EngineEvents} from "@/Engine/IEngine";
 import {FrameListener} from "@/Engine";
 import {Container} from "inversify";
-import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
-import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
+import CameraRenderInterface from "@/Engine/views/common/IObjectView/ICameraView";
+import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import {isNil} from 'lodash';
-import ControllerModel from "@/models/ControllerModel";
+import ControllerModel from "@/ControllerModel";
 import ControllerSlot from "@/Controller/ControllerSlot";
 import ControllerList from "@/Controller/ControllerList";
 
@@ -39,7 +39,7 @@ class FooController extends Controller {
 	}
 }
 
-class MockEngine implements EngineInterface {
+class MockEngine implements IEngine {
 	camera:CameraRenderInterface = new ThreeCamera();
 	addFrameListener(f:FrameListener) { };
 	removeFrameListener(f: FrameListener) { }
@@ -164,7 +164,7 @@ describe('Controller', () => {
 			const controllerFactory = Controller.createFactory();
 			const modelFactory = Mozel.createFactory();
 
-			@injectableController(controllerFactory.diContainer)
+			@injectableController(controllerFactory.dependencies)
 			class FooController extends Controller {
 				static ModelClass = FooModel;
 				model!:FooModel;

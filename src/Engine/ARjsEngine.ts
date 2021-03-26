@@ -1,14 +1,14 @@
 import Log from "@/log';
 import Engine from "@/Engine";
 
-import SceneModel from "@/models/SceneModel";
-import {MarkerDetectedEvent} from "@/Engine/EngineInterface";
-import ThreeRenderer from "@/renderers/threejs/ThreeRenderer";
-import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
+import SceneModel from "@/Engine/models/SceneModel";
+import {MarkerDetectedEvent} from "@/Engine/IEngine";
+import ThreeViewer from "@/Engine/views/threejs/ThreeViewer";
+import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import {Object3D} from "three";
-import ObjectRenderInterface from "@/renderers/common/ObjectRenderInterface";
-import ThreeObject from "@/renderers/threejs/ThreeObject";
-import Vector3 from "@/renderers/common/Vector3";
+import IView from "@/Engine/views/common/IObjectView";
+import ThreeObject from "@/Engine/views/threejs/ThreeObject";
+import Vector3 from "@/Engine/views/common/Vector3";
 
 const log = Log.instance("Engine/ARjs");
 
@@ -33,9 +33,9 @@ export default class ARjsEngine extends Engine {
 		this.delaySceneStart = true;
 	}
 
-	checkRenderer(renderer:any):renderer is ThreeRenderer {
-		if(!(renderer instanceof ThreeRenderer)) {
-			throw new Error("Invalid WebGLRenderer");
+	checkViewer(renderer:any):renderer is ThreeViewer {
+		if(!(renderer instanceof ThreeViewer)) {
+			throw new Error("Invalid WebGLViewer");
 		}
 		return true;
 	}
@@ -59,7 +59,7 @@ export default class ARjsEngine extends Engine {
 		return root;
 	}
 
-	addToSceneRoot(object: ObjectRenderInterface<Object3D>) {
+	addToSceneRoot(object: IView<Object3D>) {
 		if(!this.scalingObject) {
 			throw new Error("ARjsEngine was not properly initialized. ScalingObject not yet created.");
 		}
@@ -69,7 +69,7 @@ export default class ARjsEngine extends Engine {
 	async initEngine(container:HTMLElement) {
 		const parts = await super.initEngine(container);
 
-		if(!this.checkCamera(parts.camera) || !this.checkRenderer(parts.renderer)) {
+		if(!this.checkCamera(parts.camera) || !this.checkViewer(parts.renderer)) {
 			log.error("Wrong engine parts.");
 			return parts;
 		}
@@ -115,7 +115,7 @@ export default class ARjsEngine extends Engine {
 
 		// init controls for camera
 		log.info("Setting up marker...");
-		this.arMarkerControls = new THREEx.ArMarkerControls(this.arContext, this.rootObject.getRenderObject(), {
+		this.arMarkerControls = new THREEx.ArMarkerControls(this.arContext, this.rootObject.getViewObject(), {
 			type : 'nft',
 			descriptorsUrl : this.xrScene.marker,
 			smooth: true,

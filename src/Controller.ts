@@ -1,15 +1,14 @@
-import {inject, injectable as invInjectable, LazyServiceIdentifer} from "inversify";
+import {Container, inject, injectable as invInjectable, LazyServiceIdentifer} from "inversify";
 import ControllerFactory, {ControllerModelType} from "@/Controller/ControllerFactory";
 import Log from "@/log";
 import Loader from "deep-loader";
-import EngineInterface, {EngineInterfaceType} from "@/Engine/EngineInterface";
-import {injectable} from "@/Controller/inversify";
+import {injectable} from "@/Controller/dependencies";
 import EventListener from "@/EventListener";
-import RenderFactory from "@/renderers/RenderFactory";
+import ViewFactory from "@/Engine/views/ViewFactory";
 import ControllerList from "@/Controller/ControllerList";
 import ControllerSlot from "@/Controller/ControllerSlot";
 import {alphanumeric, CollectionSchema, MozelSchema, Registry} from "mozel";
-import ControllerModel from "@/models/ControllerModel";
+import ControllerModel from "@/ControllerModel";
 import EventBus from "@/EventBus";
 import EventEmitter, {callback, Events} from "@/EventEmitter";
 import {isString} from 'lodash';
@@ -125,10 +124,10 @@ export default class Controller {
 
 	public readonly model:ControllerModel;
 	readonly factory:ControllerFactory;
-	readonly engine:EngineInterface;
 	readonly registry:Registry<Controller>;
 	readonly eventBus:EventBus;
-	readonly renderFactory:RenderFactory;
+	readonly viewFactory:ViewFactory;
+	readonly dependencies:Container;
 
 	children:Record<string, ControllerSlot<Controller>|ControllerList<Controller>> = {};
 
@@ -150,10 +149,10 @@ export default class Controller {
 		@inject(new LazyServiceIdentifer(()=>ControllerModelType)) model:ControllerModel,
 		// using LazyServiceIdentifier to prevent circular dependency problem
 		@inject(new LazyServiceIdentifer(()=>ControllerFactory)) controllerFactory:ControllerFactory,
-		@inject(EngineInterfaceType) xrEngine:EngineInterface,
 		@inject(Registry) registry:Registry<Controller>,
 		@inject(EventBus) eventBus:EventBus,
-		@inject(RenderFactory) renderFactory:RenderFactory
+		@inject(ViewFactory) renderFactory:ViewFactory,
+		@inject(Container) dependencyContainer:Container
 	) {
 		if(!this.static.ModelClass || !(model instanceof this.static.ModelClass)) {
 			throw new Error(`Invalid Model provided to Controller '${this.static.name}'.`);
@@ -161,20 +160,15 @@ export default class Controller {
 		this.model = model;
 		this.gid = model.gid;
 		this.factory = controllerFactory;
-		this.engine = xrEngine;
 		this.registry = registry;
 		this.eventBus = eventBus;
-		this.renderFactory = renderFactory;
+		this.viewFactory = renderFactory;
+		this.dependencies = dependencyContainer;
 
 		this.initialized = false;
 
 		const name = this.static.name;
 		this.loading = new Loader(name);
-
-		// We don't want to traverse the hierarchy on every frame, so only registered elements are called.
-		if(this.isFrameListener()) {
-			this.engine.addFrameListener(this);
-		}
 
 		this.initClassDefinitions();
 		this.init(model);
@@ -283,10 +277,6 @@ export default class Controller {
 		return eventListener;
 	}
 
-	isFrameListener() {
-		return this.onFrame !== Controller.prototype.onFrame;
-	}
-
 	/**
 	 * Runs the given callback on all children.
 	 * @param callback
@@ -345,9 +335,6 @@ export default class Controller {
 		this.enable(enabled);
 	}
 	destroy() {
-		if(this.isFrameListener()) {
-			this.engine.removeFrameListener(this);
-		}
 		this.stopListening();
 
 		this.onDestroy();

@@ -1,5 +1,5 @@
 import ControllerList from "@/Controller/ControllerList";
-import ControllerModel from "@/models/ControllerModel";
+import ControllerModel from "@/ControllerModel";
 import {Collection, collection} from "mozel";
 import {Container} from "inversify";
 import ControllerFactory from "@/Controller/ControllerFactory";

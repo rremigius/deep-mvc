@@ -1,27 +1,24 @@
 import {assert} from 'chai';
 import {describe} from 'mocha';
-import EngineInterface, {EngineActions, EngineEvents} from "@/Engine/EngineInterface";
-import {FrameListener} from "@/Engine";
 import {MozelFactory} from "mozel";
-import TriggerController from "@/Controller/TriggerController";
+import TriggerController from "@/Engine/controllers/TriggerController";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import {Container} from "inversify";
-import CameraRenderInterface from "@/renderers/common/ObjectRenderInterface/CameraRenderInterface";
-import ThreeCamera from "@/renderers/threejs/ThreeObject/ThreeCamera";
-import SceneModel from "@/models/SceneModel";
-import ObjectModel from "@/models/ObjectModel";
-import SceneController from "@/Controller/SceneController";
-import "@/Controller/all";
-import "@/renderers/headless/all";
-import RenderFactory from "@/renderers/RenderFactory";
-import ActionModel from "@/models/ActionModel";
-import TriggerModel from "@/models/TriggerModel";
-import BehaviourModel from "@/models/BehaviourModel";
-import BehaviourController from "@/Controller/BehaviourController";
+import SceneModel from "@/Engine/models/SceneModel";
+import ObjectModel from "@/Engine/models/ObjectModel";
+import SceneController from "@/Engine/controllers/SceneController";
+import "@/Engine/controllers/all";
+import "@/Engine/views/headless/all";
+import RenderFactory from "@/Engine/views/ViewFactory";
+import ActionModel from "@/Engine/models/ActionModel";
+import TriggerModel from "@/Engine/models/TriggerModel";
+import BehaviourModel from "@/Engine/models/BehaviourModel";
+import BehaviourController from "@/Engine/controllers/BehaviourController";
 import {ControllerAction, ControllerEvent} from "@/Controller";
-import "jsdom-global";
-import headlessContainer from "@/renderers/headless/inversify";
-import ConditionEqualsModel from "@/models/ConditionModel/ConditionEqualsModel";
+import headlessContainer from "@/Engine/views/headless/dependencies";
+import ConditionEqualsModel from "@/Engine/models/ConditionModel/ConditionEqualsModel";
+import {IEngineSymbol} from "@/Engine/IEngine";
+import BaseEngine from "@/Engine/BaseEngine";
 
 class Factory {
 	model:MozelFactory;
@@ -35,6 +32,7 @@ class Factory {
 			controllerContainer.parent = controllerContainer
 		}
 		controllerContainer.bind(RenderFactory).toConstantValue(new RenderFactory(headlessContainer));
+		controllerContainer.bind(IEngineSymbol).toConstantValue(new BaseEngine());
 		this.controller = new ControllerFactory(controllerContainer);
 	}
 }
