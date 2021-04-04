@@ -1,5 +1,5 @@
-import IViewer from "@/Engine/views/common/IViewer";
-import {Color, Vector2, WebGLViewer} from 'three';
+import IRenderer, {IRendererSymbol} from "@/Engine/views/common/IRenderer";
+import {Color, Vector2, WebGLRenderer} from 'three';
 import threeContainer from "@/Engine/views/threejs/dependencies";
 import ThreeScene from "@/Engine/views/threejs/ThreeScene";
 import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
@@ -7,14 +7,14 @@ import ThreeInteractionManager from "@/Engine/views/threejs/ThreeInteractionMana
 import {injectable} from "@/Engine/views/dependencies";
 import {CSS3DViewer} from "three-css3drenderer";
 
-@injectable(threeContainer, "IViewer")
-export default class ThreeViewer implements IViewer {
-	renderer:WebGLViewer;
+@injectable(threeContainer, IRendererSymbol)
+export default class ThreeViewer implements IRenderer {
+	renderer:WebGLRenderer;
 	interactionManager:ThreeInteractionManager = new ThreeInteractionManager();
 	css3DViewer = new CSS3DViewer();
 
 	constructor() {
-		const renderer = new WebGLViewer({alpha: true});
+		const renderer = new WebGLRenderer({alpha: true});
 		renderer.setClearColor(new Color('lightgrey'), 0);
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.domElement.style.position = 'absolute';

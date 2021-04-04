@@ -151,7 +151,7 @@ export default class Controller {
 		@inject(new LazyServiceIdentifer(()=>ControllerFactory)) controllerFactory:ControllerFactory,
 		@inject(Registry) registry:Registry<Controller>,
 		@inject(EventBus) eventBus:EventBus,
-		@inject(ViewFactory) renderFactory:ViewFactory,
+		@inject(ViewFactory) viewFactory:ViewFactory,
 		@inject(Container) dependencyContainer:Container
 	) {
 		if(!this.static.ModelClass || !(model instanceof this.static.ModelClass)) {
@@ -162,7 +162,7 @@ export default class Controller {
 		this.factory = controllerFactory;
 		this.registry = registry;
 		this.eventBus = eventBus;
-		this.viewFactory = renderFactory;
+		this.viewFactory = viewFactory;
 		this.dependencies = dependencyContainer;
 
 		this.initialized = false;

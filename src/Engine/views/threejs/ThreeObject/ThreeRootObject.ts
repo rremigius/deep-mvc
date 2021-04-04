@@ -1,22 +1,19 @@
 import ThreeObject from "@/Engine/views/threejs/ThreeObject";
 import {Object3D} from "three";
 import {alphanumeric} from "mozel";
-import IRootObjectView, {
-	ObjectClickEvent,
-	ObjectClickEventEmitter
-} from "@/Engine/views/common/IObjectView/IRootObjectView";
 import {injectable} from "@/Engine/views/dependencies";
 import threeContainer from "@/Engine/views/threejs/dependencies";
+import IViewRoot, {IViewRootSymbol, ViewClickEvent, ViewClickEventEmitter} from "@/IViewRoot";
 
 export class RootObject3D extends Object3D {
 	public gid: alphanumeric = 0;
-	onClick(event:ObjectClickEvent){};
+	onClick(event:ViewClickEvent){};
 }
 
-@injectable(threeContainer, "IRootObjectView")
-export default class ThreeRootObject extends ThreeObject implements IRootObjectView {
+@injectable(threeContainer, IViewRootSymbol)
+export default class ThreeRootObject extends ThreeObject implements IViewRoot {
 	events = {
-		click: new ObjectClickEventEmitter()
+		click: new ViewClickEventEmitter()
 	}
 
 	get gid() {

@@ -17,8 +17,6 @@ import BehaviourController from "@/Engine/controllers/BehaviourController";
 import {ControllerAction, ControllerEvent} from "@/Controller";
 import headlessContainer from "@/Engine/views/headless/dependencies";
 import ConditionEqualsModel from "@/Engine/models/ConditionModel/ConditionEqualsModel";
-import {IEngineSymbol} from "@/Engine/IEngine";
-import BaseEngine from "@/Engine/BaseEngine";
 
 class Factory {
 	model:MozelFactory;
@@ -32,7 +30,6 @@ class Factory {
 			controllerContainer.parent = controllerContainer
 		}
 		controllerContainer.bind(RenderFactory).toConstantValue(new RenderFactory(headlessContainer));
-		controllerContainer.bind(IEngineSymbol).toConstantValue(new BaseEngine());
 		this.controller = new ControllerFactory(controllerContainer);
 	}
 }

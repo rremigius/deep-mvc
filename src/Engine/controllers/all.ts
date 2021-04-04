@@ -1,3 +1,4 @@
+import './SceneController';
 import './ObjectController/Model3DController';
 import './ObjectController/ImageController';
 import './ObjectController/GraphController';

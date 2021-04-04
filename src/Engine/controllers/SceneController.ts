@@ -1,29 +1,27 @@
-import Controller, {controllers, injectable} from "@/Controller";
+import {controllers, injectable} from "@/Controller";
 import ControllerModel from "@/ControllerModel";
 import ObjectController from "@/Engine/controllers/ObjectController";
 import SceneModel from "@/Engine/models/SceneModel";
 import TriggerController from "./TriggerController";
-import RootObjectView from "@/Engine/views/common/IObjectView/IRootObjectView";
 import ControllerList from "@/Controller/ControllerList";
 import {schema} from "mozel";
-import XRController from "@/Engine/XRController";
+import ViewController from "@/Controller/ViewController";
+import ISceneView, {ISceneViewSymbol} from "@/Engine/views/common/ISceneView";
 
 @injectable()
-export default class SceneController extends XRController {
+export default class SceneController extends ViewController {
 	static ModelClass = SceneModel;
 	model!:SceneModel;
+	viewInterface = ISceneViewSymbol;
+	get view() { return super.view as ISceneView };
 
 	@controllers(schema(SceneModel).objects, ObjectController)
 	objects!:ControllerList<ObjectController>;
 	@controllers(schema(SceneModel).triggers, TriggerController)
 	triggers!:ControllerList<TriggerController>;
 
-	private _root!:RootObjectView;
-	get root() { return this._root; }
-
 	init(model:ControllerModel) {
 		super.init(model);
-		this._root = this.viewFactory.create<RootObjectView>("IRootObjectView");
 
 		this.objects.events.added.on(event => this.onObjectAdded(event.controller));
 		this.objects.events.removed.on(event => this.onObjectRemoved(event.controller));

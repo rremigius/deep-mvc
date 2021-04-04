@@ -1,7 +1,7 @@
 import ObjectController from "@/Engine/controllers/ObjectController";
 import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
 import {injectable} from "@/Controller/dependencies";
-import IVideoView from "@/Engine/views/common/IObjectView/IVideoView";
+import IVideoView, {IVideoViewSymbol} from "@/Engine/views/common/IObjectView/IVideoView";
 import Log from "@/log";
 
 const log = Log.instance("xrengine/video");
@@ -12,7 +12,7 @@ export default class VideoController extends ObjectController {
 
 	log = log;
 
-	private videoView: IVideoView = this.viewFactory.create<IVideoView>("IVideoView");
+	private videoView: IVideoView = this.viewFactory.create<IVideoView>(IVideoViewSymbol);
 
 	get xrVideo() {
 		return <VideoModel>this.model;

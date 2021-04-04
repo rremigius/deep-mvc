@@ -1,11 +1,11 @@
 import {Scene} from "three";
-import ISceneView from "@/Engine/views/common/ISceneView";
+import ISceneView, {ISceneViewSymbol} from "@/Engine/views/common/ISceneView";
 import {injectable} from "@/Engine/views/dependencies";
 import threeContainer from "@/Engine/views/threejs/dependencies";
 import ThreeObject from "@/Engine/views/threejs/ThreeObject";
 import {alphanumeric} from "mozel";
 
-@injectable(threeContainer, "ISceneView")
+@injectable(threeContainer, ISceneViewSymbol)
 export default class ThreeScene extends ThreeObject implements ISceneView {
 	public gid: alphanumeric = "_SCENE"; // Will be overwritten by ObjectController
 

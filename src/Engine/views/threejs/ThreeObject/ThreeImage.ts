@@ -8,7 +8,7 @@ import ThreeRootObject from "@/Engine/views/threejs/ThreeObject/ThreeRootObject"
 
 const log = Log.instance("Controller/Object/Object3D");
 
-@injectable(threeContainer, "IImageView")
+@injectable(threeContainer, IImageViewSymbol)
 export default class ThreeImage extends ThreeRootObject implements IImageView {
 	async load(xrImage: ImageModel): Promise<this> {
 		return new Promise((resolve, reject) => {

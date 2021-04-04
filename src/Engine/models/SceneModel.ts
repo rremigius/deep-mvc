@@ -1,14 +1,11 @@
 import {collection, Collection, property, required} from "mozel"
 import ObjectModel from './ObjectModel';
-import ControllerModel from "@/ControllerModel";
 import TriggerModel, {UnknownTriggerModel} from "./TriggerModel";
 import {EngineType} from "@/Engine/viewer-settings";
+import ViewModel from "@/ViewModel";
 
-export default class SceneModel extends ControllerModel {
+export default class SceneModel extends ViewModel {
 	static get type() { return 'Scene' };
-
-	@property(String, {required})
-	name!:string;
 
 	@property(String, {required})
 	description!:string;

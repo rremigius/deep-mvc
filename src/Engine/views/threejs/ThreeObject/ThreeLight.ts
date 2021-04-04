@@ -8,7 +8,7 @@ export enum LightType {
 	AMBIENT
 }
 
-@injectable(threeContainer, "ILightView")
+@injectable(threeContainer, ILightViewSymbol)
 export default class ThreeLight extends ThreeObject implements ILightView {
 	light:Light;
 	color:number|string;

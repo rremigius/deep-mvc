@@ -1,12 +1,12 @@
 import ObjectView from "@/Engine/views/headless/ObjectView";
 import IGraphView, {
 	GraphConfig, GraphData,
-	GraphSetup
+	GraphSetup, IGraphViewSymbol
 } from "@/Engine/views/common/IObjectView/IGraphView";
 import headlessContainer from "@/Engine/views/headless/dependencies";
 import {injectable} from "@/Engine/views/dependencies";
 
-injectable(headlessContainer, "IGraphView")
+injectable(headlessContainer, IGraphViewSymbol)
 export default class GraphView extends ObjectView implements IGraphView {
 	config(config: GraphConfig): void {
 	}

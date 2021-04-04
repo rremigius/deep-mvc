@@ -3,14 +3,14 @@ import Log from "@/log";
 import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
 import IView from "@/Engine/views/common/IObjectView";
 import {injectable} from "@/Controller/dependencies";
-import IImageView from "@/Engine/views/common/IObjectView/IImageView";
+import IImageView, {IImageViewSymbol} from "@/Engine/views/common/IObjectView/IImageView";
 
 const log = Log.instance("Engine/Object/Image");
 
 @injectable()
 export default class ImageController extends ObjectController {
 	static ModelClass = ImageModel;
-	private imageView: IImageView = this.viewFactory.create<IImageView>("IImageView");
+	private imageView: IImageView = this.viewFactory.create<IImageView>(IImageViewSymbol);
 
 	log = log;
 

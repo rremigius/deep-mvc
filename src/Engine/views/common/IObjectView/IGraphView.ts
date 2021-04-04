@@ -7,6 +7,7 @@ export default interface IGraphView extends IView {
 	setData(data:GraphData):void;
 	onFrame(): void;
 }
+export const IGraphViewSymbol = Symbol.for("IGraphView");
 
 type Node = {id:string|number, name?:string, val?:any};
 type Link = {source:string|number, target:string|number};

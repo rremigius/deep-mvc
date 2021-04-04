@@ -3,7 +3,7 @@ import SceneModel from "@/Engine/models/SceneModel";
 import Log from "@/log";
 import Loading from "deep-loader";
 
-import SceneController from "@/Controller/SceneController";
+import SceneController from "@/Engine/controllers/SceneController";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import {Container, inject} from "inversify";
 // Make THREE rendering classes available in THREE container
@@ -138,7 +138,7 @@ export default class Engine implements IEngine {
 	 */
 	async initEngine(container:HTMLElement) {
 		let camera = this.createCamera();
-		let renderer = this.createViewer();
+		let renderer = this.createRenderer();
 		let scene = this.createScene(camera);
 
 		return {camera, renderer, scene};
@@ -165,7 +165,7 @@ export default class Engine implements IEngine {
 	/**
 	 * Creates a Renderer for use in the Engine
 	 */
-	createViewer():IViewer {
+	createRenderer():IViewer {
 		return this.renderFactory.get<IViewer>("IViewer");
 	}
 

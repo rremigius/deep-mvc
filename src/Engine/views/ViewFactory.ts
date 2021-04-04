@@ -1,8 +1,5 @@
 import {Container, inject, injectable, optional} from "inversify";
-import Log from "@/log";
-import IView from "@/Engine/views/common/IObjectView";
-
-const log = Log.instance("RenderFactory");
+import IView from "@/IView";
 
 @injectable()
 export default class ViewFactory {
@@ -11,7 +8,7 @@ export default class ViewFactory {
 	readonly diContainer:Container;
 
 	constructor(
-		@inject('RenderContainer') @optional() diContainer?:Container,
+		@inject('ViewDependencies') @optional() diContainer?:Container,
 	) {
 		if(!diContainer) {
 			this.diContainer = new Container({autoBindInjectable:true});
@@ -22,11 +19,11 @@ export default class ViewFactory {
 
 	/**
 	 * Creates an IObject
-	 * @param {T} interfaceName
+	 * @param {T} interfaceSymbol
 	 */
-	create<T extends IView>(interfaceName:string):T {
+	create<T extends IView>(interfaceSymbol:symbol):T {
 		let container = this.diContainer;
-		return container.get<T>(interfaceName);
+		return container.get<T>(interfaceSymbol);
 	}
 
 	get<T>(binding:any):T {

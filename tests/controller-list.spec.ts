@@ -1,22 +1,21 @@
 import ControllerList from "@/Controller/ControllerList";
 import ControllerModel from "@/ControllerModel";
 import {Collection, collection} from "mozel";
-import {Container} from "inversify";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import Controller, {injectable} from "@/Controller";
 import {assert} from "chai";
+import {createDependencyContainer} from "@/Controller/dependencies";
 
 describe("ControllerList", () => {
 	it("cleans up listeners from collection after collection was removed", () => {
-		const controllerContainer = new Container({autoBindInjectable:true});
-
-		const controllerFactory = new ControllerFactory(controllerContainer);
+		const controllerDependencies = createDependencyContainer();
+		const controllerFactory = new ControllerFactory(controllerDependencies);
 
 		class FooModel extends ControllerModel {
 			@collection(FooModel)
 			foos!:Collection<FooModel>;
 		}
-		@injectable()
+		@injectable(controllerDependencies)
 		class FooController extends Controller {
 			static ModelClass = FooModel
 			model!:FooModel;

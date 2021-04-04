@@ -19,3 +19,4 @@ export default interface IVideoView extends IView {
 	pause():void;
 	stop():void;
 }
+export const IVideoViewSymbol = Symbol.for("IVideoView");

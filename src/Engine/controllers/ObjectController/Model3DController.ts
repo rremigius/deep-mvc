@@ -3,10 +3,10 @@ import {ControllerEvent, ControllerEvents, injectable} from "@/Controller";
 import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
 import Log from "@/log";
 import IView from "@/Engine/views/common/IObjectView";
-import IModel3DView from "@/Engine/views/common/IObjectView/IModel3DView";
-import {ObjectClickEvent} from "@/Engine/views/common/IObjectView/IRootObjectView";
+import IModel3DView, {IModel3DViewSymbol} from "@/Engine/views/common/IObjectView/IModel3DView";
 import {Object3D} from "three";
 import {check, instanceOf} from "validation-kit";
+import {ViewClickEvent} from "@/IViewRoot";
 
 const log = Log.instance("Controller/Object/Object3D");
 
@@ -18,7 +18,7 @@ export class Model3DControllerEvents extends ControllerEvents {
 @injectable()
 export default class Model3DController extends ObjectController {
 	static ModelClass = Model3DModel;
-	private modelView: IModel3DView = this.viewFactory.create<IModel3DView>("IModel3DView");
+	private modelView: IModel3DView = this.viewFactory.create<IModel3DView>(IModel3DViewSymbol);
 
 	log = log;
 	events = new Model3DControllerEvents();
@@ -27,7 +27,7 @@ export default class Model3DController extends ObjectController {
 		super.init(xrObject);
 	}
 
-	onClick(event:ObjectClickEvent): void {
+	onClick(event:ViewClickEvent): void {
 		super.onClick(event);
 
 		const meshNames = event.intersects.map(mesh => {

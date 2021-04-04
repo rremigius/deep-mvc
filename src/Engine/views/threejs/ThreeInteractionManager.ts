@@ -3,10 +3,10 @@ import {Object3D, Raycaster, Vector2} from "three";
 import ThreeScene from "./ThreeObject/ThreeScene";
 import {injectable} from "@/Engine/views/dependencies";
 import threeContainer from "@/Engine/views/threejs/dependencies";
-import {ObjectClickEvent} from "@/Engine/views/common/IObjectView/IRootObjectView";
+import {ObjectClickEvent} from "@/Engine/views/common/IObjectView/IViewRoot";
 import {RootObject3D} from "@/Engine/views/threejs/ThreeObject/ThreeRootObject";
 
-@injectable(threeContainer, "IInteractionManager")
+@injectable(threeContainer, IInteractionManagerSymbol)
 export default class ThreeInteractionManager {
 	protected mouse = new Vector2();
 	protected raycaster = new Raycaster();

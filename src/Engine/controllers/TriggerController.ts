@@ -5,14 +5,13 @@ import {forEach, isEmpty, isPlainObject, isString} from 'lodash';
 import ControllerSlot from "@/Controller/ControllerSlot";
 import {isSubClass} from "validation-kit";
 import {schema} from "mozel";
-import XRController from "@/Engine/XRController";
 
 const log = Log.instance("controller/trigger");
 
 type UnknownTrigger = TriggerModel<ControllerEvent<object>,ControllerAction<object>>;
 
 @injectable()
-export default class TriggerController extends XRController {
+export default class TriggerController extends Controller {
 	static ModelClass = TriggerModel;
 	model!:TriggerModel<any,any>; // TS: initialized in super constructor
 

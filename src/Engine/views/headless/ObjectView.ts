@@ -1,9 +1,9 @@
 import {injectable} from "@/Engine/views/dependencies";
-import IView from "@/Engine/views/common/IObjectView";
+import IView, {IObjectViewSymbol} from "@/Engine/views/common/IObjectView";
 import Vector3, {SparseVector3} from "@/Engine/views/common/Vector3";
 import headlessContainer from "@/Engine/views/headless/dependencies";
 
-@injectable(headlessContainer, "IObjectView")
+@injectable(headlessContainer, IObjectViewSymbol)
 export default class ObjectView implements IView {
 	position:Vector3;
 	scale:Vector3;
