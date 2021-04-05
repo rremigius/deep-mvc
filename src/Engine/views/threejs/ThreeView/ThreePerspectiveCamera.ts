@@ -1,11 +1,10 @@
 import {PerspectiveCamera} from "three";
 import ICameraView, {ICameraViewSymbol} from "@/Engine/views/common/IObjectView/ICameraView";
 import {injectable} from "@/Engine/views/dependencies";
-import container from '../dependencies';
-import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
-import {alphanumeric} from "mozel";
+import ThreeCamera from "@/Engine/views/threejs/ThreeView/ThreeCamera";
+import threeViewDependencies from "../dependencies";
 
-@injectable(container, ICameraViewSymbol)
+@injectable(threeViewDependencies, ICameraViewSymbol)
 export default class ThreePerspectiveCamera extends ThreeCamera implements ICameraView {
 	createObject3D() {
 		return new PerspectiveCamera();

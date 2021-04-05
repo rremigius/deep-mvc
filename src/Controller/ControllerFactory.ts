@@ -7,6 +7,7 @@ import {Registry} from "mozel";
 import Log from "@/log";
 import EventBus from "@/EventBus";
 import {Events} from "@/EventEmitter";
+import ViewFactory from "@/Engine/views/ViewFactory";
 
 const log = Log.instance("controller-factory");
 
@@ -21,12 +22,14 @@ export default class ControllerFactory {
 	public readonly registry:Registry<Controller>;
 
 	constructor(
-		@inject('container') @optional() diContainer?:Container,
+		@inject('dependencies') @optional() dependencies?:Container,
+		@inject(ViewFactory) @optional() viewFactory?:ViewFactory,
 		@inject(EventBus) @optional() eventBus?:Events,
 		@inject(Registry) @optional() controllerRegistry?:Registry<Controller>
 	) {
 		this.registry = controllerRegistry || new Registry<Controller>();
 		this.eventBus = eventBus || new Events(true);
+		viewFactory = viewFactory || new ViewFactory();
 
 		const localContainer = new Container({autoBindInjectable:true});
 
@@ -34,8 +37,8 @@ export default class ControllerFactory {
 		localContainer.parent = controllerContainer;
 
 		// Given container gets priority, then localContainer, then default
-		if(diContainer) {
-			this.dependencies = diContainer;
+		if(dependencies) {
+			this.dependencies = dependencies;
 			this.dependencies.parent = localContainer;
 		} else {
 			this.dependencies = localContainer;
@@ -46,6 +49,7 @@ export default class ControllerFactory {
 		localContainer.bind(Registry).toConstantValue(this.registry);
 		localContainer.bind(EventBus).toConstantValue(this.eventBus);
 		localContainer.bind(Container).toConstantValue(this.dependencies);
+		localContainer.bind<ViewFactory>(ViewFactory).toConstantValue(viewFactory);
 	}
 
 	/**

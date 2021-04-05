@@ -366,12 +366,6 @@ export default class Controller {
 			child.enable(enabled);
 		});
 	}
-	frame() {
-		if(!this._enabled) {
-			return;
-		}
-		this.onFrame();
-	}
 
 	toString() {
 		return `${this.name} (${this.gid})`;
@@ -399,11 +393,6 @@ export default class Controller {
 	 * Called when the Controller is destroyed.
 	 */
 	onDestroy() {}
-
-	/**
-	 * Called on every frame. Performance-sensitive!
-	 */
-	onFrame() {}
 
 	/**
 	 * Called whenever the Controller is enabled

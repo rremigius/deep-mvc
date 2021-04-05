@@ -74,7 +74,7 @@ describe('TriggerController', () => {
 		const trigger = factory.controller.createAndResolveReferences(triggerModel, TriggerController);
 		trigger.start();
 
-		foo.events.$fire(FooEvent, new FooEvent(foo, {foo: expected}));
+		foo.events.$fire(new FooEvent(foo, {foo: expected}));
 	});
 
 	it('listens to an event on the EventBus if no source is provided on event model', done => {
@@ -108,7 +108,7 @@ describe('TriggerController', () => {
 		triggerCtl.start();
 
 		const eventBus = triggerCtl.eventBus;
-		eventBus.$fire(FooEvent, new FooEvent(undefined, { foo: expected }));
+		eventBus.$fire(new FooEvent(undefined, { foo: expected }));
 	});
 	it('with condition is not fired if condition is not met.', done=>{
 		const factory = new Factory();
@@ -154,7 +154,7 @@ describe('TriggerController', () => {
 		negativeTrigger.start();
 		positiveTrigger.start();
 
-		foo.events.$fire(FooEvent, new FooEvent(undefined, {foo: correctValue}));
+		foo.events.$fire(new FooEvent(undefined, {foo: correctValue}));
 	});
 	it('with default controller uses that controller for actions and events if no behaviour specified.', done=>{
 		const factory = new Factory();
@@ -177,7 +177,7 @@ describe('TriggerController', () => {
 		triggerController.setDefaultController(controller);
 		triggerController.start();
 
-		controller.events.$fire(FooEvent, new FooEvent(controller, {foo: 'bar'}));
+		controller.events.$fire(new FooEvent(controller, {foo: 'bar'}));
 	});
 	it('can be used on SceneController, ObjectController and BehaviourController.', done=>{
 		const factory = new Factory();
@@ -239,9 +239,9 @@ describe('TriggerController', () => {
 
 		scene.start(); // start event listeners
 
-		scene.events.$fire(SceneEvent, new SceneEvent(scene));
-		object.events.$fire(ObjectEvent, new ObjectEvent(object));
-		behaviour.events.$fire(BehaviourEvent, new BehaviourEvent(behaviour));
+		scene.events.$fire(new SceneEvent(scene));
+		object.events.$fire(new ObjectEvent(object));
+		behaviour.events.$fire(new BehaviourEvent(behaviour));
 
 		assert.equal(count, 3, "All 3 actions triggered.");
 		done();
@@ -296,7 +296,7 @@ describe('TriggerController', () => {
 		scene.start(); // start watchers and listeners
 
 		// BarEvent should trigger FooAction
-		bar.events.$fire(BarEvent, new BarEvent(bar));
+		bar.events.$fire(new BarEvent(bar));
 
 		const triggerModel = factory.model.registry.byGid('trigger');
 		if(!(triggerModel instanceof TriggerModel)) {
@@ -312,7 +312,7 @@ describe('TriggerController', () => {
 		actionShouldBeCalled = 'bar';
 
 		// FooEvent should trigger BarAction
-		foo.events.$fire(FooEvent, new FooEvent(foo));
+		foo.events.$fire(new FooEvent(foo));
 
 		assert.equal(count, 2, "The right number of actions was executed");
 		done();

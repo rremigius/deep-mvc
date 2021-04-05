@@ -1,8 +1,9 @@
 import {Object3D, Vector3} from "three";
-import threeContainer from "@/Engine/views/threejs/dependencies";
+import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import {default as V3, SparseVector3} from "@/Engine/views/common/Vector3";
 import IView, {IObjectViewSymbol} from "@/Engine/views/common/IObjectView";
 import {injectable} from "@/Engine/views/dependencies";
+import {IViewSymbol} from "@/IView";
 
 function applySparseVector(target:Vector3, source:SparseVector3) {
 	if(source.x !== undefined) {
@@ -16,8 +17,8 @@ function applySparseVector(target:Vector3, source:SparseVector3) {
 	}
 }
 
-@injectable(threeContainer, IObjectViewSymbol)
-export default class ThreeObject implements IView {
+@injectable(threeViewDependencies, IViewSymbol)
+export default class ThreeView implements IView {
 	readonly object3D:Object3D;
 
 	constructor() {
@@ -31,11 +32,11 @@ export default class ThreeObject implements IView {
 	public getObject3D() {
 		return this.object3D;
 	}
-	add(object: ThreeObject) {
+	add(object: ThreeView) {
 		this.object3D.add(object.getObject3D());
 		return this;
 	}
-	remove(object: ThreeObject) {
+	remove(object: ThreeView) {
 		this.object3D.remove(object.getObject3D());
 		return this;
 	}

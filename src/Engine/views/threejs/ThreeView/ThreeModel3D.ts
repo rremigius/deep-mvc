@@ -2,19 +2,19 @@ import IModel3DView, {IModel3DViewSymbol} from "@/Engine/views/common/IObjectVie
 import Model3DModel, {FileType} from "@/Engine/models/ObjectModel/Model3DModel";
 import {Group, Object3D} from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
-import {MaterialCreator, MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
+import {MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
 import ColladaLoader from "three-collada-loader-2";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
-import ThreeObject from "../ThreeObject";
+import ThreeView from "../ThreeView";
 import FileModel from "@/Engine/models/FileModel";
 import Log from "@/log";
 import {injectable} from "@/Engine/views/dependencies";
-import threeContainer from "@/Engine/views/threejs/dependencies";
+import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 
 const log = Log.instance("controller/object/model3d");
 
-@injectable(threeContainer, IModel3DViewSymbol)
-export class ThreeModel3D extends ThreeObject implements IModel3DView {
+@injectable(threeViewDependencies, IModel3DViewSymbol)
+export class ThreeModel3D extends ThreeView implements IModel3DView {
 	async load(xrModel3D: Model3DModel): Promise<this> {
 		switch(xrModel3D.determineFileType()) {
 			case FileType.Collada:
@@ -36,7 +36,7 @@ export class ThreeModel3D extends ThreeObject implements IModel3DView {
 		if(materialFile){
 			log.log("Loading OBJ material", materialFile.url);
 			const materialLoader = new MTLLoader();
-			await materialLoader.load(materialFile.url, (materialCreator: MaterialCreator) => {
+			await materialLoader.load(materialFile.url, materialCreator => {
 				materialCreator.preload();
 				loader.setMaterials(materialCreator as any); // Typings for `setMaterials` seem to be wrong.
 

@@ -2,14 +2,14 @@ import {Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
 import Log from "@/log";
 import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
 import {injectable} from "@/Engine/views/dependencies";
-import threeContainer from "@/Engine/views/threejs/dependencies";
-import IImageView from "@/Engine/views/common/IObjectView/IImageView";
-import ThreeRootObject from "@/Engine/views/threejs/ThreeObject/ThreeRootObject";
+import threeViewDependencies from "@/Engine/views/threejs/dependencies";
+import IImageView, {IImageViewSymbol} from "@/Engine/views/common/IObjectView/IImageView";
+import ThreeView from "../ThreeView";
 
 const log = Log.instance("Controller/Object/Object3D");
 
-@injectable(threeContainer, IImageViewSymbol)
-export default class ThreeImage extends ThreeRootObject implements IImageView {
+@injectable(threeViewDependencies, IImageViewSymbol)
+export default class ThreeImage extends ThreeView implements IImageView {
 	async load(xrImage: ImageModel): Promise<this> {
 		return new Promise((resolve, reject) => {
 			if (!xrImage.file || !xrImage.file.url) {

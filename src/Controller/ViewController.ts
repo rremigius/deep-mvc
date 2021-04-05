@@ -12,18 +12,23 @@ import {schema} from "mozel";
 
 @injectable()
 export default class ViewController extends Controller {
-	static ModelClass = ViewModel;
+	static readonly ModelClass = ViewModel;
+	static readonly ViewInterface:symbol = IViewSymbol;
+
 	model!:ViewModel;
-	readonly viewInterface:symbol = IViewSymbol;
 
 	@controllers(schema(ViewModel).children, ViewController)
-	views!:ControllerList<ViewController>;
+	views!:ControllerList<ViewController>; // cannot call it `children` due to conflict with Controller.children
 
 	private _root!:IViewRoot;
 	get root(){ return this._root; };
 
-	private _view?:IView;
+	private _view!:IView;
 	get view() { return this._view; };
+
+	get static() {
+		return <typeof ViewController>this.constructor;
+	}
 
 	init(model: ControllerModel) {
 		super.init(model);
@@ -32,6 +37,10 @@ export default class ViewController extends Controller {
 		this._root = this.viewFactory.create<IViewRoot>(IViewRootSymbol);
 		this._root.gid = model.gid;
 		this._root.events.click.on(event => this.onClick(event));
+
+		// Create the view and add to root
+		this._view = this.createView();
+		this._root.add(this._view);
 
 		// Watch the model for changes
 		this.model.$watch({
@@ -63,18 +72,12 @@ export default class ViewController extends Controller {
 	}
 
 	// Can be overridden if initialization is more complex than creating an interface from the ViewFactory.
-	createView():Promise<IView> {
-		return Promise.resolve(this.viewFactory.create<IView>(this.viewInterface));
+	createView():IView {
+		return this.viewFactory.create<IView>(this.static.ViewInterface);
 	}
 
 	// For override
 	onClick(event:ViewClickEvent): void {	}
-
-	async onLoad() {
-		const view = await this.createView();
-		this._view = view;
-		this.root.add(view);
-	}
 
 	onPositionChanged(newPosition:Vector3Model) {
 		this.root.setPosition(new Vector3(newPosition.x, newPosition.y, newPosition.z));

@@ -11,8 +11,9 @@ import ISceneView, {ISceneViewSymbol} from "@/Engine/views/common/ISceneView";
 @injectable()
 export default class SceneController extends ViewController {
 	static ModelClass = SceneModel;
+	static ViewInterface = ISceneViewSymbol;
+
 	model!:SceneModel;
-	viewInterface = ISceneViewSymbol;
 	get view() { return super.view as ISceneView };
 
 	@controllers(schema(SceneModel).objects, ObjectController)

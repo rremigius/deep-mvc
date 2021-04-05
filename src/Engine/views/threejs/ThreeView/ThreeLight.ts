@@ -1,15 +1,11 @@
-import ThreeObject from "@/Engine/views/threejs/ThreeObject";
+import ThreeView from "@/Engine/views/threejs/ThreeView";
 import {AmbientLight, Color, Light} from "three";
-import ILightView from "@/Engine/views/common/IObjectView/ILightView";
+import ILightView, {ILightViewSymbol, LightType} from "@/Engine/views/common/IObjectView/ILightView";
 import {injectable} from "@/Engine/views/dependencies";
-import threeContainer from "@/Engine/views/threejs/dependencies";
+import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 
-export enum LightType {
-	AMBIENT
-}
-
-@injectable(threeContainer, ILightViewSymbol)
-export default class ThreeLight extends ThreeObject implements ILightView {
+@injectable(threeViewDependencies, ILightViewSymbol)
+export default class ThreeLight extends ThreeView implements ILightView {
 	light:Light;
 	color:number|string;
 	lightType:LightType;

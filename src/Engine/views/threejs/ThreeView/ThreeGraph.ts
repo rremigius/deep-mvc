@@ -1,18 +1,18 @@
 import GraphNode from "@/Engine/models/ObjectModel/GraphModel/GraphNodeModel";
 import {Camera, Material, Mesh, MeshLambertMaterial, Object3D, SphereGeometry} from "three";
-import ThreeObject from "../ThreeObject";
+import ThreeView from "../ThreeView";
 import tinycolor from 'tinycolor2';
 import {CSS3DObject} from "three-css3drenderer";
 import {get} from 'lodash';
 import IGraphView, {
 	GraphConfig,
 	GraphData,
-	GraphSetup
+	GraphSetup, IGraphViewSymbol
 } from "@/Engine/views/common/IObjectView/IGraphView";
 import ThreeCamera from "./ThreeCamera";
 import ThreeForceGraph from "three-forcegraph";
 import {injectable} from "@/Engine/views/dependencies";
-import threeContainer from "@/Engine/views/threejs/dependencies";
+import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import Log from "@/log";
 
 const colorStr2Hex = (str: string) => parseInt(tinycolor(str).toHex(), 16);
@@ -20,8 +20,8 @@ const colorAlpha = (str: string) => tinycolor(str).getAlpha();
 
 const log = Log.instance("Engine/Renderer/ThreeGraph");
 
-@injectable(threeContainer, IGraphViewSymbol)
-export default class ThreeGraph extends ThreeObject implements IGraphView {
+@injectable(threeViewDependencies, IGraphViewSymbol)
+export default class ThreeGraph extends ThreeView implements IGraphView {
 
 	// Cache
 	private sphereGeometries: Record<number, SphereGeometry> = {};
@@ -55,7 +55,7 @@ export default class ThreeGraph extends ThreeObject implements IGraphView {
 		return new CSS3DObject(labelDiv);
 	}
 
-	createNodeThreeObject(graphNode: GraphNode, autoColor?: string) {
+	createNodeThreeView(graphNode: GraphNode, autoColor?: string) {
 		// Example taken from default node creation in three-forcegraph
 		const geometrySize = Math.cbrt(graphNode.size) * 4;
 		if (!this.sphereGeometries.hasOwnProperty(geometrySize)) {
@@ -110,8 +110,8 @@ export default class ThreeGraph extends ThreeObject implements IGraphView {
 			})
 			.nodeOpacity(this.graphConfig.nodeOpacity)
 			.linkOpacity(this.graphConfig.linkOpacity)
-			.nodeThreeObject((node: any) =>
-				this.createNodeThreeObject(node.graphNode, node.color)
+			.nodeThreeView((node: any) =>
+				this.createNodeThreeView(node.graphNode, node.color)
 			);
 
 		// Coloring

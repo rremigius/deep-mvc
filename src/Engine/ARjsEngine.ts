@@ -1,88 +1,76 @@
-import Log from "@/log';
-import Engine from "@/Engine";
-
-import SceneModel from "@/Engine/models/SceneModel";
-import {MarkerDetectedEvent} from "@/Engine/IEngine";
-import ThreeViewer from "@/Engine/views/threejs/ThreeViewer";
-import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
-import {Object3D} from "three";
-import IView from "@/Engine/views/common/IObjectView";
-import ThreeObject from "@/Engine/views/threejs/ThreeObject";
+import EngineAbstract from "@/Engine/EngineAbstract";
+import threeViewDependencies from "@/Engine/views/threejs/dependencies";
+import IRenderer from "@/Engine/views/common/IRenderer";
+import ThreeRenderer from "@/Engine/views/threejs/ThreeRenderer";
+import ThreeCamera from "@/Engine/views/threejs/ThreeView/ThreeCamera";
+import Log from "@/log";
+import {Camera} from "three";
 import Vector3 from "@/Engine/views/common/Vector3";
+import {MarkerDetectedEvent} from "@/Engine/controllers/EngineController";
 
-const log = Log.instance("Engine/ARjs");
-
-const trackingLostDelay = 500;
+const log = Log.instance("engine/arjs");
 
 // Loaded in index.html
 const THREEx = (window as any).THREEx;
 
-export default class ARjsEngine extends Engine {
+const trackingLostDelay = 500;
+
+export default class ARjsEngine extends EngineAbstract {
+	static getDefaultViewDependencies() {
+		return threeViewDependencies;
+	}
+
 	private tracking:boolean = false;
 	private firstDetection:boolean = true;
 	private lastTracked:number = 0;
 
-	private arSource?:any; // ArToolkitSource
-	private arContext?:any; // ArToolkitContext
+	private arSource!:any; // ArToolkitSource
+	private arContext!:any; // ArToolkitContext
 	private arMarkerControls?:any; // ArMarkerControls
 
-	private scalingObject?:ThreeObject;
+	protected renderer!:ThreeRenderer; // TS: created in constructor
 
-	constructor(container:HTMLElement, xrScene:SceneModel) {
-		super(container, xrScene);
-		this.delaySceneStart = true;
+	get camera() {
+		const camera = super.camera;
+		if(!(camera instanceof ThreeCamera)) throw new Error("Camera is not a ThreeCamera.");
+		return camera;
 	}
 
-	checkViewer(renderer:any):renderer is ThreeViewer {
-		if(!(renderer instanceof ThreeViewer)) {
-			throw new Error("Invalid WebGLViewer");
-		}
-		return true;
-	}
+	init() {
+		log.info("Setting up ARToolkit...");
 
-	checkCamera(camera:any):camera is ThreeCamera {
-		if(!(camera instanceof ThreeCamera)) {
-			throw new Error("Invalid THREE Camera");
-		}
-		return true;
-	}
+		this.arSource = this.createARSource(this.renderer.renderer.domElement);
+		this.arContext = this.createARContext(this.camera.getObject3D());
 
-	createSceneRootObject() {
-		const root = super.createSceneRootObject();
+		// init controls for camera
+		log.info("Setting up marker...");
+		this.arMarkerControls = this.createARMarkerControls();
 
 		// ARjs has a fixed scale for their markers, so we need a scaling object between the root and the rest
-		this.scalingObject = new ThreeObject();
-		this.scalingObject.setName("MarkerScaling");
-		this.scalingObject.setScale(new Vector3(100,100,100));
-		root.add(this.scalingObject);
-
-		return root;
+		const scale = this.controller.model.scale;
+		this.controller.root.setScale(new Vector3(scale, scale, scale));
 	}
 
-	addToSceneRoot(object: IView<Object3D>) {
-		if(!this.scalingObject) {
-			throw new Error("ARjsEngine was not properly initialized. ScalingObject not yet created.");
-		}
-		this.scalingObject.add(object);
+	async load() {
+		// Seems that AR.js doesn't have a non-global event to listen to, so we listen to this event once.
+		return new Promise<void>(resolve => {
+			const listener = () => {
+				log.info("Marker loaded.");
+				resolve();
+				window.removeEventListener('arjs-nft-loaded', listener);
+			}
+			window.addEventListener('arjs-nft-loaded', listener);
+		});
 	}
 
-	async initEngine(container:HTMLElement) {
-		const parts = await super.initEngine(container);
-
-		if(!this.checkCamera(parts.camera) || !this.checkViewer(parts.renderer)) {
-			log.error("Wrong engine parts.");
-			return parts;
-		}
-
-		THREEx.ArToolkitContext.baseURL = '../';
-
-		const camera = parts.camera.getObject3D();
-
-		log.info("Setting up ARToolkit...");
-		this.arSource = new THREEx.ArToolkitSource({
+	/**
+	 * @param {HTMLCanvasElement} canvas	The renderer's HtmlElement.
+	 */
+	createARSource(canvas:HTMLCanvasElement) {
+		const source = new THREEx.ArToolkitSource({
 			sourceType : 'webcam'
 		})
-		this.arSource.init(() => {
+		source.init(() => {
 			// use a resize to fullscreen mobile devices
 			setTimeout(() => {
 				this.onResize();
@@ -90,18 +78,21 @@ export default class ARjsEngine extends Engine {
 				// Move video to be sibling of canvas
 				const video = this.arSource.domElement;
 				video.parentNode.removeChild(video);
-				const canvasParent = parts.renderer.getDOMElement().parentNode;
+				const canvasParent = canvas.parentNode;
 				if(!canvasParent) {
 					throw new Error("Canvas is not in DOM. Cannot move video.");
 				}
 				canvasParent.appendChild(video);
 			}, 1000);
 		});
+		return source;
+	}
 
-		this.arContext = new THREEx.ArToolkitContext({
+	createARContext(camera:Camera) {
+		const context = new THREEx.ArToolkitContext({
 			detectionMode: 'mono'
 		})
-		this.arContext.init(() => {
+		context.init(() => {
 			// copy projection matrix to camera
 			camera.projectionMatrix.copy( this.arContext.getProjectionMatrix() );
 
@@ -112,33 +103,23 @@ export default class ARjsEngine extends Engine {
 			m.elements[10] = -(far + near) / (far - near);
 			m.elements[14] = -(2 * far * near) / (far - near);
 		});
+		return context;
+	}
 
-		// init controls for camera
-		log.info("Setting up marker...");
-		this.arMarkerControls = new THREEx.ArMarkerControls(this.arContext, this.rootObject.getViewObject(), {
+	createARMarkerControls() {
+		const scene = this.controller.scene.get();
+		if(!scene) throw new Error("No Scene in Engine");
+
+		this.arMarkerControls = new THREEx.ArMarkerControls(this.arContext, this.controller.view, {
 			type : 'nft',
-			descriptorsUrl : this.xrScene.marker,
+			descriptorsUrl : scene.model.marker,
 			smooth: true,
 			smoothCount: 10 // instead of default 5
 		});
-
-		// Seems that AR.js doesn't have a non-global event to listen to, so we listen to this event once.
-		const loadingNFT = new Promise(resolve => {
-			const listener = () => {
-				resolve();
-				window.removeEventListener('arjs-nft-loaded', listener);
-			}
-			window.addEventListener('arjs-nft-loaded', listener);
-		});
-		await loadingNFT;
-
-		log.info("Marker loaded.");
-
-		return parts;
 	}
 
-	createCamera() {
-		return new ThreeCamera();
+	createRenderer(): IRenderer {
+		return new ThreeRenderer();
 	}
 
 	frame() {
@@ -153,7 +134,7 @@ export default class ARjsEngine extends Engine {
 	}
 
 	protected updateDetection() {
-		let markerGroup = this.rootObject;
+		let markerGroup = this.controller.root;
 		if(!markerGroup) {
 			return; // nothing else to do
 		}
@@ -174,26 +155,18 @@ export default class ARjsEngine extends Engine {
 			if(this.firstDetection) {
 				log.info("First detection! Starting Scene.");
 				this.firstDetection = false;
-				this.startScene();
+				this.controller.start(false); // will be enabled below
 			}
-			this.enableScene();
+			this.controller.enable();
 			log.info("Tracking marker.");
 
 			// Fire event into EventBus
-			this.eventBus.fire<MarkerDetectedEvent>(MarkerDetectedEvent.name, this, {id:"main", first: this.firstDetection});
+			this.controller.eventBus.$fire(new MarkerDetectedEvent("main", this.firstDetection));
 		}
 		if(!markerGroup.isVisible() && this.tracking) {
 			this.tracking = false;
 			log.info("Marker lost.");
-			this.disableScene();
-		}
-	}
-
-	stop() {
-		super.stop();
-
-		if(!this.arSource || !this.arContext){
-			return;
+			this.controller.enable(false);
 		}
 	}
 
@@ -202,7 +175,7 @@ export default class ARjsEngine extends Engine {
 
 		this.arSource.onResizeElement();
 		if(this.renderer) {
-			this.arSource.copyElementSizeTo(this.renderer.getDOMElement());
+			this.arSource.copyElementSizeTo(this.renderer.renderer.domElement);
 		}
 		if( this.arContext.arController !== null ){
 			this.arSource.copyElementSizeTo(this.arContext.arController.canvas);

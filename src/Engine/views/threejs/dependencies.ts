@@ -1,7 +1,7 @@
 import {Container} from "inversify";
 import renderContainer from "@/Engine/views/common/dependencies";
 
-const threeContainer = new Container({autoBindInjectable: true});
-threeContainer.parent = renderContainer;
+const threeViewDependencies = new Container({autoBindInjectable: true});
+threeViewDependencies.parent = renderContainer;
 
-export default threeContainer;
+export default threeViewDependencies;

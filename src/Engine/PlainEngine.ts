@@ -1,16 +1,17 @@
-import Engine from "@/Engine";
 import {OrbitControls} from "three-orbitcontrols-ts";
-import ThreeCamera from "../views/threejs/ThreeObject/ThreeCamera";
-import Err from "@utils/error";
+import EngineAbstract from "@/Engine/EngineAbstract";
+import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
+import ThreeRenderer from "@/Engine/views/threejs/ThreeRenderer";
 
-export default class PlainEngine extends Engine {
-	createCamera() {
-		let camera = super.createCamera();
+export default class PlainEngine extends EngineAbstract {
+	createRenderer() {
+		return new ThreeRenderer();
+	}
 
+	init() {
+		const camera = this.camera;
 		if (!(camera instanceof ThreeCamera)) {
-			throw new Err({
-				message: `Camera is not a ThreeCamera`
-			});
+			throw new Error(`Camera is not a ThreeCamera`);
 		}
 
 		// Add Orbitcontrols to camera

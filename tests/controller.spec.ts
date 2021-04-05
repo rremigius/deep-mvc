@@ -3,11 +3,7 @@ import Controller, {controller, controllers, injectable as injectableController}
 import BehaviourModel from "@/Engine/models/BehaviourModel";
 import Mozel, {collection, Collection, injectable, MozelFactory, property, reference, required} from "mozel";
 import ControllerFactory from "@/Controller/ControllerFactory";
-import IEngine, {EngineActions, EngineEvents} from "@/Engine/IEngine";
-import {FrameListener} from "@/Engine";
 import {Container} from "inversify";
-import CameraRenderInterface from "@/Engine/views/common/IObjectView/ICameraView";
-import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import {isNil} from 'lodash';
 import ControllerModel from "@/ControllerModel";
 import ControllerSlot from "@/Controller/ControllerSlot";
@@ -37,14 +33,6 @@ class FooController extends Controller {
 	get foo():FooModel {
 		return <FooModel>this.model;
 	}
-}
-
-class MockEngine implements IEngine {
-	camera:CameraRenderInterface = new ThreeCamera();
-	addFrameListener(f:FrameListener) { };
-	removeFrameListener(f: FrameListener) { }
-	events = new EngineEvents();
-	actions = new EngineActions();
 }
 
 describe('Controller', () => {

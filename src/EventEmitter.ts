@@ -13,6 +13,7 @@ function getTypeName(type:unknown) {
 	return typeof(type);
 }
 
+export type Payload<T> = T extends Class ? T : never;
 export type callback<T> = (payload:T)=>void
 export default class EventEmitter<T> {
 	private listeners:callback<T>[] = [];
@@ -70,9 +71,11 @@ export class Events {
 	private readonly $allowDynamicEvents:boolean;
 	private readonly $byName:Record<string,EventEmitter<unknown>> = {};
 
-	static getEventName(event:string|Class) {
-		if(isClass(event)) return event.name;
-		return event;
+	static getEventName(event:string|Function) {
+		if(_.isFunction(event)) {
+			return event.name;
+		}
+		return event as string;
 	}
 
 	constructor(allowDynamicEvents:boolean = false) {
@@ -137,8 +140,18 @@ export class Events {
 	 * @param event
 	 * @param payload
 	 */
-	$fire(event:string|Class, payload?:unknown) {
-		const eventEmitter = this.$get(event);
+	$fire<T extends object>(event:string|T, payload?:unknown) {
+		let eventEmitter:EventEmitter<any>;
+
+		// Single-argument event firing
+		if(_.isObject(event)) {
+			eventEmitter = this.$get(event.constructor);
+			eventEmitter.fire(event);
+			return;
+		}
+
+		// Event name with payload
+		eventEmitter = this.$get(event);
 		eventEmitter.fire(payload);
 	}
 
@@ -147,7 +160,7 @@ export class Events {
 	 * If the event is not predefined, and the Events instance allows dynamic events, it will create the event.
 	 * @param event
 	 */
-	$get(event:string|Class):EventEmitter<unknown> {
+	$get(event:string|Function):EventEmitter<unknown> {
 		event = Events.getEventName(event);
 		if(!(event in this.$byName)) {
 			if (!this.$allowDynamicEvents) {

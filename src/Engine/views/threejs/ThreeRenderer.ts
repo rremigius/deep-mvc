@@ -1,17 +1,17 @@
 import IRenderer, {IRendererSymbol} from "@/Engine/views/common/IRenderer";
 import {Color, Vector2, WebGLRenderer} from 'three';
-import threeContainer from "@/Engine/views/threejs/dependencies";
+import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import ThreeScene from "@/Engine/views/threejs/ThreeScene";
-import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
+import ThreeCamera from "@/Engine/views/threejs/ThreeView/ThreeCamera";
 import ThreeInteractionManager from "@/Engine/views/threejs/ThreeInteractionManager";
 import {injectable} from "@/Engine/views/dependencies";
-import {CSS3DViewer} from "three-css3drenderer";
+import {CSS3DRenderer} from "three-css3drenderer";
 
-@injectable(threeContainer, IRendererSymbol)
-export default class ThreeViewer implements IRenderer {
+@injectable(threeViewDependencies, IRendererSymbol)
+export default class ThreeRenderer implements IRenderer {
 	renderer:WebGLRenderer;
 	interactionManager:ThreeInteractionManager = new ThreeInteractionManager();
-	css3DViewer = new CSS3DViewer();
+	css3DRenderer = new CSS3DRenderer();
 
 	constructor() {
 		const renderer = new WebGLRenderer({alpha: true});
@@ -27,13 +27,13 @@ export default class ThreeViewer implements IRenderer {
 	}
 
 	createCSS3DViewer() {
-		this.css3DViewer = new CSS3DViewer();
+		this.css3DRenderer = new CSS3DRenderer();
 		this.copySizeToCSS3D();
 		this.copyPositionToCSS3D();
 	}
 
 	copyPositionToCSS3D() {
-		const target = this.css3DViewer.domElement;
+		const target = this.css3DRenderer.domElement;
 		const source = this.renderer.domElement;
 		target.style.position = source.style.position;
 		target.style.top = source.style.top;
@@ -41,7 +41,7 @@ export default class ThreeViewer implements IRenderer {
 	}
 
 	copySizeToCSS3D() {
-		const target = this.css3DViewer.domElement;
+		const target = this.css3DRenderer.domElement;
 		const source = this.renderer.domElement;
 		target.style.width = source.style.width;
 		target.style.height = source.style.height;
@@ -51,14 +51,14 @@ export default class ThreeViewer implements IRenderer {
 
 	attachTo(element: HTMLElement): void {
 		element.append(this.renderer.domElement);
-		element.append(this.css3DViewer.getDOMElement());
+		element.append(this.css3DRenderer.domElement);
 		this.copyPositionToCSS3D();
 		this.copySizeToCSS3D();
     }
 
 	detach(): void {
 		this.renderer.domElement.remove();
-		this.css3DViewer.getDOMElement().remove();
+		this.css3DRenderer.domElement.remove();
 	}
 
 	render(scene: any, camera: any): void {
@@ -71,7 +71,7 @@ export default class ThreeViewer implements IRenderer {
 		}
 
 		this.renderer.render(scene.getObject3D(), camera.getObject3D());
-		this.css3DViewer.render(scene, camera);
+		this.css3DRenderer.render(scene.getObject3D(), camera.getObject3D());
 
 		this.interactionManager.scene = scene;
 		this.interactionManager.camera = camera;
@@ -85,7 +85,7 @@ export default class ThreeViewer implements IRenderer {
 
 	setSize(width: number, height:number) {
 		this.renderer.setSize(width, height);
-		this.css3DViewer.setSize(width, height);
+		this.css3DRenderer.setSize(width, height);
 		this.copySizeToCSS3D();
 	}
 

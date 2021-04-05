@@ -1,16 +1,13 @@
-import GrapohModel from "@/Engine/models/ObjectModel/GraphModel";
+import GraphModel from "@/Engine/models/ObjectModel/GraphModel";
 import GraphLinkModel from "@/Engine/models/ObjectModel/GraphModel/GraphLinkModel";
 import GraphNodeModel from "@/Engine/models/ObjectModel/GraphModel/GraphNodeModel";
 import {injectable} from "@/Controller";
-import ControllerModel from "@/ControllerModel";
 import ObjectController from "@/Engine/controllers/ObjectController";
 import IGraphView, {IGraphViewSymbol} from "@/Engine/views/common/IObjectView/IGraphView";
 import Log from "@/log";
 import {compact} from 'lodash';
 import {alphanumeric} from "validation-kit";
-import {IEngineSymbol} from "@/Engine/IEngine";
 import EngineController from "@/Engine/controllers/EngineController";
-import Engine from "@/Engine";
 
 const log = Log.instance("engine/controller/graphcontroller");
 
@@ -18,14 +15,11 @@ type Link = {source:alphanumeric,target:alphanumeric,graphLink:GraphLinkModel};
 
 @injectable()
 export default class GraphController extends ObjectController {
-	static ModelClass = GrapohModel;
-
-	get xrGraph() {
-		return <GrapohModel>this.model;
-	}
+	static ModelClass = GraphModel;
+	model!:GraphModel;
 
 	engine!:EngineController;
-	graph?:IGraphView;
+	get view() { return super.view as IGraphView; };
 
 	debugGenerateData() {
 		const N = 50;
@@ -40,28 +34,31 @@ export default class GraphController extends ObjectController {
 				from: nodes[id],
 				to: nodes[Math.round(Math.random() * (id-1))]
 			}));
-		this.xrGraph.nodes.clear();
-		this.xrGraph.links.clear();
+		this.model.nodes.clear();
+		this.model.links.clear();
 		for(let i in nodes) {
-			this.xrGraph.nodes.add(nodes[i]);
+			this.model.nodes.add(nodes[i]);
 		}
 		for(let i in relations) {
-			this.xrGraph.links.add(relations[i]);
+			this.model.links.add(relations[i]);
 		}
 	}
 
-	init(xrObject: ControllerModel) {
-		super.init(xrObject);
+	init(model: GraphModel) {
+		super.init(model);
+
 		this.engine = this.dependencies.get<EngineController>(EngineController);
+		this.listenTo(this.engine.events.frame, this.onFrame.bind(this));
+
 		this.debugGenerateData();
 	}
 
-	async createObjectView() {
+	createView() {
 		// Generate graph data from definitions
 		let nodeGroups = false;
 		let linkGroups = false;
 		const data = {
-			nodes: this.xrGraph.nodes.map((node:GraphNodeModel) => {
+			nodes: this.model.nodes.map((node:GraphNodeModel) => {
 				if(node.group) {
 					nodeGroups = true;
 				}
@@ -70,7 +67,7 @@ export default class GraphController extends ObjectController {
 					graphNode: node
 				};
 			}),
-			links: compact<Link>(this.xrGraph.links.map((relation:GraphLinkModel) => {
+			links: compact<Link>(this.model.links.map((relation:GraphLinkModel) => {
 				if(relation.group) {
 					linkGroups = true;
 				}
@@ -90,22 +87,21 @@ export default class GraphController extends ObjectController {
 			}))
 		};
 
-		this.graph = this.viewFactory.create<IGraphView>(IGraphViewSymbol);
+		const view = this.viewFactory.create<IGraphView>(IGraphViewSymbol);
 		const camera = this.engine.camera.get();
 		if(camera) {
-			this.graph.setup({camera: camera.view});
+			this.view.setup({camera: camera.view});
 		}
-		this.graph.config({nodeGroups, linkGroups});
+		view.config({nodeGroups, linkGroups});
 
 		log.info(`Loaded ${data.nodes.length} nodes and ${data.links.length} links.`);
-		this.graph.setData(data);
-		return this.graph;
+		view.setData(data);
+		return view;
 	}
 
-
 	onFrame() {
-		if(this.graph) {
-			this.graph.onFrame();
+		if(this.view) {
+			this.view.onFrame();
 		}
 	}
 }
