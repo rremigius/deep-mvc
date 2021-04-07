@@ -1,6 +1,6 @@
-import IView from "@/IView";
+import IViewRoot from "@/IViewRoot";
 
-export default interface ISceneView extends IView {
+export default interface ISceneView extends IViewRoot {
 
 }
 export const ISceneViewSymbol = Symbol.for("ISceneView");

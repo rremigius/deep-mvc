@@ -29,15 +29,6 @@ export default class ThreeViewRoot extends ThreeView implements IViewRoot {
 	protected createObject3D(): Object3D {
 		const root = new RootObject3D();
 		root.onClick = event => this.events.click.fire(event); // to be called by ThreeInteractionManager
-
-		// Create the Geometry passing the size
-		const geometry = new BoxGeometry( 1, 1, 1 );
-		// Create the Material passing the color
-		const material = new MeshBasicMaterial( { color: "#433F81" } );
-		// Create the Mesh
-		const cube = new Mesh( geometry, material );// Add the mesh to the scene
-		root.add( cube );
-
 		return root;
 	}
 }

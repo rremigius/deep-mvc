@@ -14,7 +14,9 @@ const model = models.create(EngineModel, {
 			models.create(LightModel),
 			models.create(CameraModel, {gid: 'camera', position: {z: 2}}),
 			models.create(Model3DModel, {
-				files: [{url: 'assets/models/vw/model.dae'}]
+				files: [{url: 'assets/models/vw/model.dae'}],
+				scale: 0.5,
+				position: {z: 0.5}
 			})
 		]
 	}

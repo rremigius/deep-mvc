@@ -79,7 +79,7 @@ export default class Engine {
 		const scene = this.controller.scene.get();
 		if(!camera || !scene) return;
 
-		this.renderer.render(scene.view, camera.view);
+		this.renderer.render(scene.root, camera.view);
 	}
 
 	private animate() {

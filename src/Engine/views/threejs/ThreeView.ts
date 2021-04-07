@@ -1,8 +1,17 @@
-import {Object3D, Vector3} from "three";
+import {BoxGeometry, Mesh, MeshBasicMaterial, Object3D, Vector3} from "three";
 import {default as V3, SparseVector3} from "@/Engine/views/common/Vector3";
 import IView from "@/Engine/views/common/IObjectView";
 import {IViewSymbol} from "@/IView";
 import Mozel from "mozel";
+
+export function createDebugCube() {
+	// Create the Geometry passing the size
+	const geometry = new BoxGeometry( 1, 1, 1 );
+	// Create the Material passing the color
+	const material = new MeshBasicMaterial( { color: "#433F81" } );
+	// Create the Mesh
+	return new Mesh( geometry, material );// Add the mesh to the scene
+}
 
 function applySparseVector(target:Vector3, source:SparseVector3) {
 	if(source.x !== undefined) {
