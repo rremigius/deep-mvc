@@ -24,7 +24,6 @@
     "three-collada-loader-2": "^1.0.1",
     "three-css3drenderer": "^1.0.1",
     "three-forcegraph": "^1.37.0",
-    "three-orbitcontrols-ts": "git+https://git@github.com/nicolaspanel/three-orbitcontrols-ts.git",
     "threear": "^1.0.0-alpha.5",
     "tinycolor2": "^1.4.2",
     "tsconfig-paths": "^3.9.0",

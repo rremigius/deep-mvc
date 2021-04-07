@@ -6,8 +6,7 @@ import ControllerSlot from "@/Controller/ControllerSlot";
 import ControllerModel from "@/ControllerModel";
 import CameraController from "@/Engine/controllers/ViewController/ObjectController/CameraController";
 import Log from "@/log";
-import ViewController from "@/Controller/ViewController";
-import {IViewRootSymbol} from "@/IViewRoot";
+import Engine from "@/Engine/Engine";
 
 const log = Log.instance("controller/engine");
 
@@ -39,6 +38,11 @@ export default class EngineController extends Controller {
 	static ModelClass = EngineModel;
 	model!:EngineModel;
 
+	_engine?:Engine;
+	get engine() {
+		return this._engine;
+	}
+
 	events:EngineEvents = new EngineEvents();
 	actions:EngineActions = new EngineActions();
 	log = log;
@@ -54,5 +58,9 @@ export default class EngineController extends Controller {
 
 		// All children should be able to access this EngineController
 		this.dependencies.bind<EngineController>(EngineController).toConstantValue(this);
+	}
+
+	setEngine(engine:Engine) {
+		this._engine = engine;
 	}
 }

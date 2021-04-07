@@ -25,6 +25,7 @@ export default class ThreeRenderer implements IRenderer {
 
 	createCSS3DViewer() {
 		this.css3DRenderer = new CSS3DRenderer();
+		this.css3DRenderer.domElement.style.pointerEvents = 'none';
 		this.copySizeToCSS3D();
 		this.copyPositionToCSS3D();
 	}
