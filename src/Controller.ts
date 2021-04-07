@@ -164,7 +164,7 @@ export default class Controller {
 
 		this.initialized = false;
 
-		const name = this.static.name;
+		const name = this.toString();
 		this.loading = new Loader(name);
 
 		this.initClassDefinitions();

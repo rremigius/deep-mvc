@@ -12,7 +12,7 @@ const model = models.create(EngineModel, {
 		children: [
 			models.create(CameraModel, {gid: 'camera'}),
 			models.create(Model3DModel, {
-				files: [{url: 'assets/models/vw'}]
+				files: [{url: 'assets/models/vw/model.dae'}]
 			})
 		]
 	}
@@ -23,4 +23,7 @@ const container = document.getElementById('engine');
 if(!container) throw new Error("No element found with id 'engine'.");
 engine.attach(container);
 
-engine.start();
+(async () => {
+	await engine.loading;
+	engine.start();
+})()

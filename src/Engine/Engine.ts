@@ -20,6 +20,8 @@ export default class Engine {
 	protected readonly renderer:IRenderer;
 	protected readonly controller:EngineController;
 
+	readonly loading?:Promise<void>;
+
 	constructor(model:EngineModel, viewFactory?:ViewFactory, controllerFactory?:ControllerFactory) {
 		viewFactory = viewFactory || this.createDefaultViewFactory();
 		controllerFactory = controllerFactory || this.createDefaultControllerFactory(viewFactory);
@@ -33,9 +35,7 @@ export default class Engine {
 		}
 
 		this.init();
-		this.load().catch(error => {
-			log.error("Engine failed to load:", error);
-		});
+		this.loading = this.load();
 	}
 
 	init(){ }
@@ -119,14 +119,14 @@ export default class Engine {
 		}
 	}
 
-	// For override. Anything asynchronous can be initialized here.
 	async load() {
-
+		return this.controller.load();
 	}
 
 	start() {
 		this.running = true;
 		this.controller.start();
+		this.animate();
 	}
 
 	stop() {
