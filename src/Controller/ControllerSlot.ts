@@ -10,13 +10,18 @@ export default class ControllerSlot<C extends Controller> extends PropertySync<C
 	SyncType!:ControllerConstructor<C>; // TS: set in super constructor
 	factory:ControllerFactory;
 
-	constructor(watchModel:Mozel, path:string, PropertyType:Constructor<ControllerModel<C>>, SyncType:ControllerConstructor<C>, factory:ControllerFactory) {
-		super(watchModel, path, PropertyType, SyncType);
+	constructor(parent:Controller, watchModel:Mozel, path:string, PropertyType:Constructor<ControllerModel<C>>, SyncType:ControllerConstructor<C>, factory:ControllerFactory) {
+		super(parent, watchModel, path, PropertyType, SyncType);
 		this.factory = factory;
 	}
 
 	protected syncValue(model:ControllerModel<C>) {
+		if(this.current) {
+			this.current.setParent(undefined);
+		}
 		if(!model) return undefined;
-		return this.factory.resolve<C>(model, this.SyncType, true);
+		const controller = this.factory.resolve<C>(model, this.SyncType, true);
+		controller.setParent(this.parent);
+		return controller;
 	}
 }

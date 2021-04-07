@@ -13,6 +13,7 @@ import EventEmitter, {callback, Events} from "@/EventEmitter";
 import {isString} from 'lodash';
 import Property from "mozel/dist/Property";
 import {Constructor} from "validation-kit";
+import {LogLevel} from "log-control";
 
 const log = Log.instance("controller");
 
@@ -126,6 +127,8 @@ export default class Controller {
 	readonly viewFactory:ViewFactory;
 	readonly dependencies:Container;
 
+	_parent?:Controller;
+	get parent() { return this._parent }
 	children:Record<string, ControllerSlot<Controller>|ControllerList<Controller>> = {};
 
 	loading:Loader;
@@ -166,6 +169,7 @@ export default class Controller {
 
 		const name = this.toString();
 		this.loading = new Loader(name);
+		this.loading.log.setLevel(LogLevel.WARN);
 
 		this.initClassDefinitions();
 		this.init(model);
@@ -214,6 +218,10 @@ export default class Controller {
 		// For override
 	}
 
+	setParent(parent?:Controller) {
+		this._parent = parent;
+	}
+
 	protected error(...args:unknown[]) {
 		this.log.error(...args);
 		return new Error(""+args[0]);
@@ -226,7 +234,7 @@ export default class Controller {
 		if(modelPath instanceof Property) {
 			modelPath = modelPath.getPathFrom(this.model);
 		}
-		const sync = new ControllerSlot<T>(this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
+		const sync = new ControllerSlot<T>(this, this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
 		sync.startWatching();
 
 		this.children[modelPath] = sync as unknown as ControllerSlot<Controller>;
@@ -241,7 +249,7 @@ export default class Controller {
 		if(modelPath instanceof Property) {
 			modelPath = modelPath.getPathFrom(this.model);
 		}
-		const list = new ControllerList<T>(this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
+		const list = new ControllerList<T>(this, this.model, modelPath, ControllerClass.ModelClass, ControllerClass, this.factory);
 		list.startWatching();
 
 		this.children[modelPath] = list as unknown as ControllerList<Controller>;
@@ -305,6 +313,7 @@ export default class Controller {
 	}
 
 	async load() {
+		log.info(`${this} loading...`);
 		let promise = this.onLoad();
 		this.loading.start('main', undefined, promise);
 		let i = 0;
@@ -365,7 +374,11 @@ export default class Controller {
 	}
 
 	toString() {
-		return `${this.name} (${this.gid})`;
+		const name = `${this.name} (${this.gid})`;
+		if(!this.parent) {
+			return name;
+		}
+		return this.parent + '/' + name;
 	}
 
 	/*

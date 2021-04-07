@@ -45,8 +45,8 @@ export default class ControllerList<C extends Controller> extends PropertySync<C
 
 	events = new ControllerListEvents<C>();
 
-	constructor(watchModel:Mozel, path:string, PropertyType:Constructor<ControllerModel<C>>, SyncType:ControllerConstructor<C>, factory:ControllerFactory) {
-		super(watchModel, path, Collection, SyncType as any); // TS: we override isSyncType
+	constructor(parent:Controller, watchModel:Mozel, path:string, PropertyType:Constructor<ControllerModel<C>>, SyncType:ControllerConstructor<C>, factory:ControllerFactory) {
+		super(parent, watchModel, path, Collection, SyncType as any); // TS: we override isSyncType
 		this.ControllerModelClass = PropertyType;
 		this.ControllerClass = SyncType;
 		this.factory = factory;
@@ -61,7 +61,6 @@ export default class ControllerList<C extends Controller> extends PropertySync<C
 
 		// Remove listeners from current collection
 		if(this.currentCollection) {
-			// TODO: test if indeed listeners do not linger when Collection is transferred
 			this.currentCollection.removeAddedListener(this.addedListener);
 			this.currentCollection.removeRemovedListener(this.removedListener);
 		}
@@ -86,6 +85,7 @@ export default class ControllerList<C extends Controller> extends PropertySync<C
 		if(!this.current) return;
 		for(let i = this.current.length-1; i >= 0; i--) {
 			const item = this.current[i];
+			item.setParent(undefined);
 			this.current.splice(i, 1);
 			this.events.removed.fire(new ControllerRemovedEvent(item));
 		}
@@ -96,6 +96,7 @@ export default class ControllerList<C extends Controller> extends PropertySync<C
 			// already in list, don't add again
 			return;
 		}
+		controller.setParent(this.parent);
 		this.current.push(controller);
 		this.events.added.fire(new ControllerAddedEvent(controller));
 	}
@@ -116,6 +117,7 @@ export default class ControllerList<C extends Controller> extends PropertySync<C
 		let count = 0;
 		for(let i = this.current.length-1; i >= 0; i--) {
 			let item = this.current[i];
+			item.setParent(undefined);
 			if(check(item)) {
 				this.current.splice(i, 1);
 				this.events.removed.fire(new ControllerRemovedEvent(item));

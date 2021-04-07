@@ -36,17 +36,12 @@ export default class PropertySync<P extends PropertyValue,T> {
 	resolveReferences:boolean = false;
 	isReference:boolean = false;
 
-	/**
-	 * @param watchModel
-	 * @param path
-	 * @param PropertyType
-	 * @param SyncType
-	 */
-	constructor(watchModel:Mozel, path:string, PropertyType:PropertyType, SyncType:Constructor<T>) {
+	constructor(parent:Controller, watchModel:Mozel, path:string, PropertyType:PropertyType, SyncType:Constructor<T>) {
 		this.model = watchModel;
 		this.path = path;
 		this.PropertyType = PropertyType;
 		this.SyncType = SyncType;
+		this.parent = parent;
 	}
 
 	isPropertyType(value:unknown):value is P {
