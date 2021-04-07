@@ -1,8 +1,8 @@
 import {Camera} from "three";
 import ICameraView, {ICameraViewSymbol} from "@/Engine/views/common/IObjectView/ICameraView";
-import ThreeViewRoot from "@/Engine/views/threejs/ThreeViewRoot";
+import ThreeObject from "@/Engine/views/threejs/ThreeObject";
 
-export default class ThreeCamera extends ThreeViewRoot implements ICameraView {
+export default class ThreeCamera extends ThreeObject implements ICameraView {
 	static ViewInterface = ICameraViewSymbol;
 
 	protected createObject3D() {

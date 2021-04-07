@@ -1,6 +1,6 @@
-import IView from "@/IView";
+import IViewRoot from "@/IViewRoot";
 
-export default interface IObjectView extends IView {
+export default interface IObjectView extends IViewRoot{
 
 }
 export const IObjectViewSymbol = Symbol.for("IObjectView");

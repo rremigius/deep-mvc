@@ -1,5 +1,4 @@
 import Engine from "./Engine";
-import IRenderer from "@/Engine/views/common/IRenderer";
 import ThreeRenderer from "@/Engine/views/threejs/ThreeRenderer";
 import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import Log from "@/log";
@@ -47,7 +46,9 @@ export default class ARjsEngine extends Engine {
 
 		// ARjs has a fixed scale for their markers, so we need a scaling object between the root and the rest
 		const scale = this.controller.model.scale;
-		this.controller.root.setScale(new Vector3(scale, scale, scale));
+		if(this.scene) {
+			this.scene.setScale(new Vector3(scale, scale, scale));
+		}
 	}
 
 	async load() {
@@ -110,7 +111,7 @@ export default class ARjsEngine extends Engine {
 		const scene = this.controller.scene.get();
 		if(!scene) throw new Error("No Scene in Engine");
 
-		this.arMarkerControls = new THREEx.ArMarkerControls(this.arContext, this.controller.view, {
+		this.arMarkerControls = new THREEx.ArMarkerControls(this.arContext, this.scene, {
 			type : 'nft',
 			descriptorsUrl : scene.model.marker,
 			smooth: true,
@@ -130,7 +131,7 @@ export default class ARjsEngine extends Engine {
 	}
 
 	protected updateDetection() {
-		let markerGroup = this.controller.root;
+		let markerGroup = this.scene;
 		if(!markerGroup) {
 			return; // nothing else to do
 		}

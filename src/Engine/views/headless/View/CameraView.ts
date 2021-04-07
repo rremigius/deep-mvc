@@ -1,7 +1,7 @@
 import ICameraView, {ICameraViewSymbol} from "@/Engine/views/common/IObjectView/ICameraView";
-import ViewRoot from "@/Engine/views/headless/ViewRoot";
+import ObjectView from "@/Engine/views/headless/ObjectView";
 
-export default class CameraView extends ViewRoot implements ICameraView {
+export default class CameraView extends ObjectView implements ICameraView {
 	static ViewInterface = ICameraViewSymbol;
 
 	setAspectRatio(ratio: number): void {

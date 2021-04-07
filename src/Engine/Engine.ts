@@ -54,6 +54,12 @@ export default class Engine {
 		return cameraController.view;
 	}
 
+	get scene() {
+		const sceneController = this.controller.scene.get();
+		if(!sceneController) return undefined;
+		return sceneController.view;
+	}
+
 	get events() {
 		return this.controller.events;
 	}
@@ -79,7 +85,7 @@ export default class Engine {
 		const scene = this.controller.scene.get();
 		if(!camera || !scene) return;
 
-		this.renderer.render(scene.root, camera.view);
+		this.renderer.render(scene.view, camera.view);
 	}
 
 	private animate() {

@@ -1,7 +1,6 @@
 import {BoxGeometry, Mesh, MeshBasicMaterial, Object3D, Vector3} from "three";
 import {default as V3, SparseVector3} from "@/Engine/views/common/Vector3";
-import IView from "@/Engine/views/common/IObjectView";
-import {IViewSymbol} from "@/IView";
+import IView, {IViewSymbol} from "@/IView";
 import Mozel from "mozel";
 
 export function createDebugCube() {

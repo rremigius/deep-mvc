@@ -30,16 +30,11 @@ export default class SceneController extends ViewController {
 		this.triggers.events.removed.on(event => event.controller.setDefaultController(undefined));
 	}
 
-	createRootView(model: ControllerModel, view: ISceneView) {
-		// Root and View are same
-		return view;
-	}
-
 	onObjectAdded(objectController:ObjectController) {
-		this.root.add(objectController.root);
+		this.view.add(objectController.view);
 	}
 
 	onObjectRemoved(objectController:ObjectController) {
-		this.root.remove(objectController.root);
+		this.view.remove(objectController.view);
 	}
 }

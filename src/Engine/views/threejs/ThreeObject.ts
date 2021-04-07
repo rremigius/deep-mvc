@@ -1,6 +1,6 @@
-import ThreeView from "./ThreeView";
-import {IObjectViewSymbol} from "@/Engine/views/common/IObjectView";
+import IObjectView, {IObjectViewSymbol} from "@/Engine/views/common/IObjectView";
+import ThreeViewRoot from "@/Engine/views/threejs/ThreeViewRoot";
 
-export default class ThreeObject extends ThreeView {
+export default class ThreeObject extends ThreeViewRoot implements IObjectView {
 	static ViewInterface = IObjectViewSymbol;
 }

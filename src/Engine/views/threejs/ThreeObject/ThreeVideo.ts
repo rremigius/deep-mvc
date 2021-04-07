@@ -2,7 +2,7 @@ import IVideoView, {createVideo, IVideoViewSymbol} from "@/Engine/views/common/I
 import {DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, VideoTexture} from "three";
 import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
 import Log from "@/log";
-import ThreeObject from "../ThreeObject";
+import ThreeObject from "@/Engine/views/threejs/ThreeObject";
 
 const log = Log.instance("view/three/video");
 

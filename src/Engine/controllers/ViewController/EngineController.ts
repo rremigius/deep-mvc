@@ -1,5 +1,5 @@
 import EngineModel from "@/Engine/models/EngineModel";
-import {controller, ControllerActions, ControllerEvents} from "@/Controller";
+import Controller, {controller, ControllerActions, ControllerEvents} from "@/Controller";
 import {schema} from "mozel";
 import SceneController from "@/Engine/controllers/ViewController/SceneController";
 import ControllerSlot from "@/Controller/ControllerSlot";
@@ -7,6 +7,7 @@ import ControllerModel from "@/ControllerModel";
 import CameraController from "@/Engine/controllers/ViewController/ObjectController/CameraController";
 import Log from "@/log";
 import ViewController from "@/Controller/ViewController";
+import {IViewRootSymbol} from "@/IViewRoot";
 
 const log = Log.instance("controller/engine");
 
@@ -34,7 +35,7 @@ export class EngineActions extends ControllerActions {
  * The Engine itself should not be an active part of its own rendering hierarchy, but we can add an EngineController that allows
  * other Controllers to contact the Engine.
  */
-export default class EngineController extends ViewController {
+export default class EngineController extends Controller {
 	static ModelClass = EngineModel;
 	model!:EngineModel;
 

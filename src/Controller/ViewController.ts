@@ -1,7 +1,7 @@
 import Controller, {controllers} from "@/Controller";
 import IView, {IViewSymbol} from "@/IView";
 import ControllerModel from "@/ControllerModel";
-import IViewRoot, {IViewRootSymbol, ViewClickEvent} from "@/IViewRoot";
+import IViewRoot, {ViewClickEvent} from "@/IViewRoot";
 import Vector3Model from "@/Engine/models/Vector3Model";
 import Vector3 from "@/Engine/views/common/Vector3";
 import {check, instanceOf} from "validation-kit";
@@ -19,34 +19,23 @@ export default class ViewController extends Controller {
 	@controllers(schema(ViewModel).children, ViewController)
 	views!:ControllerList<ViewController>; // cannot call it `children` due to conflict with Controller.children
 
-	private _root!:IViewRoot;
-	get root(){ return this._root; };
-
-	protected _view!:IView;
-	get view() { return this._view; };
+	private _view!:IViewRoot;
+	get view(){ return this._view; };
 
 	get static() {
 		return <typeof ViewController>this.constructor;
 	}
 
-	createRootView(model:ControllerModel, view:IView):IViewRoot {
-		const root = this.viewFactory.create<IViewRoot>(IViewRootSymbol);
-		root.gid = model.gid;
-		root.events.click.on(event => this.onClick(event));
-
-		// Create the view and add to root
-		root.add(view);
-
+	createRootView():IViewRoot {
+		const root = this.viewFactory.create<IViewRoot>(this.static.ViewInterface);
+		root.gid = this.model.gid;
 		return root;
 	}
 
 	init(model: ControllerModel) {
 		super.init(model);
 
-		// Create the View
-		this._view = this.createView(model);
-		// Wrap in root
-		this._root = this.createRootView(model, this._view);
+		this._view = this.createRootView();
 
 		// Watch the model for changes
 		this.model.$watch({
@@ -70,10 +59,10 @@ export default class ViewController extends Controller {
 
 		// Child views should be attached and detached to this Controller's root
 		this.views.events.added.on(event => {
-			this.root.add(event.controller.root);
+			this.view.add(event.controller.view);
 		});
 		this.views.events.removed.on(event => {
-			this.root.remove(event.controller.root);
+			this.view.remove(event.controller.view);
 		});
 	}
 
@@ -86,10 +75,10 @@ export default class ViewController extends Controller {
 	onClick(event:ViewClickEvent): void {	}
 
 	onPositionChanged(newPosition:Vector3Model) {
-		this.root.setPosition(new Vector3(newPosition.x, newPosition.y, newPosition.z));
+		this.view.setPosition(new Vector3(newPosition.x, newPosition.y, newPosition.z));
 	}
 
 	onScaleChanged(newScale:number) {
-		this.root.setScale(new Vector3(newScale, newScale, newScale));
+		this.view.setScale(new Vector3(newScale, newScale, newScale));
 	}
 }

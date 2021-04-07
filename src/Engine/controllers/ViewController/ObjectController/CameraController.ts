@@ -10,11 +10,6 @@ export default class CameraController extends ObjectController {
 	model!:CameraModel;
 	get view() { return super.view as ICameraView };
 
-	createRootView(model: CameraModel, view:ICameraView) {
-		// View and Root are same
-		return view;
-	}
-
 	setAspectRatio(ratio:number) {
 		this.view.setAspectRatio(ratio);
 	}
