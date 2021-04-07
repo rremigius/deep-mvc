@@ -12,13 +12,14 @@ import VideoModel from "./ObjectModel/VideoModel";
 import TweenBehaviourModel from "./BehaviourModel/TweenBehaviourModel";
 import SoundBehaviourModel from "./BehaviourModel/SoundBehaviourModel";
 import Model3DModel from "./ObjectModel/Model3DModel";
+import LightModel from "@/Engine/models/ObjectModel/LightModel";
 
 export default class EngineModelFactory extends MozelFactory {
 	initDependencies() {
 		super.initDependencies();
 		this.register([
 			EngineModel, ViewModel, SceneModel, CameraModel, Model3DModel, ImageModel, GraphModel, VideoModel,
-			BehaviourModel, TweenBehaviourModel, SoundBehaviourModel, TriggerModel, ObjectModel
+			BehaviourModel, TweenBehaviourModel, SoundBehaviourModel, TriggerModel, ObjectModel, LightModel
 		]);
 	}
 }

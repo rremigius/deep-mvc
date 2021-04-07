@@ -12,6 +12,7 @@ import SoundBehaviourController from "./BehaviourController/SoundBehaviourContro
 import BehaviourController from "./BehaviourController";
 import TriggerController from "./TriggerController";
 import ObjectController from "./ViewController/ObjectController";
+import LightController from "@/Engine/controllers/ViewController/ObjectController/LightController";
 
 export default class EngineControllerFactory extends ControllerFactory {
 	initDependencies() {
@@ -19,7 +20,7 @@ export default class EngineControllerFactory extends ControllerFactory {
 		this.register([
 			EngineController, ViewController, SceneController, CameraController, Model3DController, ImageController,
 			GraphController, VideoController, BehaviourController, TweenBehaviourController, SoundBehaviourController,
-			TriggerController, ObjectController
+			TriggerController, ObjectController, LightController
 		])
 	}
 }
