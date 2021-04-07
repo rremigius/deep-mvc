@@ -1,4 +1,4 @@
-import IModel3DView, {IModel3DViewSymbol} from "@/Engine/views/common/IObjectView/IModel3DView";
+import IModel3DView from "@/Engine/views/common/IObjectView/IModel3DView";
 import Model3DModel, {FileType} from "@/Engine/models/ObjectModel/Model3DModel";
 import {Group, Object3D} from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
@@ -7,13 +7,10 @@ import ColladaLoader from "three-collada-loader-2";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 import FileModel from "@/Engine/models/FileModel";
 import Log from "@/log";
-import {injectable} from "@/Engine/views/dependencies";
-import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import ThreeObject from "../ThreeObject";
 
 const log = Log.instance("controller/object/model3d");
 
-@injectable(threeViewDependencies, IModel3DViewSymbol)
 export class ThreeModel3D extends ThreeObject implements IModel3DView {
 	async load(xrModel3D: Model3DModel): Promise<this> {
 		switch(xrModel3D.determineFileType()) {

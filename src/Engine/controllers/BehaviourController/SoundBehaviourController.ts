@@ -1,5 +1,5 @@
 import BehaviourController from "@/Engine/controllers/BehaviourController";
-import {ControllerAction, ControllerActions, injectable} from "@/Controller";
+import {ControllerAction, ControllerActions} from "@/Controller";
 import Log from "@/log";
 // import {Howl } from 'howler';
 import SoundBehaviourModel from "@/Engine/models/BehaviourModel/SoundBehaviourModel";
@@ -10,7 +10,6 @@ export class PlayActions extends ControllerActions {
 	play = this.$action(PlayAction);
 }
 
-@injectable()
 export default class SoundBehaviourController extends BehaviourController {
 	static ModelClass = SoundBehaviourModel;
 

@@ -1,10 +1,9 @@
-import Controller, {controllers, injectable} from "@/Controller";
+import Controller, {controllers} from "@/Controller";
 import BehaviourModel from "@/Engine/models/BehaviourModel";
 import TriggerController from "@/Engine/controllers/TriggerController";
 import ControllerList from "@/Controller/ControllerList";
 import {schema} from "mozel";
 
-@injectable()
 export default class BehaviourController extends Controller {
 	static ModelClass:typeof BehaviourModel = BehaviourModel;
 	model!:BehaviourModel;

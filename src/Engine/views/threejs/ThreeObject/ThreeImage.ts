@@ -8,7 +8,6 @@ import ThreeObject from "../ThreeObject";
 
 const log = Log.instance("Controller/Object/Object3D");
 
-@injectable(threeViewDependencies, IImageViewSymbol)
 export default class ThreeImage extends ThreeObject implements IImageView {
 	setModel(model: ImageModel) {
 	}

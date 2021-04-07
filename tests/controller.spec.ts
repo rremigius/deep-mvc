@@ -1,18 +1,13 @@
 import {assert} from 'chai';
-import Controller, {controller, controllers, injectable as injectableController} from "@/Controller";
+import Controller, {controller, controllers} from "@/Controller";
 import BehaviourModel from "@/Engine/models/BehaviourModel";
-import Mozel, {collection, Collection, injectable, MozelFactory, property, reference, required} from "mozel";
+import Mozel, {collection, Collection, MozelFactory, property, reference, required, schema} from "mozel";
 import ControllerFactory from "@/Controller/ControllerFactory";
-import {Container} from "inversify";
 import {isNil} from 'lodash';
 import ControllerModel from "@/ControllerModel";
 import ControllerSlot from "@/Controller/ControllerSlot";
 import ControllerList from "@/Controller/ControllerList";
 
-const modelContainer = new Container({autoBindInjectable:true});
-const controllerContainer = new Container({autoBindInjectable:true});
-
-@injectable(modelContainer)
 class FooModel extends BehaviourModel {
 	static get type() { return 'FooModel'; }
 
@@ -23,22 +18,36 @@ class FooModel extends BehaviourModel {
 	childFoos!:Collection<FooModel>;
 }
 
-@injectableController()
 class FooController extends Controller {
 	static ModelClass = FooModel;
 
-	otherFoo = this.controller(this.foo.$property('otherFoo'), FooController);
-	childFoos = this.controllers(this.foo.$property('childFoos'), FooController);
+	@controller(schema(FooModel).otherFoo, FooController)
+	otherFoo!:ControllerSlot<FooController>;
+
+	@controllers(schema(FooModel).childFoos, FooController)
+	childFoos!:ControllerList<FooController>;
 
 	get foo():FooModel {
 		return <FooModel>this.model;
 	}
 }
+class TestModelFactory extends MozelFactory {
+	initDependencies() {
+		super.initDependencies();
+		this.register(FooModel);
+	}
+}
+class TestControllerFactory extends ControllerFactory {
+	initDependencies() {
+		super.initDependencies();
+		this.register(FooController);
+	}
+}
 
 describe('Controller', () => {
 	it('changing children in Mozel reflects in Controller', () => {
-		const modelFactory = new MozelFactory(modelContainer);
-		const controllerFactory = new ControllerFactory(controllerContainer);
+		const modelFactory = new TestModelFactory();
+		const controllerFactory = new TestControllerFactory();
 
 		const fooModel = modelFactory.create(FooModel, {}, true);
 		const fooController = controllerFactory.createAndResolveReferences(fooModel, FooController);
@@ -64,8 +73,7 @@ describe('Controller', () => {
 	describe("controller", () => {
 		it('syncs controller references based on model', ()=>{
 			// Create instances
-			const modelFactory = new MozelFactory(modelContainer);
-			const container = new Container({autoBindInjectable:true});
+			const modelFactory = new TestModelFactory();
 
 			class BarModel extends BehaviourModel {
 				static get type() { return 'BarModel'; }
@@ -76,8 +84,8 @@ describe('Controller', () => {
 				@property(BarModel, {reference})
 				otherBar?:BarModel;
 			}
+			modelFactory.register(BarModel);
 
-			@injectableController(container)
 			class BarController extends Controller {
 				static ModelClass = BarModel;
 				model!:BarModel; // TS: initialized in super constructor
@@ -92,7 +100,9 @@ describe('Controller', () => {
 				otherBar: {gid: 2}
 			}, true);
 
-			const factory = new ControllerFactory(container);
+			const factory = new TestControllerFactory();
+			factory.register(BarController);
+
 			const bar = factory.createAndResolveReferences<BarController>(barModel, BarController);
 
 			assert.equal(bar.childBar.get(), bar.otherBar.get(), "Child and reference refer to same Controller");
@@ -112,7 +122,7 @@ describe('Controller', () => {
 		});
 		it('can resolve other Controllers from the Registry', () => {
 			// Create instances
-			const modelFactory = new MozelFactory(modelContainer);
+			const modelFactory = new TestModelFactory();
 			const foo = modelFactory.create<FooModel>(FooModel, {
 				gid: 1,
 				childFoos: [
@@ -129,7 +139,7 @@ describe('Controller', () => {
 				]
 			});
 
-			const factory = new ControllerFactory(controllerContainer);
+			const factory = new TestControllerFactory();
 			const controller = factory.createAndResolveReferences(foo, FooController);
 
 			const gid11 = controller.childFoos.find({gid: 11});
@@ -151,8 +161,8 @@ describe('Controller', () => {
 			}
 			const controllerFactory = Controller.createFactory();
 			const modelFactory = Mozel.createFactory();
+			modelFactory.register(FooModel);
 
-			@injectableController(controllerFactory.dependencies)
 			class FooController extends Controller {
 				static ModelClass = FooModel;
 				model!:FooModel;
@@ -161,6 +171,7 @@ describe('Controller', () => {
 				@controllers('foos', FooController)
 				foos!:ControllerList<FooController>;
 			}
+			controllerFactory.register(FooController);
 
 			const fooModel = modelFactory.create(FooModel, {
 				foo: {name: 'foo1'},

@@ -1,9 +1,7 @@
 import BehaviourModel from '@/Engine/models/BehaviourModel';
 import FileModel from "@/Engine/models/FileModel";
-import {injectable, property} from "mozel";
+import {property} from "mozel";
 
-
-@injectable()
 export default class SoundBehaviourModel extends BehaviourModel {
 	static get type() { return 'SoundBehaviour' }
 

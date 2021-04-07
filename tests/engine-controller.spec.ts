@@ -1,13 +1,10 @@
-import EngineController from "@/Engine/controllers/EngineController";
+import EngineController from "@/Engine/controllers/ViewController/EngineController";
 import EngineModel from "@/Engine/models/EngineModel";
 import ViewModel from "@/ViewModel";
 import {assert} from "chai";
-import "@/Engine/views/headless/all";
 import {MozelFactory} from "mozel";
-import ControllerFactory from "@/Controller/ControllerFactory";
-import headlessViewDependencies from "@/Engine/views/headless/dependencies";
-import ViewFactory from "@/Engine/views/ViewFactory";
-import {createDependencyContainer as createControllerDependencies} from "@/Controller/dependencies";
+import HeadlessViewFactory from "../src/Engine/views/headless/HeadlessViewFactory";
+import EngineControllerFactory from "../src/Engine/controllers/EngineControllerFactory";
 
 describe("EngineController", () => {
 	it("subcontrollers can access EngineController from dependencies", () => {
@@ -19,7 +16,8 @@ describe("EngineController", () => {
 				})]
 			}
 		});
-		const controllers = new ControllerFactory(createControllerDependencies(), new ViewFactory(headlessViewDependencies));
+		const viewFactory = new HeadlessViewFactory();
+		const controllers = new EngineControllerFactory(viewFactory);
 		const engine = controllers.createAndResolveReferences(model, EngineController);
 		const engineDependency = controllers.registry.byGid('foo')!.dependencies.get<EngineController>(EngineController);
 		assert.equal(engineDependency, engine, "EngineController retrieved from hierarchy.");

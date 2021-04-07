@@ -1,8 +1,7 @@
-import {Container, inject, injectable as invInjectable, LazyServiceIdentifer} from "inversify";
-import ControllerFactory, {ControllerModelType} from "@/Controller/ControllerFactory";
+import {Container, inject, injectable, LazyServiceIdentifer} from "inversify";
+import ControllerFactory, {ControllerModelSymbol} from "@/Controller/ControllerFactory";
 import Log from "@/log";
 import Loader from "deep-loader";
-import {injectable} from "@/Controller/dependencies";
 import EventListener from "@/EventListener";
 import ViewFactory from "@/Engine/views/ViewFactory";
 import ControllerList from "@/Controller/ControllerList";
@@ -14,8 +13,6 @@ import EventEmitter, {callback, Events} from "@/EventEmitter";
 import {isString} from 'lodash';
 import Property from "mozel/dist/Property";
 import {Constructor} from "validation-kit";
-
-export {injectable};
 
 const log = Log.instance("controller");
 
@@ -85,7 +82,7 @@ export function controllers<C extends Controller, M extends C['model']>(
 	}
 }
 
-@invInjectable()
+@injectable()
 export default class Controller {
 	static ModelClass:(typeof ControllerModel) = ControllerModel; // should be set for each extending class
 
@@ -146,7 +143,7 @@ export default class Controller {
 
 	constructor(
 		// using LazyServiceIdentifier to prevent circular dependency problem
-		@inject(new LazyServiceIdentifer(()=>ControllerModelType)) model:ControllerModel,
+		@inject(new LazyServiceIdentifer(()=>ControllerModelSymbol)) model:ControllerModel,
 		// using LazyServiceIdentifier to prevent circular dependency problem
 		@inject(new LazyServiceIdentifer(()=>ControllerFactory)) controllerFactory:ControllerFactory,
 		@inject(Registry) registry:Registry<Controller>,
@@ -329,7 +326,7 @@ export default class Controller {
 		this.onStart();
 
 		this.forEachChild((child:Controller) => {
-			child.start();
+			child.start(false);
 		});
 
 		this.enable(enabled);

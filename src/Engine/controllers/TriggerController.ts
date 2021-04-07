@@ -1,4 +1,4 @@
-import Controller, {controller, ControllerAction, ControllerEvent, injectable} from "@/Controller";
+import Controller, {controller, ControllerAction, ControllerEvent} from "@/Controller";
 import Log from "@/log";
 import TriggerModel from "@/Engine/models/TriggerModel";
 import {forEach, isEmpty, isPlainObject, isString} from 'lodash';
@@ -10,7 +10,6 @@ const log = Log.instance("controller/trigger");
 
 type UnknownTrigger = TriggerModel<ControllerEvent<object>,ControllerAction<object>>;
 
-@injectable()
 export default class TriggerController extends Controller {
 	static ModelClass = TriggerModel;
 	model!:TriggerModel<any,any>; // TS: initialized in super constructor

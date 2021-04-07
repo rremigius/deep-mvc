@@ -1,14 +1,8 @@
 import {Camera} from "three";
 import {alphanumeric} from "validation-kit";
-import ICameraView, {ICameraViewSymbol} from "@/Engine/views/common/IObjectView/ICameraView";
-import {injectable} from "@/Engine/views/dependencies";
-import threeViewDependencies from "@/Engine/views/threejs/dependencies";
+import ICameraView from "@/Engine/views/common/IObjectView/ICameraView";
 import ThreeObject from "@/Engine/views/threejs/ThreeObject";
 
-/**
- * For use in specific cases where PerspectiveCamera does not work (e.g. ThreeAREngine distorts using PerspectiveCamera)
- */
-@injectable(threeViewDependencies, ICameraViewSymbol)
 export default class ThreeCamera extends ThreeObject implements ICameraView {
 	public gid: alphanumeric = "_CAMERA";
 

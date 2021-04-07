@@ -20,6 +20,8 @@ function applySparseVector(target:Vector3, source:SparseVector3) {
 
 @injectable(threeViewDependencies, IViewSymbol)
 export default class ThreeView implements IView {
+	static ViewInterface = IViewSymbol;
+
 	model?:Mozel;
 	readonly object3D:Object3D;
 

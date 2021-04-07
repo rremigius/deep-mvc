@@ -1,11 +1,10 @@
 import IVideoView, {IVideoViewSymbol} from "@/Engine/views/common/IObjectView/IVideoView";
 import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
-import {injectable} from "@/Engine/views/dependencies";
-import headlessContainer from "@/Engine/views/headless/dependencies";
 import ObjectView from "@/Engine/views/headless/ObjectView";
 
-@injectable(headlessContainer, IVideoViewSymbol)
 export default class VideoView extends ObjectView implements IVideoView {
+	static ViewInterface = IVideoViewSymbol;
+	
 	load(xrVideo: VideoModel): Promise<this> {
 		return Promise.resolve(this);
 	}

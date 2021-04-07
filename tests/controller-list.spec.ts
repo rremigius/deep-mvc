@@ -2,27 +2,25 @@ import ControllerList from "@/Controller/ControllerList";
 import ControllerModel from "@/ControllerModel";
 import {Collection, collection} from "mozel";
 import ControllerFactory from "@/Controller/ControllerFactory";
-import Controller, {injectable} from "@/Controller";
+import Controller from "@/Controller";
 import {assert} from "chai";
-import {createDependencyContainer} from "@/Controller/dependencies";
 
 describe("ControllerList", () => {
 	it("cleans up listeners from collection after collection was removed", () => {
-		const controllerDependencies = createDependencyContainer();
-		const controllerFactory = new ControllerFactory(controllerDependencies);
+		const factory = new ControllerFactory();
 
 		class FooModel extends ControllerModel {
 			@collection(FooModel)
 			foos!:Collection<FooModel>;
 		}
-		@injectable(controllerDependencies)
 		class FooController extends Controller {
 			static ModelClass = FooModel
 			model!:FooModel;
 		}
+		factory.register(FooController);
 
 		const foo = FooModel.create<FooModel>();
-		const controllerList = new ControllerList(foo, 'foos', FooModel, FooController, controllerFactory);
+		const controllerList = new ControllerList(foo, 'foos', FooModel, FooController, factory);
 		controllerList.startWatching();
 
 		assert.equal(controllerList.count(), 0, "No controllers initially");

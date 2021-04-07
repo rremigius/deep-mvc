@@ -1,4 +1,4 @@
-import Controller, {controllers, injectable} from "@/Controller";
+import Controller, {controllers} from "@/Controller";
 import IView, {IViewSymbol} from "@/IView";
 import ControllerModel from "@/ControllerModel";
 import IViewRoot, {IViewRootSymbol, ViewClickEvent} from "@/IViewRoot";
@@ -10,7 +10,6 @@ import ViewModel from "@/ViewModel";
 import ControllerList from "@/Controller/ControllerList";
 import {schema} from "mozel";
 
-@injectable()
 export default class ViewController extends Controller {
 	static readonly ModelClass = ViewModel;
 	static readonly ViewInterface:symbol = IViewSymbol;

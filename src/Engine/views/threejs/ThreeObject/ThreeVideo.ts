@@ -1,15 +1,11 @@
-import ThreeView from "@/Engine/views/threejs/ThreeView";
-import IVideoView, {createVideo, IVideoViewSymbol} from "@/Engine/views/common/IObjectView/IVideoView";
+import IVideoView, {createVideo} from "@/Engine/views/common/IObjectView/IVideoView";
 import {DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, VideoTexture} from "three";
-import {injectable} from "@/Engine/views/dependencies";
-import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
 import Log from "@/log";
 import ThreeObject from "../ThreeObject";
 
 const log = Log.instance("renderer/xr-three-video");
 
-@injectable(threeViewDependencies, IVideoViewSymbol)
 export default class ThreeVideo extends ThreeObject implements IVideoView {
 	video?: HTMLVideoElement;
 	videoTexture?: VideoTexture;

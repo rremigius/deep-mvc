@@ -6,17 +6,15 @@ import ControllerFactory from "@/Controller/ControllerFactory";
 import {Container} from "inversify";
 import SceneModel from "@/Engine/models/SceneModel";
 import ObjectModel from "@/Engine/models/ObjectModel";
-import SceneController from "@/Engine/controllers/SceneController";
-import "@/Engine/controllers/all";
-import "@/Engine/views/headless/all";
-import RenderFactory from "@/Engine/views/ViewFactory";
+import SceneController from "@/Engine/controllers/ViewController/SceneController";
 import ActionModel from "@/Engine/models/ActionModel";
 import TriggerModel from "@/Engine/models/TriggerModel";
 import BehaviourModel from "@/Engine/models/BehaviourModel";
 import BehaviourController from "@/Engine/controllers/BehaviourController";
 import {ControllerAction, ControllerEvent} from "@/Controller";
-import headlessContainer from "@/Engine/views/headless/dependencies";
 import ConditionEqualsModel from "@/Engine/models/ConditionModel/ConditionEqualsModel";
+import HeadlessViewFactory from "../src/Engine/views/headless/HeadlessViewFactory";
+import EngineControllerFactory from "../src/Engine/controllers/EngineControllerFactory";
 
 class Factory {
 	model:MozelFactory;
@@ -24,13 +22,7 @@ class Factory {
 
 	constructor(config?:{modelContainer?:Container, controllerContainer?:Container}) {
 		this.model = new MozelFactory(config && config.modelContainer);
-
-		const controllerContainer = new Container({autoBindInjectable: true});
-		if(config) {
-			controllerContainer.parent = controllerContainer
-		}
-		controllerContainer.bind(RenderFactory).toConstantValue(new RenderFactory(headlessContainer));
-		this.controller = new ControllerFactory(controllerContainer);
+		this.controller = new EngineControllerFactory(new HeadlessViewFactory());
 	}
 }
 

@@ -2,54 +2,80 @@ import {Container, inject, injectable, optional} from "inversify";
 import {isSubClass} from "validation-kit";
 import Controller, {ControllerConstructor} from "@/Controller";
 import ControllerModel from "@/ControllerModel";
-import controllerContainer from "@/Controller/dependencies";
 import {Registry} from "mozel";
 import Log from "@/log";
 import EventBus from "@/EventBus";
 import {Events} from "@/EventEmitter";
 import ViewFactory from "@/Engine/views/ViewFactory";
+import {isArray} from "lodash";
 
 const log = Log.instance("controller-factory");
 
-export const ControllerModelType = Symbol.for('ControllerModel');
+export const ControllerModelSymbol = Symbol.for('ControllerModel');
 
 @injectable()
 export default class ControllerFactory {
 
 	// If not set in constructor params, will be set in constructor. And readonly, so will always have value.
-	readonly dependencies!:Container;
+	readonly dependencies:Container;
+	readonly localDependencies:Container;
 	public eventBus:Events;
 	public readonly registry:Registry<Controller>;
 
+	static createDependencyContainer() {
+		return new Container({autoBindInjectable: true});
+	}
+
 	constructor(
-		@inject('dependencies') @optional() dependencies?:Container,
 		@inject(ViewFactory) @optional() viewFactory?:ViewFactory,
 		@inject(EventBus) @optional() eventBus?:Events,
-		@inject(Registry) @optional() controllerRegistry?:Registry<Controller>
+		@inject(Registry) @optional() controllerRegistry?:Registry<Controller>,
+		@inject('dependencies') @optional() dependencies?:Container,
 	) {
 		this.registry = controllerRegistry || new Registry<Controller>();
 		this.eventBus = eventBus || new Events(true);
 		viewFactory = viewFactory || new ViewFactory();
 
-		const localContainer = new Container({autoBindInjectable:true});
-
-		// Set default bindings as parent
-		localContainer.parent = controllerContainer;
+		this.localDependencies = ControllerFactory.createDependencyContainer();
 
 		// Given container gets priority, then localContainer, then default
 		if(dependencies) {
 			this.dependencies = dependencies;
-			this.dependencies.parent = localContainer;
+			this.dependencies.parent = this.localDependencies;
 		} else {
-			this.dependencies = localContainer;
+			this.dependencies = this.localDependencies;
 		}
 
 		// Set scoped globals
-		localContainer.bind(ControllerFactory).toConstantValue(this);
-		localContainer.bind(Registry).toConstantValue(this.registry);
-		localContainer.bind(EventBus).toConstantValue(this.eventBus);
-		localContainer.bind(Container).toConstantValue(this.dependencies);
-		localContainer.bind<ViewFactory>(ViewFactory).toConstantValue(viewFactory);
+		this.localDependencies.bind(ControllerFactory).toConstantValue(this);
+		this.localDependencies.bind(Registry).toConstantValue(this.registry);
+		this.localDependencies.bind(EventBus).toConstantValue(this.eventBus);
+		this.localDependencies.bind(Container).toConstantValue(this.dependencies);
+		this.localDependencies.bind<ViewFactory>(ViewFactory).toConstantValue(viewFactory);
+
+		this.initDependencies();
+	}
+
+	// For override
+	initDependencies() { }
+
+	/**
+	 * Register a Controller dependency.
+	 * @param ControllerClass	The Controller class to instantiate.
+	 * @param ModelClass		The Model class for which to instantiate the Controller. If omitted, will use the
+	 * 							ModelClass defined in the Controller.
+	 */
+	register(ControllerClass:(typeof Controller)|(typeof Controller)[], ModelClass?:typeof ControllerModel) {
+		if(isArray(ControllerClass)) {
+			for(let Class of ControllerClass) {
+				this.register(Class);
+			}
+			return;
+		}
+		ModelClass = ModelClass || ControllerClass.ModelClass;
+		if(!ModelClass) throw new Error(`No ModelClass specified for ${ControllerClass.name}.`);
+
+		this.localDependencies.bind<Controller>(Controller).to(ControllerClass).whenTargetNamed(ModelClass.type);
 	}
 
 	/**
@@ -61,7 +87,7 @@ export default class ControllerFactory {
 		extension.parent = this.dependencies;
 
 		// ControllerModel needs a Model in the constructor so we inject it through the container.
-		extension.bind(ControllerModelType).toConstantValue(model);
+		extension.bind(ControllerModelSymbol).toConstantValue(model);
 
 		return extension;
 	}
@@ -88,16 +114,21 @@ export default class ControllerFactory {
 		}
 		let container = this.extendDIContainer(model);
 
-		const controller = container.getNamed<Controller>(Controller, model.static.type);
+		let controller;
+		try {
+			controller = container.getNamed<Controller>(Controller, model.static.type);
+		} catch(e) {
+			throw new Error(`Could not create a controller for '${model.static.type}' model.\n-> ${e.message}`);
+		}
 
 		// Store in Registry
-		this.registry.register(controller);
 		if(!isT(controller)) {
 			// TS: isT can only return false if ExpectedClass is defined
 			const message = "Created Controller was not an " + ExpectedClass!.name;
 			log.error(message, controller, model);
 			throw new Error(message);
 		}
+		this.registry.register(controller);
 		return controller;
 	}
 

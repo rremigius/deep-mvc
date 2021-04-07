@@ -1,12 +1,9 @@
-import {injectable} from "@/Engine/views/dependencies";
 import Vector3, {SparseVector3} from "@/Engine/views/common/Vector3";
-import headlessContainer from "@/Engine/views/headless/dependencies";
 import IView, {IViewSymbol} from "@/IView";
-import Mozel from "mozel";
 
-@injectable(headlessContainer, IViewSymbol)
 export default class View implements IView {
-	model?:Mozel;
+	static ViewInterface:symbol = IViewSymbol;
+
 	position:Vector3;
 	scale:Vector3;
 	children:View[] = [];

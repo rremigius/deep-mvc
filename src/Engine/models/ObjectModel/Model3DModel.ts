@@ -1,5 +1,5 @@
 import ObjectModel from "@/Engine/models/ObjectModel";
-import {Collection, collection, injectable} from "mozel";
+import {Collection, collection} from "mozel";
 import Log from "@/log";
 import FileModel from "@/Engine/models/FileModel";
 
@@ -11,7 +11,6 @@ export enum FileType {
 	Fbx = 'fbx',
 }
 
-@injectable()
 export default class Model3DModel extends ObjectModel {
 	static get type() { return 'Model3D' }
 

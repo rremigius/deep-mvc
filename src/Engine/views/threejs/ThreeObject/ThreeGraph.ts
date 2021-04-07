@@ -21,7 +21,6 @@ const colorAlpha = (str: string) => tinycolor(str).getAlpha();
 
 const log = Log.instance("Engine/Renderer/ThreeGraph");
 
-@injectable(threeViewDependencies, IGraphViewSymbol)
 export default class ThreeGraph extends ThreeObject implements IGraphView {
 
 	// Cache

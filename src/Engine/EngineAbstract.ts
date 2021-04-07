@@ -36,6 +36,11 @@ export default abstract class EngineAbstract {
 		this.controller = controllerFactory.createAndResolveReferences(model, EngineController);
 		this.renderer = this.createRenderer();
 
+		if(typeof window !== 'undefined') {
+			this._onResize = this.onResize.bind(this);
+			window.addEventListener('resize', this._onResize);
+		}
+
 		this.init();
 		this.load().catch(error => {
 			log.error("Engine failed to load:", error);
@@ -63,6 +68,7 @@ export default abstract class EngineAbstract {
 	attach(container:HTMLElement) {
 		this.container = container;
 		this.renderer.attachTo(container);
+		this.onResize();
 	}
 
 	detach() {
