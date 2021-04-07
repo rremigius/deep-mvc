@@ -5,16 +5,16 @@ import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import {MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
 import ColladaLoader from "three-collada-loader-2";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
-import ThreeView from "../ThreeView";
 import FileModel from "@/Engine/models/FileModel";
 import Log from "@/log";
 import {injectable} from "@/Engine/views/dependencies";
 import threeViewDependencies from "@/Engine/views/threejs/dependencies";
+import ThreeObject from "../ThreeObject";
 
 const log = Log.instance("controller/object/model3d");
 
 @injectable(threeViewDependencies, IModel3DViewSymbol)
-export class ThreeModel3D extends ThreeView implements IModel3DView {
+export class ThreeModel3D extends ThreeObject implements IModel3DView {
 	async load(xrModel3D: Model3DModel): Promise<this> {
 		switch(xrModel3D.determineFileType()) {
 			case FileType.Collada:

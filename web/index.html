@@ -5,11 +5,12 @@
 	<title>Engine</title>
 
 	<!-- three.js library -->
-	<script src='ar-js/three.js/examples/vendor/three.js/build/three.min.js'></script>
-	<!-- three.js load GLTF -->
-	<script src='ar-js/three.js/examples/vendor/three.js/GLTFLoader.js'></script>
+	<script src='arjs/scripts/three.min.js'></script>
 	<!-- ar.js -->
-	<script src='ar-js/three.js/build/ar-nft.js'></script>
+	<script src='arjs/scripts/ar-nft-3.3.1.js'></script>
+	<script type="text/javascript">
+		THREEx.ArToolkitContext.baseURL = 'arjs/resources/';
+	</script>
 
 	<link rel="stylesheet" href="style.css">
 </head>

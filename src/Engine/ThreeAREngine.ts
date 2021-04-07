@@ -4,7 +4,7 @@ import Controller from "threear/dist/Controller";
 import * as THREEAR from 'threear';
 import ThreeRenderer from "@/Engine/views/threejs/ThreeRenderer";
 import EngineAbstract from "@/Engine/EngineAbstract";
-import ThreeCamera from "@/Engine/views/threejs/ThreeView/ThreeCamera";
+import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import Source from "threear/dist/Source";
 import ThreeRootObject from "@/Engine/views/threejs/ThreeViewRoot";
 import {MarkerDetectedEvent} from "@/Engine/controllers/EngineController";

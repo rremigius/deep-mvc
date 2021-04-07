@@ -4,33 +4,32 @@ import {injectable} from "@/Controller/dependencies";
 import IVideoView, {IVideoViewSymbol} from "@/Engine/views/common/IObjectView/IVideoView";
 import Log from "@/log";
 
-const log = Log.instance("xrengine/video");
+const log = Log.instance("controller/video");
 
 @injectable()
 export default class VideoController extends ObjectController {
 	static ModelClass = VideoModel;
+	static ViewInterface = IVideoViewSymbol;
+
+	model!:VideoModel;
+
+	get view() { return super.view as IVideoView }
 
 	log = log;
 
-	private videoView: IVideoView = this.viewFactory.create<IVideoView>(IVideoViewSymbol);
-
-	get xrVideo() {
-		return <VideoModel>this.model;
-	}
-
-	async createObjectView() {
-		return this.videoView.load(this.xrVideo);
+	async onLoad() {
+		await this.view.load(this.model);
 	}
 
 	onDisable() {
 		super.onDisable();
 		log.info("Pausing video");
-		this.videoView.pause();
+		this.view.pause();
 	}
 
 	onEnable() {
 		super.onEnable();
 		log.info("Playing video");
-		this.videoView.play();
+		this.view.play();
 	}
 }

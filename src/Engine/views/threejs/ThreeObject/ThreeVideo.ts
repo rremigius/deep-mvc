@@ -5,11 +5,12 @@ import {injectable} from "@/Engine/views/dependencies";
 import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
 import Log from "@/log";
+import ThreeObject from "../ThreeObject";
 
 const log = Log.instance("renderer/xr-three-video");
 
 @injectable(threeViewDependencies, IVideoViewSymbol)
-export default class ThreeVideo extends ThreeView implements IVideoView {
+export default class ThreeVideo extends ThreeObject implements IVideoView {
 	video?: HTMLVideoElement;
 	videoTexture?: VideoTexture;
 	loaded:boolean = false;

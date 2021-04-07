@@ -1,4 +1,4 @@
-import ThreeCamera from "./ThreeView/ThreeCamera";
+import ThreeCamera from "./ThreeObject/ThreeCamera";
 import {Object3D, Raycaster, Vector2} from "three";
 import ThreeScene from "./ThreeScene";
 import {RootObject3D} from "@/Engine/views/threejs/ThreeViewRoot";

@@ -2,17 +2,16 @@ import EngineAbstract from "@/Engine/EngineAbstract";
 import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import IRenderer from "@/Engine/views/common/IRenderer";
 import ThreeRenderer from "@/Engine/views/threejs/ThreeRenderer";
-import ThreeCamera from "@/Engine/views/threejs/ThreeView/ThreeCamera";
+import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import Log from "@/log";
 import {Camera} from "three";
 import Vector3 from "@/Engine/views/common/Vector3";
 import {MarkerDetectedEvent} from "@/Engine/controllers/EngineController";
 
-const log = Log.instance("engine/arjs");
-
-// Loaded in index.html
+// Should be loaded in index.html
 const THREEx = (window as any).THREEx;
 
+const log = Log.instance("engine/arjs");
 const trackingLostDelay = 500;
 
 export default class ARjsEngine extends EngineAbstract {
@@ -90,7 +89,8 @@ export default class ARjsEngine extends EngineAbstract {
 
 	createARContext(camera:Camera) {
 		const context = new THREEx.ArToolkitContext({
-			detectionMode: 'mono'
+			detectionMode: 'mono',
+			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + 'data/camera_para.dat'
 		})
 		context.init(() => {
 			// copy projection matrix to camera

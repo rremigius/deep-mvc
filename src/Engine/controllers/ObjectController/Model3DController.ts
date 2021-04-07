@@ -2,7 +2,6 @@ import ObjectController from "@/Engine/controllers/ObjectController";
 import {ControllerEvent, ControllerEvents, injectable} from "@/Controller";
 import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
 import Log from "@/log";
-import IView from "@/Engine/views/common/IObjectView";
 import IModel3DView, {IModel3DViewSymbol} from "@/Engine/views/common/IObjectView/IModel3DView";
 import {Object3D} from "three";
 import {check, instanceOf} from "validation-kit";
@@ -18,14 +17,13 @@ export class Model3DControllerEvents extends ControllerEvents {
 @injectable()
 export default class Model3DController extends ObjectController {
 	static ModelClass = Model3DModel;
-	private modelView: IModel3DView = this.viewFactory.create<IModel3DView>(IModel3DViewSymbol);
+	static ViewInterface = IModel3DViewSymbol;
+
+	model!:Model3DModel;
+	get view(): IModel3DView { return super.view as IModel3DView }
 
 	log = log;
 	events = new Model3DControllerEvents();
-
-	init(xrObject:Model3DModel) {
-		super.init(xrObject);
-	}
 
 	onClick(event:ViewClickEvent): void {
 		super.onClick(event);
@@ -35,18 +33,14 @@ export default class Model3DController extends ObjectController {
 			return $object3D.name;
 		});
 		const foundClickableMesh = meshNames.find(name =>
-			this.xrModel3D.clickableMeshes.find(name) !== undefined
+			this.model.clickableMeshes.find(name) !== undefined
 		);
 		if (foundClickableMesh) {
 			this.events.click.fire(new ClickEvent(this, { mesh: foundClickableMesh } ));
 		}
 	}
 
-	get xrModel3D() {
-		return <Model3DModel>this.model;
-	}
-
-	async createObjectView():Promise<IView> {
-		return this.modelView.load(this.xrModel3D);
+	async onLoad() {
+		await this.view.load(this.model);
 	}
 }

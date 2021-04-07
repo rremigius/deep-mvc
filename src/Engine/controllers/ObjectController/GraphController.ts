@@ -16,6 +16,7 @@ type Link = {source:alphanumeric,target:alphanumeric,graphLink:GraphLinkModel};
 @injectable()
 export default class GraphController extends ObjectController {
 	static ModelClass = GraphModel;
+	static ViewInterface = IGraphViewSymbol;
 	model!:GraphModel;
 
 	engine!:EngineController;
@@ -54,6 +55,8 @@ export default class GraphController extends ObjectController {
 	}
 
 	createView() {
+		const view = super.createView() as IGraphView;
+
 		// Generate graph data from definitions
 		let nodeGroups = false;
 		let linkGroups = false;
@@ -87,7 +90,6 @@ export default class GraphController extends ObjectController {
 			}))
 		};
 
-		const view = this.viewFactory.create<IGraphView>(IGraphViewSymbol);
 		const camera = this.engine.camera.get();
 		if(camera) {
 			this.view.setup({camera: camera.view});
@@ -100,8 +102,6 @@ export default class GraphController extends ObjectController {
 	}
 
 	onFrame() {
-		if(this.view) {
-			this.view.onFrame();
-		}
+		this.view.onFrame();
 	}
 }

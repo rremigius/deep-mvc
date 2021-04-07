@@ -1,19 +1,20 @@
 import GraphNode from "@/Engine/models/ObjectModel/GraphModel/GraphNodeModel";
 import {Camera, Material, Mesh, MeshLambertMaterial, Object3D, SphereGeometry} from "three";
-import ThreeView from "../ThreeView";
 import tinycolor from 'tinycolor2';
 import {CSS3DObject} from "three-css3drenderer";
 import {get} from 'lodash';
 import IGraphView, {
 	GraphConfig,
 	GraphData,
-	GraphSetup, IGraphViewSymbol
+	GraphSetup,
+	IGraphViewSymbol
 } from "@/Engine/views/common/IObjectView/IGraphView";
 import ThreeCamera from "./ThreeCamera";
 import ThreeForceGraph from "three-forcegraph";
 import {injectable} from "@/Engine/views/dependencies";
 import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import Log from "@/log";
+import ThreeObject from "../ThreeObject";
 
 const colorStr2Hex = (str: string) => parseInt(tinycolor(str).toHex(), 16);
 const colorAlpha = (str: string) => tinycolor(str).getAlpha();
@@ -21,7 +22,7 @@ const colorAlpha = (str: string) => tinycolor(str).getAlpha();
 const log = Log.instance("Engine/Renderer/ThreeGraph");
 
 @injectable(threeViewDependencies, IGraphViewSymbol)
-export default class ThreeGraph extends ThreeView implements IGraphView {
+export default class ThreeGraph extends ThreeObject implements IGraphView {
 
 	// Cache
 	private sphereGeometries: Record<number, SphereGeometry> = {};

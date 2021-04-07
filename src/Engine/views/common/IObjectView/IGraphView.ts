@@ -1,7 +1,7 @@
-import IView from "../IObjectView";
+import IObjectView from "../IObjectView";
 import ICameraView from "@/Engine/views/common/IObjectView/ICameraView";
 
-export default interface IGraphView extends IView {
+export default interface IGraphView extends IObjectView {
 	setup(setup:GraphSetup):void;
 	config(config:GraphConfig):void;
 	setData(data:GraphData):void;

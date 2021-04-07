@@ -1,7 +1,7 @@
 import Vector3, {SparseVector3} from "@/Engine/views/common/Vector3";
 
 export default interface IView {
-	add(object:IView): this;
+	add(view:IView): this;
 	remove(object:IView): this;
 	getPosition():Vector3;
 	setPosition(position:Vector3|SparseVector3):void;

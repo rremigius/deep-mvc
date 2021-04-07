@@ -2,7 +2,7 @@ import IRenderer, {IRendererSymbol} from "@/Engine/views/common/IRenderer";
 import {Color, Vector2, WebGLRenderer} from 'three';
 import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import ThreeScene from "@/Engine/views/threejs/ThreeScene";
-import ThreeCamera from "@/Engine/views/threejs/ThreeView/ThreeCamera";
+import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import ThreeInteractionManager from "@/Engine/views/threejs/ThreeInteractionManager";
 import {injectable} from "@/Engine/views/dependencies";
 import {CSS3DRenderer} from "three-css3drenderer";

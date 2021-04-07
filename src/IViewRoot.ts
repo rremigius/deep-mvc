@@ -1,4 +1,4 @@
-import IView from "@/Engine/views/common/IObjectView";
+import IView from "@/IView";
 import {alphanumeric} from "mozel";
 import EventEmitter from "@/EventEmitter";
 

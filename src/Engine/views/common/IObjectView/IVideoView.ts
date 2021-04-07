@@ -1,5 +1,5 @@
-import IView from "@/Engine/views/common/IObjectView";
 import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
+import IObjectView from "@/Engine/views/common/IObjectView";
 
 export function createVideo(url:string) {
 	const video = document.createElement("video");
@@ -13,7 +13,7 @@ export function createVideo(url:string) {
 	return video;
 }
 
-export default interface IVideoView extends IView {
+export default interface IVideoView extends IObjectView {
 	load(xrVideo: VideoModel):Promise<this>;
 	play():void;
 	pause():void;

@@ -1,11 +1,11 @@
-import ThreeView from "@/Engine/views/threejs/ThreeView";
 import {AmbientLight, Color, Light} from "three";
 import ILightView, {ILightViewSymbol, LightType} from "@/Engine/views/common/IObjectView/ILightView";
 import {injectable} from "@/Engine/views/dependencies";
 import threeViewDependencies from "@/Engine/views/threejs/dependencies";
+import ThreeObject from "../ThreeObject";
 
 @injectable(threeViewDependencies, ILightViewSymbol)
-export default class ThreeLight extends ThreeView implements ILightView {
+export default class ThreeLight extends ThreeObject implements ILightView {
 	light:Light;
 	color:number|string;
 	lightType:LightType;

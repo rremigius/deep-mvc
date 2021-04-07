@@ -4,22 +4,25 @@ import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
 import {injectable} from "@/Engine/views/dependencies";
 import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import IImageView, {IImageViewSymbol} from "@/Engine/views/common/IObjectView/IImageView";
-import ThreeView from "../ThreeView";
+import ThreeObject from "../ThreeObject";
 
 const log = Log.instance("Controller/Object/Object3D");
 
 @injectable(threeViewDependencies, IImageViewSymbol)
-export default class ThreeImage extends ThreeView implements IImageView {
-	async load(xrImage: ImageModel): Promise<this> {
+export default class ThreeImage extends ThreeObject implements IImageView {
+	setModel(model: ImageModel) {
+	}
+
+	async load(model: ImageModel): Promise<this> {
 		return new Promise((resolve, reject) => {
-			if (!xrImage.file || !xrImage.file.url) {
+			if (!model.file || !model.file.url) {
 				const err = new Error("ImageModel has no image file. Cannot load.");
 				log.error(err.message);
 				reject(err);
 				return;
 			}
 
-			const url = xrImage.file.url;
+			const url = model.file.url;
 			log.log("Loading image", url);
 			new TextureLoader().load(url,
 				texture => {
@@ -46,7 +49,7 @@ export default class ThreeImage extends ThreeView implements IImageView {
 				undefined, // progress callback currently not supported (THREE docs)
 				() => {
 					const err = new Error("Failed to load image.");
-					log.error(err.message, xrImage.file);
+					log.error(err.message, model.file);
 					reject(err);
 				}
 			);
