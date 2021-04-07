@@ -25,6 +25,6 @@ export default class PlainEngine extends Engine {
 		controls.enableZoom = true;
 		controls.maxPolarAngle = 1.57;
 
-		return camera;
+		return;
 	}
 }

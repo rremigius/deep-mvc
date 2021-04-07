@@ -11,8 +11,10 @@ import HeadlessViewFactory from "@/Engine/views/headless/HeadlessViewFactory";
 const log = Log.instance("engine");
 
 export default class Engine {
-	private container?:HTMLElement;
-	private _onResize!:()=>void;
+	private _container?:HTMLElement;
+	public get container() { return this._container }
+
+	private readonly _onResize!:()=>void;
 
 	protected running = false;
 	protected readonly renderer:IRenderer;
@@ -61,15 +63,15 @@ export default class Engine {
 	}
 
 	attach(container:HTMLElement) {
-		this.container = container;
+		this._container = container;
 		this.renderer.attachTo(container);
 		this.onResize();
 	}
 
 	detach() {
-		if(!this.container) return;
+		if(!this._container) return;
 		this.renderer.detach();
-		this.container = undefined;
+		this._container = undefined;
 	}
 
 	render() {
@@ -100,9 +102,9 @@ export default class Engine {
 	}
 
 	onResize() {
-		if(this.container) {
-			let height = this.container.clientHeight;
-			let width = this.container.clientWidth;
+		if(this._container) {
+			let height = this._container.clientHeight;
+			let width = this._container.clientWidth;
 
 			this.renderer.setSize(width, height);
 

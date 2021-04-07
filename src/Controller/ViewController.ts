@@ -22,24 +22,31 @@ export default class ViewController extends Controller {
 	private _root!:IViewRoot;
 	get root(){ return this._root; };
 
-	private _view!:IView;
+	protected _view!:IView;
 	get view() { return this._view; };
 
 	get static() {
 		return <typeof ViewController>this.constructor;
 	}
 
+	createRootView(model:ControllerModel, view:IView):IViewRoot {
+		const root = this.viewFactory.create<IViewRoot>(IViewRootSymbol);
+		root.gid = model.gid;
+		root.events.click.on(event => this.onClick(event));
+
+		// Create the view and add to root
+		root.add(view);
+
+		return root;
+	}
+
 	init(model: ControllerModel) {
 		super.init(model);
 
-		// Will contain all sub elements of the view created in `createView`
-		this._root = this.viewFactory.create<IViewRoot>(IViewRootSymbol);
-		this._root.gid = model.gid;
-		this._root.events.click.on(event => this.onClick(event));
-
-		// Create the view and add to root
-		this._view = this.createView();
-		this._root.add(this._view);
+		// Create the View
+		this._view = this.createView(model);
+		// Wrap in root
+		this._root = this.createRootView(model, this._view);
 
 		// Watch the model for changes
 		this.model.$watch({
@@ -71,7 +78,7 @@ export default class ViewController extends Controller {
 	}
 
 	// Can be overridden if initialization is more complex than creating an interface from the ViewFactory.
-	createView():IView {
+	createView(model:ControllerModel):IView {
 		return this.viewFactory.create<IView>(this.static.ViewInterface);
 	}
 

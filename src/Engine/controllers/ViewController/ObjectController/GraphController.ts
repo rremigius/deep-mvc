@@ -52,14 +52,14 @@ export default class GraphController extends ObjectController {
 		this.debugGenerateData();
 	}
 
-	createView() {
-		const view = super.createView() as IGraphView;
+	createView(model: GraphModel) {
+		const view = super.createView(model) as IGraphView;
 
 		// Generate graph data from definitions
 		let nodeGroups = false;
 		let linkGroups = false;
 		const data = {
-			nodes: this.model.nodes.map((node:GraphNodeModel) => {
+			nodes: model.nodes.map((node:GraphNodeModel) => {
 				if(node.group) {
 					nodeGroups = true;
 				}
@@ -68,7 +68,7 @@ export default class GraphController extends ObjectController {
 					graphNode: node
 				};
 			}),
-			links: compact<Link>(this.model.links.map((relation:GraphLinkModel) => {
+			links: compact<Link>(model.links.map((relation:GraphLinkModel) => {
 				if(relation.group) {
 					linkGroups = true;
 				}

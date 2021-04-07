@@ -12,7 +12,7 @@ const model = models.create(EngineModel, {
 		marker: 'data-nft/pinball',
 		children: [
 			models.create(LightModel),
-			models.create(CameraModel, {gid: 'camera'}),
+			models.create(CameraModel, {gid: 'camera', position: {z: 2}}),
 			models.create(Model3DModel, {
 				files: [{url: 'assets/models/vw/model.dae'}]
 			})

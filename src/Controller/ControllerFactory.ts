@@ -118,6 +118,7 @@ export default class ControllerFactory {
 		try {
 			controller = container.getNamed<Controller>(Controller, model.static.type);
 		} catch(e) {
+			log.error(e);
 			throw new Error(`Could not create a controller for '${model.static.type}' model.\n-> ${e.message}`);
 		}
 
