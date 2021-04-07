@@ -31,6 +31,10 @@ export default class ARjsEngine extends Engine {
 		return camera;
 	}
 
+	createDefaultViewFactory() {
+		return new ThreeViewFactory();
+	}
+
 	init() {
 		log.info("Setting up ARToolkit...");
 
@@ -44,14 +48,6 @@ export default class ARjsEngine extends Engine {
 		// ARjs has a fixed scale for their markers, so we need a scaling object between the root and the rest
 		const scale = this.controller.model.scale;
 		this.controller.root.setScale(new Vector3(scale, scale, scale));
-	}
-
-	createRenderer(): IRenderer {
-		return new ThreeRenderer();
-	}
-
-	createDefaultViewFactory() {
-		return new ThreeViewFactory();
 	}
 
 	async load() {

@@ -1,5 +1,4 @@
 import EngineModel from "@/Engine/models/EngineModel";
-import {Container} from "inversify";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import ViewFactory from "@/Engine/views/ViewFactory";
 import IRenderer from "@/Engine/views/common/IRenderer";
@@ -8,7 +7,6 @@ import Log from "@/log";
 import EngineController, {FrameEvent} from "@/Engine/controllers/ViewController/EngineController";
 import EngineControllerFactory from "@/Engine/controllers/EngineControllerFactory";
 import HeadlessViewFactory from "@/Engine/views/headless/HeadlessViewFactory";
-import Renderer from "@/Engine/views/headless/Renderer";
 
 const log = Log.instance("engine");
 
@@ -27,7 +25,7 @@ export default class Engine {
 		controllerFactory = controllerFactory || this.createDefaultControllerFactory(viewFactory);
 
 		this.controller = controllerFactory.createAndResolveReferences(model, EngineController);
-		this.renderer = this.createRenderer();
+		this.renderer = viewFactory.createRenderer();
 
 		if(typeof window !== 'undefined') {
 			this._onResize = this.onResize.bind(this);
@@ -46,10 +44,6 @@ export default class Engine {
 
 	createDefaultViewFactory():ViewFactory {
 		return new HeadlessViewFactory();
-	}
-
-	createRenderer():IRenderer {
-		return new Renderer();
 	}
 
 	get camera() {

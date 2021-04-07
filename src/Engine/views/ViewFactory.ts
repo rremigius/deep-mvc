@@ -46,7 +46,14 @@ export default class ViewFactory {
 		this.dependencies.bind(ViewInterfaceSymbol).to(ViewClass);
 	}
 
+	/**
+	 * Register the Renderer class to create from this ViewFactory
+	 * @param RendererClass
+	 */
 	registerRenderer(RendererClass:Constructor<IRenderer>) {
+		if(!Reflect.hasMetadata(METADATA_KEY.PARAM_TYPES, RendererClass)) {
+			injectable()(RendererClass); // make ViewClass injectable by Inversify
+		}
 		this.dependencies.bind(IRendererSymbol).to(RendererClass);
 	}
 
@@ -57,6 +64,10 @@ export default class ViewFactory {
 	create<T extends IView>(interfaceSymbol:symbol):T {
 		let container = this.dependencies;
 		return container.get<T>(interfaceSymbol);
+	}
+
+	createRenderer() {
+		return this.dependencies.get<IRenderer>(IRendererSymbol);
 	}
 
 	get<T>(binding:any):T {
