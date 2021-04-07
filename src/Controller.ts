@@ -133,7 +133,6 @@ export default class Controller {
 
 	loading:Loader;
 
-	log = log;
 	events = new ControllerEvents();
 	actions = new ControllerActions();
 
@@ -146,13 +145,13 @@ export default class Controller {
 
 	constructor(
 		// using LazyServiceIdentifier to prevent circular dependency problem
-		@inject(new LazyServiceIdentifer(()=>ControllerModelSymbol)) model:ControllerModel,
+		@inject(new LazyServiceIdentifer(()=>ControllerModel)) model:ControllerModel,
 		// using LazyServiceIdentifier to prevent circular dependency problem
 		@inject(new LazyServiceIdentifer(()=>ControllerFactory)) controllerFactory:ControllerFactory,
 		@inject(Registry) registry:Registry<Controller>,
 		@inject(EventBus) eventBus:EventBus,
 		@inject(ViewFactory) viewFactory:ViewFactory,
-		@inject(Container) dependencyContainer:Container
+		@inject(Container) dependencies:Container
 	) {
 		if(!this.static.ModelClass || !(model instanceof this.static.ModelClass)) {
 			throw new Error(`Invalid Model provided to Controller '${this.static.name}'.`);
@@ -163,7 +162,7 @@ export default class Controller {
 		this.registry = registry;
 		this.eventBus = eventBus;
 		this.viewFactory = viewFactory;
-		this.dependencies = dependencyContainer;
+		this.dependencies = dependencies;
 
 		this.initialized = false;
 
@@ -223,7 +222,7 @@ export default class Controller {
 	}
 
 	protected error(...args:unknown[]) {
-		this.log.error(...args);
+		log.error(...args);
 		return new Error(""+args[0]);
 	}
 

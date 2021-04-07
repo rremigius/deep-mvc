@@ -90,4 +90,8 @@ export default class ThreeRenderer implements IRenderer {
 	destroy() {
 		this.interactionManager.destroy();
 	}
+
+	getDOMElement() {
+		return this.renderer.domElement;
+	}
 }

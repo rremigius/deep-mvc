@@ -4,7 +4,6 @@ import Log from "@/log";
 // import {Howl } from 'howler';
 import SoundBehaviourModel from "@/Engine/models/BehaviourModel/SoundBehaviourModel";
 
-const log = Log.instance("object/behaviour/Sound");
 export class PlayAction extends ControllerAction<void> {}
 export class PlayActions extends ControllerActions {
 	play = this.$action(PlayAction);
@@ -13,7 +12,6 @@ export class PlayActions extends ControllerActions {
 export default class SoundBehaviourController extends BehaviourController {
 	static ModelClass = SoundBehaviourModel;
 
-	log = log;
 	actions = new PlayActions();
 
 	get soundBehaviour() {

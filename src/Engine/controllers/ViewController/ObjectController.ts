@@ -9,14 +9,10 @@ import {schema} from "mozel";
 import ViewController from "@/Controller/ViewController";
 import {IObjectViewSymbol} from "@/Engine/views/common/IObjectView";
 
-const log = Log.instance("engine/object");
-
 export default class ObjectController extends ViewController {
 	static ModelClass = ObjectModel;
 	model!:ObjectModel;
 	viewInterface = IObjectViewSymbol;
-
-	log = log;
 
 	@controllers(schema(ObjectModel).behaviours, BehaviourController)
 	behaviours!:ControllerList<BehaviourController>;

@@ -17,7 +17,7 @@ import ThreeObject from "../ThreeObject";
 const colorStr2Hex = (str: string) => parseInt(tinycolor(str).toHex(), 16);
 const colorAlpha = (str: string) => tinycolor(str).getAlpha();
 
-const log = Log.instance("Engine/Renderer/ThreeGraph");
+const log = Log.instance("three-graph");
 
 export default class ThreeGraph extends ThreeObject implements IGraphView {
 	static ViewInterface = IGraphViewSymbol;

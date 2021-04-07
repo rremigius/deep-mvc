@@ -4,7 +4,7 @@ import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
 import IImageView, {IImageViewSymbol} from "@/Engine/views/common/IObjectView/IImageView";
 import ThreeObject from "../ThreeObject";
 
-const log = Log.instance("Controller/Object/Object3D");
+const log = Log.instance("three-image");
 
 export default class ThreeImage extends ThreeObject implements IImageView {
 	static ViewInterface = IImageViewSymbol;

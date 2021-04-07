@@ -3,12 +3,8 @@ import Log from "@/log";
 import File from "@/Engine/models/FileModel";
 import {property, required} from "mozel";
 
-const log = Log.instance("scene/object/video");
-
 export default class VideoModel extends ObjectModel {
 	static get type() { return 'Video' };
-
-	log = log;
 
 	@property(Number, {required, default: 1})
 	width!: number;

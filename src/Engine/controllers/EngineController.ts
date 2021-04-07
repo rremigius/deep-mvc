@@ -8,8 +8,6 @@ import CameraController from "@/Engine/controllers/ViewController/ObjectControll
 import Log from "@/log";
 import Engine from "@/Engine/Engine";
 
-const log = Log.instance("controller/engine");
-
 export class MarkerDetectedEvent {
 	constructor(public id:string, public first:boolean) {}
 }
@@ -45,20 +43,12 @@ export default class EngineController extends Controller {
 
 	events:EngineEvents = new EngineEvents();
 	actions:EngineActions = new EngineActions();
-	log = log;
 
 	@controller(schema(EngineModel).scene, SceneController)
 	scene!:ControllerSlot<SceneController>;
 
 	@controller(schema(EngineModel).camera, CameraController)
 	camera!:ControllerSlot<CameraController>;
-
-	init(model: ControllerModel) {
-		super.init(model);
-
-		// All children should be able to access this EngineController
-		this.dependencies.bind<EngineController>(EngineController).toConstantValue(this);
-	}
 
 	setEngine(engine:Engine) {
 		this._engine = engine;

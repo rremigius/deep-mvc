@@ -7,10 +7,11 @@ import {TimelineMax, TweenLite} from "gsap";
 import BehaviourModel from "@/Engine/models/BehaviourModel";
 import {extend, get} from 'lodash';
 
-const log = Log.instance("Engine/Behaviour/Tween");
+const log = Log.instance("tween-behaviour");
 
 class TweenStartedEvent extends ControllerEvent<object> {}
 class TweenCompletedEvent extends ControllerEvent<object> {}
+
 class TweenBehaviourControllerEvents extends ControllerEvents {
 	started = this.$event(TweenStartedEvent);
 	completed = this.$event(TweenCompletedEvent);
@@ -19,7 +20,6 @@ class TweenBehaviourControllerEvents extends ControllerEvents {
 export default class TweenBehaviourController extends BehaviourController {
 	static ModelClass = TweenBehaviourModel;
 
-	log = log;
 	events = new TweenBehaviourControllerEvents();
 
 	// Created on init
@@ -62,7 +62,7 @@ export default class TweenBehaviourController extends BehaviourController {
 		}
 		if(!target) {
 			let msg = "No target defined on TweenStep and no apparent BehaviourModel parent found.";
-			this.log.error(msg);
+			log.error(msg);
 			throw new Error(msg);
 		}
 		if(step.targetPath) {
@@ -70,7 +70,7 @@ export default class TweenBehaviourController extends BehaviourController {
 		}
 		if(!target) {
 			let msg = `Target path '${step.targetPath}' not found.`;
-			this.log.error(msg);
+			log.error(msg);
 			throw new Error(msg);
 		}
 

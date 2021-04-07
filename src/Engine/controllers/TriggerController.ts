@@ -6,7 +6,7 @@ import ControllerSlot from "@/Controller/ControllerSlot";
 import {isSubClass} from "validation-kit";
 import {schema} from "mozel";
 
-const log = Log.instance("controller/trigger");
+const log = Log.instance("trigger-controller");
 
 type UnknownTrigger = TriggerModel<ControllerEvent<object>,ControllerAction<object>>;
 

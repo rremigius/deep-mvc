@@ -1,8 +1,6 @@
 import Log from "@/log";
 import Mozel, {GenericMozel, property} from "mozel";
 
-const log = Log.instance("objectmodel/behaviour/tween/step");
-
 export default class TweenStepModel extends Mozel {
 	@property(Mozel)
 	target?:Mozel;

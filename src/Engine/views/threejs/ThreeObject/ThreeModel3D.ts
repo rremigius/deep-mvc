@@ -9,7 +9,7 @@ import FileModel from "@/Engine/models/FileModel";
 import Log from "@/log";
 import ThreeObject from "../ThreeObject";
 
-const log = Log.instance("controller/object/model3d");
+const log = Log.instance("model-3d");
 
 export class ThreeModel3D extends ThreeObject implements IModel3DView {
 	static ViewInterface  = IModel3DViewSymbol;

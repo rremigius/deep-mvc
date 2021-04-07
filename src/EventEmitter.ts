@@ -3,7 +3,7 @@ import {Alphanumeric, Class, Constructor, isAlphanumeric, isClass} from "validat
 
 import Log from "log-control";
 
-const log = Log.instance("event");
+const log = Log.instance("event-emitter");
 
 export type TypeClass<T> = Constructor<T>|String|Number|Boolean|Alphanumeric;
 

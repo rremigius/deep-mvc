@@ -3,7 +3,7 @@ import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
 import IVideoView, {IVideoViewSymbol} from "@/Engine/views/common/IObjectView/IVideoView";
 import Log from "@/log";
 
-const log = Log.instance("controller/video");
+const log = Log.instance("video-controller");
 
 export default class VideoController extends ObjectController {
 	static ModelClass = VideoModel;
@@ -12,8 +12,6 @@ export default class VideoController extends ObjectController {
 	model!:VideoModel;
 
 	get view() { return super.view as IVideoView }
-
-	log = log;
 
 	async onLoad() {
 		await this.view.load(this.model);

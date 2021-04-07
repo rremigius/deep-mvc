@@ -3,8 +3,6 @@ import {Collection, collection} from "mozel";
 import Log from "@/log";
 import FileModel from "@/Engine/models/FileModel";
 
-const log = Log.instance("Model3DModel");
-
 export enum FileType {
 	Collada = 'collada',
 	Obj = 'obj',
@@ -13,8 +11,6 @@ export enum FileType {
 
 export default class Model3DModel extends ObjectModel {
 	static get type() { return 'Model3D' }
-
-	log = log;
 
 	@collection(FileModel)
 	files!:Collection<FileModel>;

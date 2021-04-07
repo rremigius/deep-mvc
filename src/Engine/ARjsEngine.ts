@@ -4,13 +4,13 @@ import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import Log from "@/log";
 import {Camera} from "three";
 import Vector3 from "@/Engine/views/common/Vector3";
-import {MarkerDetectedEvent} from "@/Engine/controllers/ViewController/EngineController";
+import {MarkerDetectedEvent} from "@/Engine/controllers/EngineController";
 import ThreeViewFactory from "./views/threejs/ThreeViewFactory";
 
 // Should be loaded in index.html
 const THREEx = (window as any).THREEx;
 
-const log = Log.instance("engine/arjs");
+const log = Log.instance("arjs-engine");
 const trackingLostDelay = 500;
 
 export default class ARjsEngine extends Engine {

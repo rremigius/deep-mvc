@@ -8,5 +8,6 @@ export default interface IRenderer {
 	getSize():{width:number, height:number};
 	setSize(width:number, height:number):void;
 	destroy():void;
+	getDOMElement():HTMLElement;
 }
 export const IRendererSymbol = Symbol.for("IRenderer");

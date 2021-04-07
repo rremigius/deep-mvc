@@ -6,9 +6,9 @@ import IGraphView, {IGraphViewSymbol} from "@/Engine/views/common/IObjectView/IG
 import Log from "@/log";
 import {compact} from 'lodash';
 import {alphanumeric} from "validation-kit";
-import EngineController from "@/Engine/controllers/ViewController/EngineController";
+import EngineController from "@/Engine/controllers/EngineController";
 
-const log = Log.instance("engine/controller/graphcontroller");
+const log = Log.instance("graph-controller");
 
 type Link = {source:alphanumeric,target:alphanumeric,graphLink:GraphLinkModel};
 

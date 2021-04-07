@@ -5,6 +5,11 @@ import ISceneView from "@/Engine/views/common/ISceneView";
 export default class Renderer implements IRenderer {
 	width:number = 0;
 	height:number = 0;
+	element:HTMLElement;
+
+	constructor() {
+		this.element = new HTMLElement();
+	}
 
 	getSize(): { width: number; height: number } {
 		return {height: this.height, width: this.width};
@@ -25,5 +30,9 @@ export default class Renderer implements IRenderer {
 	}
 
 	detach(): void {
+	}
+
+	getDOMElement(): HTMLElement {
+		return this.element;
 	}
 }

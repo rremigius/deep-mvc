@@ -17,7 +17,7 @@ export const ControllerModelSymbol = Symbol.for('ControllerModel');
 export default class ControllerFactory {
 
 	// If not set in constructor params, will be set in constructor. And readonly, so will always have value.
-	readonly dependencies:Container;
+	dependencies:Container;
 	readonly localDependencies:Container;
 	public eventBus:Events;
 	public readonly registry:Registry<Controller>;
@@ -50,7 +50,6 @@ export default class ControllerFactory {
 		this.localDependencies.bind(ControllerFactory).toConstantValue(this);
 		this.localDependencies.bind(Registry).toConstantValue(this.registry);
 		this.localDependencies.bind(EventBus).toConstantValue(this.eventBus);
-		this.localDependencies.bind(Container).toConstantValue(this.dependencies);
 		this.localDependencies.bind<ViewFactory>(ViewFactory).toConstantValue(viewFactory);
 
 		this.initDependencies();
@@ -58,6 +57,13 @@ export default class ControllerFactory {
 
 	// For override
 	initDependencies() { }
+
+	extendDependencies() {
+		const newDependencies = new Container({autoBindInjectable: true});
+		newDependencies.parent = this.dependencies;
+		this.dependencies = newDependencies;
+		return this.dependencies;
+	}
 
 	/**
 	 * Register a Controller dependency.
@@ -76,20 +82,6 @@ export default class ControllerFactory {
 		if(!ModelClass) throw new Error(`No ModelClass specified for ${ControllerClass.name}.`);
 
 		this.localDependencies.bind<Controller>(Controller).to(ControllerClass).whenTargetNamed(ModelClass.type);
-	}
-
-	/**
-	 * Create extension of the given DI Container, so we can override local dependencies.
-	 * @param {ControllerModel} model
-	 */
-	extendDIContainer(model:ControllerModel) {
-		const extension = new Container({autoBindInjectable:true});
-		extension.parent = this.dependencies;
-
-		// ControllerModel needs a Model in the constructor so we inject it through the container.
-		extension.bind(ControllerModelSymbol).toConstantValue(model);
-
-		return extension;
 	}
 
 	/**
@@ -112,15 +104,13 @@ export default class ControllerFactory {
 			log.error(message, model);
 			throw new Error(message);
 		}
-		let container = this.extendDIContainer(model);
 
-		let controller;
-		try {
-			controller = container.getNamed<Controller>(Controller, model.static.type);
-		} catch(e) {
-			log.error(e);
-			throw new Error(`Could not create a controller for '${model.static.type}' model.\n-> ${e.message}`);
-		}
+		// ControllerModel needs a Model in the constructor so we inject it through the container.
+		let container = this.extendDependencies();
+		container.bind(ControllerModel).toConstantValue(model);
+		container.bind(Container).toConstantValue(this.dependencies);
+
+		const controller = container.getNamed<Controller>(Controller, model.static.type);
 
 		// Store in Registry
 		if(!isT(controller)) {

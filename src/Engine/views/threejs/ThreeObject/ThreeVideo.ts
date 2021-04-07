@@ -4,7 +4,7 @@ import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
 import Log from "@/log";
 import ThreeObject from "@/Engine/views/threejs/ThreeObject";
 
-const log = Log.instance("view/three/video");
+const log = Log.instance("three-video");
 
 export default class ThreeVideo extends ThreeObject implements IVideoView {
 	static ViewInterface = IVideoViewSymbol;

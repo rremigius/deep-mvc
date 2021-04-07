@@ -2,7 +2,7 @@ import {MozelFactory} from "mozel";
 import EngineModel from "./EngineModel";
 import SceneModel from "./SceneModel";
 import ObjectModel from "./ObjectModel";
-import ViewModel from "../../ViewModel";
+import ViewModel from "@/ViewModel";
 import BehaviourModel from "./BehaviourModel";
 import TriggerModel from "./TriggerModel";
 import CameraModel from "./ObjectModel/CameraModel";
@@ -13,13 +13,15 @@ import TweenBehaviourModel from "./BehaviourModel/TweenBehaviourModel";
 import SoundBehaviourModel from "./BehaviourModel/SoundBehaviourModel";
 import Model3DModel from "./ObjectModel/Model3DModel";
 import LightModel from "@/Engine/models/ObjectModel/LightModel";
+import OrbitControlsModel from "@/Engine/models/ObjectModel/CameraModel/OrbitControlsModel";
 
 export default class EngineModelFactory extends MozelFactory {
 	initDependencies() {
 		super.initDependencies();
 		this.register([
 			EngineModel, ViewModel, SceneModel, CameraModel, Model3DModel, ImageModel, GraphModel, VideoModel,
-			BehaviourModel, TweenBehaviourModel, SoundBehaviourModel, TriggerModel, ObjectModel, LightModel
+			BehaviourModel, TweenBehaviourModel, SoundBehaviourModel, TriggerModel, ObjectModel, LightModel,
+			OrbitControlsModel
 		]);
 	}
 }

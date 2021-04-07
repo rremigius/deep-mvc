@@ -4,7 +4,7 @@ import ViewFactory from "@/Engine/views/ViewFactory";
 import IRenderer from "@/Engine/views/common/IRenderer";
 
 import Log from "@/log";
-import EngineController, {FrameEvent} from "@/Engine/controllers/ViewController/EngineController";
+import EngineController, {FrameEvent} from "@/Engine/controllers/EngineController";
 import EngineControllerFactory from "@/Engine/controllers/EngineControllerFactory";
 import HeadlessViewFactory from "@/Engine/views/headless/HeadlessViewFactory";
 
@@ -26,8 +26,14 @@ export default class Engine {
 		viewFactory = viewFactory || this.createDefaultViewFactory();
 		controllerFactory = controllerFactory || this.createDefaultControllerFactory(viewFactory);
 
-		this.controller = controllerFactory.createAndResolveReferences(model, EngineController);
 		this.renderer = viewFactory.createRenderer();
+
+		// Allow access to Engine from Controllers
+		const dependencies = controllerFactory.extendDependencies();
+		dependencies.bind(Engine).toConstantValue(this);
+
+		this.controller = controllerFactory.createAndResolveReferences(model, EngineController);
+		this.controller.setEngine(this);
 
 		if(typeof window !== 'undefined') {
 			this._onResize = this.onResize.bind(this);
@@ -58,6 +64,10 @@ export default class Engine {
 		const sceneController = this.controller.scene.get();
 		if(!sceneController) return undefined;
 		return sceneController.view;
+	}
+
+	get domElement() {
+		return this.renderer.getDOMElement();
 	}
 
 	get events() {

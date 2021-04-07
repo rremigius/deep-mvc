@@ -9,7 +9,7 @@ import Source from "threear/dist/Source";
 import ThreeRootObject from "@/Engine/views/threejs/ThreeViewRoot";
 import {MarkerDetectedEvent} from "@/Engine/controllers/EngineController";
 
-const log = Log.instance("engine/three-ar");
+const log = Log.instance("three-ar-engine");
 
 const trackingLostDelay = 500;
 

@@ -1,7 +1,7 @@
 import {Container, inject, injectable, METADATA_KEY, optional} from "inversify";
 import IView from "@/IView";
 import IRenderer, {IRendererSymbol} from "@/Engine/views/common/IRenderer";
-import {Constructor} from "validation-kit";
+import {Constructor, isClass} from "validation-kit";
 import {isArray} from "lodash";
 
 export type IViewConstructor = Constructor<IView> & {ViewInterface:symbol};
@@ -70,7 +70,23 @@ export default class ViewFactory {
 		return this.dependencies.get<IRenderer>(IRendererSymbol);
 	}
 
+	/**
+	 * General-purpose dependency injection.
+	 * @param binding
+	 */
 	get<T>(binding:any):T {
 		return this.dependencies.get<T>(binding);
+	}
+
+	/**
+	 * General-purpose dependency injection.
+	 * @param binding
+	 * @param target
+	 */
+	bind(binding:any, target:any) {
+		if(isClass(target) && !Reflect.hasMetadata(METADATA_KEY.PARAM_TYPES, target)) {
+			injectable()(target); // make ViewClass injectable by Inversify
+		}
+		this.dependencies.bind(binding).to(target);
 	}
 }

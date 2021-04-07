@@ -7,8 +7,6 @@ import {Object3D} from "three";
 import {check, instanceOf} from "validation-kit";
 import {ViewClickEvent} from "@/IViewRoot";
 
-const log = Log.instance("Controller/Object/Object3D");
-
 export class ClickEvent extends ControllerEvent<{mesh:string}> {}
 export class Model3DControllerEvents extends ControllerEvents {
 	click = this.$event(ClickEvent);
@@ -21,7 +19,6 @@ export default class Model3DController extends ObjectController {
 	model!:Model3DModel;
 	get view(): IModel3DView { return super.view as IModel3DView }
 
-	log = log;
 	events = new Model3DControllerEvents();
 
 	onClick(event:ViewClickEvent): void {

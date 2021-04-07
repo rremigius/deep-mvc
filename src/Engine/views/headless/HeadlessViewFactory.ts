@@ -9,6 +9,8 @@ import ImageView from "./View/ImageView";
 import LightView from "./View/LightView";
 import Model3DView from "./View/Model3DView";
 import VideoView from "./View/VideoView";
+import {IOrbitControlsSymbol} from "@/Engine/views/common/IObjectView/ICameraView/IOrbitControls";
+import OrbitControls from "@/Engine/views/headless/View/CameraView/OrbitControls";
 
 export default class HeadlessViewFactory extends ViewFactory {
 	initDependencies() {
@@ -17,5 +19,6 @@ export default class HeadlessViewFactory extends ViewFactory {
 		this.register([
 			View, ViewRoot, SceneView, CameraView, GraphView, ImageView, LightView, Model3DView, VideoView
 		]);
+		this.bind(IOrbitControlsSymbol, OrbitControls);
 	}
 }
