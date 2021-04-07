@@ -1,12 +1,12 @@
 import {OrbitControls} from "three-orbitcontrols-ts";
-import EngineAbstract from "@/Engine/EngineAbstract";
+import Engine from "@/Engine/Engine";
 import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import ThreeRenderer from "@/Engine/views/threejs/ThreeRenderer";
-import defaultViewDependencies from "@/Engine/views/threejs/dependencies";
+import ThreeViewFactory from "@/Engine/views/threejs/ThreeViewFactory";
 
-export default class PlainEngine extends EngineAbstract {
-	static getDefaultViewDependencies() {
-		return defaultViewDependencies;
+export default class PlainEngine extends Engine {
+	createDefaultViewFactory() {
+		return new ThreeViewFactory();
 	}
 
 	createRenderer() {

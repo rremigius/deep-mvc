@@ -1,12 +1,10 @@
-import {MozelFactory} from "mozel";
 import EngineModel from "@/Engine/models/EngineModel";
 import CameraModel from "@/Engine/models/ObjectModel/CameraModel";
-import "@/Engine/controllers/all";
-import "@/Engine/views/threejs/all";
 import PlainEngine from "@/Engine/PlainEngine";
 import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
+import EngineModelFactory from "@/Engine/models/EngineModelFactory";
 
-const models = new MozelFactory();
+const models = new EngineModelFactory();
 const model = models.create(EngineModel, {
 	camera: {gid: 'camera'},
 	scene: {

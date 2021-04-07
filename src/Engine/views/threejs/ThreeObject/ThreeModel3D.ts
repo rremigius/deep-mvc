@@ -1,4 +1,4 @@
-import IModel3DView from "@/Engine/views/common/IObjectView/IModel3DView";
+import IModel3DView, {IModel3DViewSymbol} from "@/Engine/views/common/IObjectView/IModel3DView";
 import Model3DModel, {FileType} from "@/Engine/models/ObjectModel/Model3DModel";
 import {Group, Object3D} from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
@@ -12,6 +12,8 @@ import ThreeObject from "../ThreeObject";
 const log = Log.instance("controller/object/model3d");
 
 export class ThreeModel3D extends ThreeObject implements IModel3DView {
+	static ViewInterface  = IModel3DViewSymbol;
+
 	async load(xrModel3D: Model3DModel): Promise<this> {
 		switch(xrModel3D.determineFileType()) {
 			case FileType.Collada:

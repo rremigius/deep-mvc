@@ -11,8 +11,6 @@ import IGraphView, {
 } from "@/Engine/views/common/IObjectView/IGraphView";
 import ThreeCamera from "./ThreeCamera";
 import ThreeForceGraph from "three-forcegraph";
-import {injectable} from "@/Engine/views/dependencies";
-import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import Log from "@/log";
 import ThreeObject from "../ThreeObject";
 
@@ -22,6 +20,7 @@ const colorAlpha = (str: string) => tinycolor(str).getAlpha();
 const log = Log.instance("Engine/Renderer/ThreeGraph");
 
 export default class ThreeGraph extends ThreeObject implements IGraphView {
+	static ViewInterface = IGraphViewSymbol;
 
 	// Cache
 	private sphereGeometries: Record<number, SphereGeometry> = {};

@@ -1,16 +1,13 @@
 import {Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
 import Log from "@/log";
 import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
-import {injectable} from "@/Engine/views/dependencies";
-import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import IImageView, {IImageViewSymbol} from "@/Engine/views/common/IObjectView/IImageView";
 import ThreeObject from "../ThreeObject";
 
 const log = Log.instance("Controller/Object/Object3D");
 
 export default class ThreeImage extends ThreeObject implements IImageView {
-	setModel(model: ImageModel) {
-	}
+	static ViewInterface = IImageViewSymbol;
 
 	async load(model: ImageModel): Promise<this> {
 		return new Promise((resolve, reject) => {

@@ -3,15 +3,16 @@ import {Container} from "inversify";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import ViewFactory from "@/Engine/views/ViewFactory";
 import IRenderer from "@/Engine/views/common/IRenderer";
-import defaultControllerDependencies from "@/Engine/controllers/dependencies";
-import defaultViewDependencies from "@/Engine/views/headless/dependencies";
 
 import Log from "@/log";
-import EngineController, {FrameEvent} from "@/Engine/controllers/EngineController";
+import EngineController, {FrameEvent} from "@/Engine/controllers/ViewController/EngineController";
+import EngineControllerFactory from "@/Engine/controllers/EngineControllerFactory";
+import HeadlessViewFactory from "@/Engine/views/headless/HeadlessViewFactory";
+import Renderer from "@/Engine/views/headless/Renderer";
 
 const log = Log.instance("engine");
 
-export default abstract class EngineAbstract {
+export default class Engine {
 	private container?:HTMLElement;
 	private _onResize!:()=>void;
 
@@ -19,20 +20,10 @@ export default abstract class EngineAbstract {
 	protected readonly renderer:IRenderer;
 	protected readonly controller:EngineController;
 
-	static getDefaultControllerDependencies() {
-		return defaultControllerDependencies;
-	}
+	constructor(model:EngineModel, viewFactory?:ViewFactory, controllerFactory?:ControllerFactory) {
+		viewFactory = viewFactory || this.createDefaultViewFactory();
+		controllerFactory = controllerFactory || this.createDefaultControllerFactory(viewFactory);
 
-	static getDefaultViewDependencies() {
-		return defaultViewDependencies;
-	}
-
-	constructor(model:EngineModel, viewDependencies?:Container, controllerDependencies?:Container) {
-		controllerDependencies = controllerDependencies || this.static.getDefaultControllerDependencies();
-		viewDependencies = viewDependencies || this.static.getDefaultViewDependencies();
-
-		const viewFactory = new ViewFactory(viewDependencies);
-		const controllerFactory = new ControllerFactory(controllerDependencies, viewFactory);
 		this.controller = controllerFactory.createAndResolveReferences(model, EngineController);
 		this.renderer = this.createRenderer();
 
@@ -47,9 +38,19 @@ export default abstract class EngineAbstract {
 		});
 	}
 
-	abstract init():void;
+	init(){ }
 
-	abstract createRenderer():IRenderer;
+	createDefaultControllerFactory(viewFactory:ViewFactory):ControllerFactory {
+		return new EngineControllerFactory(viewFactory);
+	}
+
+	createDefaultViewFactory():ViewFactory {
+		return new HeadlessViewFactory();
+	}
+
+	createRenderer():IRenderer {
+		return new Renderer();
+	}
 
 	get camera() {
 		const cameraController = this.controller.camera.get();
@@ -62,7 +63,7 @@ export default abstract class EngineAbstract {
 	}
 
 	get static() {
-		return <typeof EngineAbstract>this.constructor;
+		return <typeof Engine>this.constructor;
 	}
 
 	attach(container:HTMLElement) {

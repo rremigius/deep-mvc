@@ -1,12 +1,14 @@
-import IVideoView, {createVideo} from "@/Engine/views/common/IObjectView/IVideoView";
+import IVideoView, {createVideo, IVideoViewSymbol} from "@/Engine/views/common/IObjectView/IVideoView";
 import {DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, VideoTexture} from "three";
 import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
 import Log from "@/log";
 import ThreeObject from "../ThreeObject";
 
-const log = Log.instance("renderer/xr-three-video");
+const log = Log.instance("view/three/video");
 
 export default class ThreeVideo extends ThreeObject implements IVideoView {
+	static ViewInterface = IVideoViewSymbol;
+
 	video?: HTMLVideoElement;
 	videoTexture?: VideoTexture;
 	loaded:boolean = false;

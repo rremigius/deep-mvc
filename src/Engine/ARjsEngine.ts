@@ -1,12 +1,12 @@
-import EngineAbstract from "@/Engine/EngineAbstract";
-import threeViewDependencies from "@/Engine/views/threejs/dependencies";
+import Engine from "./Engine";
 import IRenderer from "@/Engine/views/common/IRenderer";
 import ThreeRenderer from "@/Engine/views/threejs/ThreeRenderer";
 import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import Log from "@/log";
 import {Camera} from "three";
 import Vector3 from "@/Engine/views/common/Vector3";
-import {MarkerDetectedEvent} from "@/Engine/controllers/EngineController";
+import {MarkerDetectedEvent} from "@/Engine/controllers/ViewController/EngineController";
+import ThreeViewFactory from "./views/threejs/ThreeViewFactory";
 
 // Should be loaded in index.html
 const THREEx = (window as any).THREEx;
@@ -14,11 +14,7 @@ const THREEx = (window as any).THREEx;
 const log = Log.instance("engine/arjs");
 const trackingLostDelay = 500;
 
-export default class ARjsEngine extends EngineAbstract {
-	static getDefaultViewDependencies() {
-		return threeViewDependencies;
-	}
-
+export default class ARjsEngine extends Engine {
 	private tracking:boolean = false;
 	private firstDetection:boolean = true;
 	private lastTracked:number = 0;
@@ -48,6 +44,14 @@ export default class ARjsEngine extends EngineAbstract {
 		// ARjs has a fixed scale for their markers, so we need a scaling object between the root and the rest
 		const scale = this.controller.model.scale;
 		this.controller.root.setScale(new Vector3(scale, scale, scale));
+	}
+
+	createRenderer(): IRenderer {
+		return new ThreeRenderer();
+	}
+
+	createDefaultViewFactory() {
+		return new ThreeViewFactory();
 	}
 
 	async load() {
@@ -116,10 +120,6 @@ export default class ARjsEngine extends EngineAbstract {
 			smooth: true,
 			smoothCount: 10 // instead of default 5
 		});
-	}
-
-	createRenderer(): IRenderer {
-		return new ThreeRenderer();
 	}
 
 	frame() {

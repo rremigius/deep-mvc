@@ -1,8 +1,6 @@
 import ThreeView from "@/Engine/views/threejs/ThreeView";
 import {Object3D} from "three";
 import {alphanumeric} from "mozel";
-import {injectable} from "@/Engine/views/dependencies";
-import threeViewDependencies from "@/Engine/views/threejs/dependencies";
 import IViewRoot, {IViewRootSymbol, ViewClickEvent, ViewClickEventEmitter} from "@/IViewRoot";
 
 export class RootObject3D extends Object3D {
@@ -10,8 +8,9 @@ export class RootObject3D extends Object3D {
 	onClick(event:ViewClickEvent){};
 }
 
-@injectable(threeViewDependencies, IViewRootSymbol)
 export default class ThreeViewRoot extends ThreeView implements IViewRoot {
+	static ViewInterface = IViewRootSymbol;
+
 	events = {
 		click: new ViewClickEventEmitter()
 	}

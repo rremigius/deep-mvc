@@ -3,7 +3,7 @@ import Controller from "threear/dist/Controller";
 
 import * as THREEAR from 'threear';
 import ThreeRenderer from "@/Engine/views/threejs/ThreeRenderer";
-import EngineAbstract from "@/Engine/EngineAbstract";
+import Engine from "./Engine";
 import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import Source from "threear/dist/Source";
 import ThreeRootObject from "@/Engine/views/threejs/ThreeViewRoot";
@@ -13,7 +13,7 @@ const log = Log.instance("engine/three-ar");
 
 const trackingLostDelay = 500;
 
-export default class ThreeAREngine extends EngineAbstract {
+export default class ThreeAREngine extends Engine {
 	protected renderer!:ThreeRenderer; // TS: created in constructor
 
 	private tracking:boolean = false;

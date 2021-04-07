@@ -1,8 +1,10 @@
 import {PerspectiveCamera} from "three";
-import ICameraView from "@/Engine/views/common/IObjectView/ICameraView";
+import ICameraView, {ICameraViewSymbol} from "@/Engine/views/common/IObjectView/ICameraView";
 import ThreeObject from "../ThreeObject";
 
 export default class ThreePerspectiveCamera extends ThreeObject implements ICameraView {
+	static ViewInterface = ICameraViewSymbol;
+
 	createObject3D() {
 		return new PerspectiveCamera();
 	}
