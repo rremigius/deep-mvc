@@ -184,4 +184,74 @@ describe('Controller', () => {
 			assert.equal(fooController.foos.getIndex(0).model, fooModel.foos.get(0), "ControllerList synchronized");
 		});
 	});
+	describe("enable", () => {
+		it("with can disable all children, and re-enable only those that were not disabled before", () => {
+			class FooModel extends ControllerModel {
+				@property(FooModel)
+				left?:FooModel;
+				@property(FooModel)
+				right?:FooModel;
+			}
+			class FooController extends Controller {
+				static ModelClass = FooModel;
+				model!:FooModel;
+				@controller(schema(FooModel).left, FooController)
+				left!:ControllerSlot<FooController>;
+				@controller(schema(FooModel).right, FooController)
+				right!:ControllerSlot<FooController>;
+			}
+
+			const models = Mozel.createFactory();
+			models.register(FooModel);
+			const controllers = Controller.createFactory();
+			controllers.register(FooController);
+
+			const model = models.create(FooModel, {
+				gid: 'root',
+				left: {
+					gid: 1,
+					left: {
+						gid: 12
+					},
+					right: {
+						gid: 13
+					}
+				},
+			});
+			const ctrl = controllers.create(model, FooController);
+			const ctrl1 = controllers.registry.byGid(1) as FooController;
+			const ctrl12 = controllers.registry.byGid(12) as FooController;
+			const ctrl13 = controllers.registry.byGid(13) as FooController;
+
+			assert.equal(ctrl.enabled, false, "Root disabled before start.");
+			assert.equal(ctrl1.enabled, false, "Ctrl1 disabled before start.");
+			assert.equal(ctrl12.enabled, false, "Ctrl12 disabled before start.");
+			assert.equal(ctrl13.enabled, false, "Ctrl13 disabled before start.");
+
+			ctrl.start();
+
+			assert.equal(ctrl.enabled, true, "Root enabled after start.");
+			assert.equal(ctrl1.enabled, true, "Ctrl1 enabled after start.");
+			assert.equal(ctrl12.enabled, true, "Ctrl12 enabled after start.");
+			assert.equal(ctrl13.enabled, true, "Ctrl13 enabled after start.");
+
+			ctrl13.enable(false);
+
+			assert.equal(ctrl13.enabled, false, "Ctrl13 disabled after disable.");
+
+			ctrl.enable(false);
+
+			assert.equal(ctrl.enabled, false, "Root disabled after root disable.");
+			assert.equal(ctrl1.enabled, false, "Ctrl1 disabled after root disable.");
+			assert.equal(ctrl12.enabled, false, "Ctrl12 disabled after root disable.");
+			assert.equal(ctrl13.enabled, false, "Ctrl13 disabled after root disable.");
+
+			ctrl.enable(true);
+
+			assert.equal(ctrl.enabled, true, "Root enabled after root enable.");
+			assert.equal(ctrl1.enabled, true, "Ctrl1 enabled after root enable.");
+			assert.equal(ctrl12.enabled, true, "Ctrl12 enabled after root enable.");
+			assert.equal(ctrl13.enabled, false, "Ctrl13 still disabled after root enable.");
+		});
+	})
 });

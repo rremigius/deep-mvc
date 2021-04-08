@@ -5,7 +5,6 @@ import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
 import EngineModelFactory from "@/Engine/models/EngineModelFactory";
 import LightModel from "@/Engine/models/ObjectModel/LightModel";
 import TweenBehaviourModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel";
-import { set } from 'lodash';
 import TweenStepModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel/TweenStepModel";
 
 const models = new EngineModelFactory();

@@ -203,7 +203,7 @@ export default class Controller {
 	}
 
 	get enabled() {
-		return this.model.enabled && this.parentEnabled;
+		return this.started && this.model.enabled && this.parentEnabled;
 	}
 
 	get started() {
