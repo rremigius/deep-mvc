@@ -1,5 +1,5 @@
 import Controller from "@/Controller";
-import Mozel from "mozel";
+import Mozel, {immediate} from "mozel";
 import {isString} from 'lodash';
 import {callback, Events} from "@/EventEmitter";
 import Property, {PropertyType, PropertyValue} from "mozel/dist/Property";
@@ -57,13 +57,9 @@ export default class PropertySync<P extends PropertyValue,T> {
 			return;
 		}
 		this.watching = true;
-		this.model.$watch({
-			path: this.path,
-			immediate: true,
-			handler: (newValue, oldValue, path) => {
-				this.syncFromModel(newValue, path);
-			}
-		});
+		this.model.$watch(this.path,(newValue, oldValue, path) => {
+			this.syncFromModel(newValue, path);
+		}, {immediate});
 	}
 
 	sync() {

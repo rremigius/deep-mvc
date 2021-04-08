@@ -1,8 +1,22 @@
 import IOrbitControls from "@/Engine/views/common/IObjectView/ICameraView/IOrbitControls";
 import CameraView from "../CameraView";
-import OrbitControlsModel from "@/Engine/models/ObjectModel/CameraModel/OrbitControlsModel";
 
 export default class OrbitControls implements IOrbitControls {
-	setupOrbitControls(camera: CameraView, model: OrbitControlsModel, domElement: HTMLElement): void {
+	setupOrbitControls(camera: CameraView, domElement: HTMLElement): void {
+	}
+
+	setMaxDistance(maxDistance: number): void {
+	}
+
+	setMaxPolarAngle(maxPolarAngle: number): void {
+	}
+
+	setMinDistance(minDistance: number): void {
+	}
+
+	setRotateSpeed(rotateSpeed: number): void {
+	}
+
+	setZoomEnabled(enableZoom: boolean): void {
 	}
 }

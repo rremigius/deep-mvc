@@ -6,6 +6,7 @@ import {schema} from "mozel";
 import OrbitController from "@/Engine/controllers/ViewController/ObjectController/CameraController/OrbitController";
 import ControllerSlot from "@/Controller/ControllerSlot";
 
+const modelSchema = schema(CameraModel);
 export default class CameraController extends ObjectController {
 	static ModelClass = CameraModel;
 	static ViewInterface = ICameraViewSymbol;
@@ -14,7 +15,7 @@ export default class CameraController extends ObjectController {
 	model!:CameraModel;
 	get view() { return super.view as ICameraView };
 
-	@controller(schema(CameraModel).orbitControls, OrbitController)
+	@controller(modelSchema.orbitControls, OrbitController)
 	orbitController!:ControllerSlot<OrbitController>;
 
 	setAspectRatio(ratio:number) {

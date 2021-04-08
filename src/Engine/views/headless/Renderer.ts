@@ -8,7 +8,7 @@ export default class Renderer implements IRenderer {
 	element:HTMLElement;
 
 	constructor() {
-		this.element = new HTMLElement();
+		this.element = Object.create(HTMLElement.prototype, {});
 	}
 
 	getSize(): { width: number; height: number } {

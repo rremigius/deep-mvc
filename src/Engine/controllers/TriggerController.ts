@@ -4,22 +4,23 @@ import TriggerModel from "@/Engine/models/TriggerModel";
 import {forEach, isEmpty, isPlainObject, isString} from 'lodash';
 import ControllerSlot from "@/Controller/ControllerSlot";
 import {isSubClass} from "validation-kit";
-import {schema} from "mozel";
+import {immediate, schema} from "mozel";
 
 const log = Log.instance("trigger-controller");
 
 type UnknownTrigger = TriggerModel<ControllerEvent<object>,ControllerAction<object>>;
 
+const modelSchema = schema(TriggerModel);
 export default class TriggerController extends Controller {
 	static ModelClass = TriggerModel;
 	model!:TriggerModel<any,any>; // TS: initialized in super constructor
 
 	private defaultController?:Controller;
 
-	@controller(schema(TriggerModel).event.source, Controller)
+	@controller(modelSchema.event.source, Controller)
 	source!:ControllerSlot<Controller>;
 
-	@controller(schema(TriggerModel).action.target, Controller)
+	@controller(modelSchema.action.target, Controller)
 	target!:ControllerSlot<Controller>;
 
 	get triggerModel() {
@@ -31,13 +32,9 @@ export default class TriggerController extends Controller {
 
 		this.source.init(()=>this.restartListening());
 
-		this.triggerModel.$watch({
-			path: 'event.name',
-			immediate: true,
-			handler: ()=> {
+		this.triggerModel.$watch(schema(TriggerModel).event.name, ()=> {
 				this.restartListening();
-			}
-		});
+		}, {immediate});
 	}
 
 	/**

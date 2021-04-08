@@ -6,7 +6,7 @@ import EventListener from "@/EventListener";
 import ViewFactory from "@/Engine/views/ViewFactory";
 import ControllerList from "@/Controller/ControllerList";
 import ControllerSlot from "@/Controller/ControllerSlot";
-import {alphanumeric, CollectionSchema, MozelSchema, Registry} from "mozel";
+import {alphanumeric, CollectionSchema, MozelSchema, Registry, schema} from "mozel";
 import ControllerModel from "@/ControllerModel";
 import EventBus from "@/EventBus";
 import EventEmitter, {callback, Events} from "@/EventEmitter";

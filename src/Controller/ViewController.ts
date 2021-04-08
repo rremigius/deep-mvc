@@ -8,7 +8,7 @@ import {check, instanceOf} from "validation-kit";
 import {isNumber} from "lodash";
 import ViewModel from "@/ViewModel";
 import ControllerList from "@/Controller/ControllerList";
-import {schema} from "mozel";
+import {deep, immediate, schema} from "mozel";
 
 export default class ViewController extends Controller {
 	static readonly ModelClass = ViewModel;
@@ -27,35 +27,25 @@ export default class ViewController extends Controller {
 	}
 
 	createRootView():IViewRoot {
-		const root = this.viewFactory.create<IViewRoot>(this.static.ViewInterface);
-		root.gid = this.model.gid;
-		return root;
+		return this.viewFactory.create<IViewRoot>(this.static.ViewInterface);
 	}
 
 	init(model: ControllerModel) {
 		super.init(model);
 
 		this._view = this.createRootView();
+		this._view.gid = this.model.gid;
 
 		// Watch the model for changes
-		this.model.$watch({
-			path: 'position',
-			deep: true,
-			immediate: true,
-			handler: position => {
-				const $position = check<Vector3Model>(position, instanceOf(Vector3Model), 'position');
-				this.onPositionChanged($position);
-			}
-		});
-		this.model.$watch({
-			path: 'scale',
-			deep: true,
-			immediate: true,
-			handler: scale => {
-				const $scale = check<number>(scale, isNumber, 'scale');
-				this.onScaleChanged($scale);
-			}
-		});
+		const s = schema(ViewModel);
+		this.model.$watch(s.position, position => {
+			const $position = check<Vector3Model>(position, instanceOf(Vector3Model), 'position');
+			this.onPositionChanged($position);
+		}, { deep, immediate });
+		this.model.$watch(s.scale, scale => {
+			const $scale = check<number>(scale, isNumber, 'scale');
+			this.onScaleChanged($scale);
+		}, { deep, immediate });
 
 		// Child views should be attached and detached to this Controller's root
 		this.views.events.added.on(event => {
