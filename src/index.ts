@@ -5,7 +5,8 @@ import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
 import EngineModelFactory from "@/Engine/models/EngineModelFactory";
 import LightModel from "@/Engine/models/ObjectModel/LightModel";
 import TweenBehaviourModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel";
-
+import { set } from 'lodash';
+import TweenStepModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel/TweenStepModel";
 
 const models = new EngineModelFactory();
 const model = models.createAndResolveReferences(EngineModel, {
@@ -32,6 +33,7 @@ const model = models.createAndResolveReferences(EngineModel, {
 				behaviours: [models.create(TweenBehaviourModel, {
 					gid: 'tween',
 					steps: [{
+						gid: 'step',
 						path: 'position',
 						to: {x: -5},
 						duration: 5,
@@ -55,6 +57,6 @@ engine.attach(container);
 })()
 
 setTimeout(() => {
-	console.log("REPEAT to 0");
-	(models.registry.byGid('tween') as TweenBehaviourModel).repeat = 0;
+	console.log("CHANGE!");
+	(models.registry.byGid('step') as TweenStepModel).to!.x = 10;
 }, 3000);

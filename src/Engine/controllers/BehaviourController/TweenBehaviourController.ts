@@ -49,13 +49,14 @@ export default class TweenBehaviourController extends BehaviourController {
 			repeat: repeat,
 			yoyo: this.tweenBehaviour.yoyo,
 			repeatDelay: this.tweenBehaviour.repeatDelay,
-			paused: !this.enabled,
+			paused: true,
 			onComplete: this._animationComplete.bind(this)
 		});
 		this.tweenBehaviour.steps.each((step:TweenStepModel) => {
 			let tween = this.createTween(step);
 			this.timeline.add(tween);
 		});
+		if(this.enabled) this.startTween();
 	}
 
 	createTween(step:TweenStepModel):TweenLite {
@@ -99,9 +100,17 @@ export default class TweenBehaviourController extends BehaviourController {
 		return TweenLite.to(target, step.duration, tween);
 	}
 
-	onEnable() {
+	startTween() {
 		this.events.started.fire(new TweenStartedEvent(this));
 		this.timeline.play();
+	}
+
+	onEnable() {
+		this.startTween();
+	}
+
+	onDisable() {
+		this.timeline.pause();
 	}
 
 	_animationComplete() {

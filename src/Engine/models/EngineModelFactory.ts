@@ -1,4 +1,4 @@
-import {MozelFactory} from "mozel";
+import {GenericMozel, MozelFactory} from "mozel";
 import EngineModel from "./EngineModel";
 import SceneModel from "./SceneModel";
 import ObjectModel from "./ObjectModel";
@@ -21,7 +21,7 @@ export default class EngineModelFactory extends MozelFactory {
 		this.register([
 			EngineModel, ViewModel, SceneModel, CameraModel, Model3DModel, ImageModel, GraphModel, VideoModel,
 			BehaviourModel, TweenBehaviourModel, SoundBehaviourModel, TriggerModel, ObjectModel, LightModel,
-			OrbitControlsModel
+			OrbitControlsModel, GenericMozel
 		]);
 	}
 }
