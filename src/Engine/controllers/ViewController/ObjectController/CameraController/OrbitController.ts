@@ -20,11 +20,11 @@ export default class OrbitController extends Controller {
 		this.controls = this.viewFactory.get<IOrbitControls>(IOrbitControlsSymbol);
 
 		const s = schema(OrbitControlsModel);
-		this.model.$watch(s.rotateSpeed, speed => this.controls.setRotateSpeed(speed), {immediate});
-		this.model.$watch(s.maxPolarAngle, angle => this.controls.setMaxPolarAngle(angle), {immediate});
-		this.model.$watch(s.minDistance, distance => this.controls.setMinDistance(distance), {immediate});
-		this.model.$watch(s.maxDistance, distance => this.controls.setMaxDistance(distance), {immediate});
-		this.model.$watch(s.enableZoom, zoom => this.controls.setZoomEnabled(zoom), {immediate});
+		model.$watch(s.rotateSpeed, speed => this.controls.setRotateSpeed(speed), {immediate});
+		model.$watch(s.maxPolarAngle, angle => this.controls.setMaxPolarAngle(angle), {immediate});
+		model.$watch(s.minDistance, distance => this.controls.setMinDistance(distance), {immediate});
+		model.$watch(s.maxDistance, distance => this.controls.setMaxDistance(distance), {immediate});
+		model.$watch(s.enableZoom, zoom => this.controls.setZoomEnabled(zoom), {immediate});
 	}
 
 	setParent(parent?: Controller) {

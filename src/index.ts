@@ -4,6 +4,7 @@ import PlainEngine from "@/Engine/PlainEngine";
 import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
 import EngineModelFactory from "@/Engine/models/EngineModelFactory";
 import LightModel from "@/Engine/models/ObjectModel/LightModel";
+import TweenBehaviourModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel";
 
 const models = new EngineModelFactory();
 const model = models.createAndResolveReferences(EngineModel, {
@@ -26,7 +27,16 @@ const model = models.createAndResolveReferences(EngineModel, {
 			models.create(Model3DModel, {
 				files: [{url: 'assets/models/vw/model.dae'}],
 				scale: 0.5,
-				position: {z: 0.5}
+				position: {z: 0.5},
+				behaviours: [models.create(TweenBehaviourModel, {
+					steps: [{
+						path: 'position',
+						to: {x: -5},
+						duration: 5,
+						ease: "Sine.easeInOut"
+					}],
+					yoyo: true
+				})]
 			})
 		]
 	}

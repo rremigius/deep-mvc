@@ -1,15 +1,12 @@
-import Log from "@/log";
 import Mozel, {GenericMozel, property} from "mozel";
 
 export default class TweenStepModel extends Mozel {
 	@property(Mozel)
 	target?:Mozel;
 	@property(String)
-	targetPath?:string;
+	path?:string;
 	@property(GenericMozel)
-	tweenProperties?:GenericMozel;
-	@property(Number)
-	to?:number;
+	to?:GenericMozel;
 	@property(Number, {required: true, default: 1})
 	duration!:number;
 	@property(String)

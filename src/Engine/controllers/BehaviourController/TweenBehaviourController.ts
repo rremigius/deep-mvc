@@ -4,8 +4,8 @@ import {ControllerEvent, ControllerEvents} from "@/Controller";
 import TweenStepModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel/TweenStepModel";
 import Log from "@/log";
 import {TimelineMax, TweenLite} from "gsap";
-import BehaviourModel from "@/Engine/models/BehaviourModel";
 import {extend, get} from 'lodash';
+import ObjectModel from "@/Engine/models/ObjectModel";
 
 const log = Log.instance("tween-behaviour");
 
@@ -35,8 +35,12 @@ export default class TweenBehaviourController extends BehaviourController {
 	}
 
 	initTimeline() {
+		let repeat = this.tweenBehaviour.repeat;
+		if(repeat === undefined && this.tweenBehaviour.yoyo) {
+			repeat = -1; // yoyo needs repeat
+		}
 		this.timeline = new TimelineMax({
-			repeat: this.tweenBehaviour.repeat,
+			repeat: repeat,
 			yoyo: this.tweenBehaviour.yoyo,
 			repeatDelay: this.tweenBehaviour.repeatDelay,
 			paused: true,
@@ -51,13 +55,10 @@ export default class TweenBehaviourController extends BehaviourController {
 	createTween(step:TweenStepModel):TweenLite {
 		let target = step.target;
 		if(!target) {
-			// If target is not defined, find parent Behaviour
-			let parent = step.$parent;
-			if(parent && parent instanceof BehaviourModel) { // this should probably always be the case
-				parent = parent.getObject();
-				if(parent) {
-					target = parent;
-				}
+			// No target defined, use parent ObjectModel
+			const parent = this.model.$parent;
+			if(parent instanceof ObjectModel) {
+				target = parent;
 			}
 		}
 		if(!target) {
@@ -65,24 +66,22 @@ export default class TweenBehaviourController extends BehaviourController {
 			log.error(msg);
 			throw new Error(msg);
 		}
-		if(step.targetPath) {
-			target = get(target, step.targetPath);
+		if(step.path) {
+			target = get(target, step.path);
 		}
-		if(!target) {
-			let msg = `Target path '${step.targetPath}' not found.`;
+		if(target === undefined) {
+			let msg = `Target path '${step.path}' not found.`;
 			log.error(msg);
 			throw new Error(msg);
 		}
 
-		// Apply default values for animation
-		let options = step.$export();
-
 		// Create TweenLite options object
-		let tweenProperties = step.tweenProperties ? step.tweenProperties.export() : {};
+		let tweenProperties = step.to ? step.to.$export() : {};
 		delete tweenProperties.id; // don't tween id property
+		delete tweenProperties.gid; // don't tween gid property
 
 		let tween = extend({}, tweenProperties, {
-			ease: options.ease,
+			ease: step.ease,
 			onStart: () => {
 				log.log('Start tween:', target, 'to:', tweenProperties);
 			},
@@ -91,10 +90,10 @@ export default class TweenBehaviourController extends BehaviourController {
 			}
 		});
 
-		return TweenLite.to(target, options.duration, tween);
+		return TweenLite.to(target, step.duration, tween);
 	}
 
-	onStart() {
+	onEnable() {
 		this.events.started.fire(new TweenStartedEvent(this));
 		this.timeline.play();
 	}
