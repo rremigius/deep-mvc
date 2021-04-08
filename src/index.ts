@@ -6,6 +6,7 @@ import EngineModelFactory from "@/Engine/models/EngineModelFactory";
 import LightModel from "@/Engine/models/ObjectModel/LightModel";
 import TweenBehaviourModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel";
 
+
 const models = new EngineModelFactory();
 const model = models.createAndResolveReferences(EngineModel, {
 	camera: {gid: 'camera', position: {z: 5}},
@@ -29,6 +30,7 @@ const model = models.createAndResolveReferences(EngineModel, {
 				scale: 0.5,
 				position: {z: 0.5},
 				behaviours: [models.create(TweenBehaviourModel, {
+					gid: 'tween',
 					steps: [{
 						path: 'position',
 						to: {x: -5},
@@ -53,5 +55,6 @@ engine.attach(container);
 })()
 
 setTimeout(() => {
-	model.camera!.orbitControls!.enabled = false;
-}, 5000);
+	console.log("REPEAT to 0");
+	(models.registry.byGid('tween') as TweenBehaviourModel).repeat = 0;
+}, 3000);

@@ -343,7 +343,7 @@ export default class Controller {
 			child.start();
 		});
 
-		this.model.$watch(schema(ControllerModel).enabled, this.onModelEnableChanged.bind(this), {immediate});
+		this.model.$watch(schema(ControllerModel).enabled, this.updateEnabledState.bind(this), {immediate});
 	}
 	destroy() {
 		this.stopListening();
@@ -360,23 +360,21 @@ export default class Controller {
 	enable(enabled:boolean = true) {
 		this.model.enabled = enabled;
 	}
-	private onModelEnableChanged(enabled:boolean) {
-		if(!enabled) {
-			log.info(`${this} disabled.`);
-			this.onDisable();
-			this.events.disabled.fire(new ControllerDisabledEvent(this));
-		} else {
+	updateEnabledState() {
+		const wasEnabled = this.enabled;
+		this.parentEnabled = !this.parent ? true : this.parent.enabled;
+
+		if(!wasEnabled && this.enabled) {
 			log.info(`${this} enabled.`);
 			this.onEnable();
 			this.events.enabled.fire(new ControllerEnabledEvent(this));
+		} else if (wasEnabled && !this.enabled) {
+			log.info(`${this} disabled.`);
+			this.onDisable();
+			this.events.disabled.fire(new ControllerDisabledEvent(this));
 		}
-		this.updateEnabledState();
-		this.forEachChild((child:Controller) => {
-			child.updateEnabledState();
-		});
-	}
-	updateEnabledState() {
-		this.parentEnabled = !this.parent ? true : this.parent.enabled;
+
+		this.forEachChild(child => child.updateEnabledState());
 	}
 
 	toString() {

@@ -6,6 +6,7 @@ import Log from "@/log";
 import {TimelineMax, TweenLite} from "gsap";
 import {extend, get} from 'lodash';
 import ObjectModel from "@/Engine/models/ObjectModel";
+import {deep, immediate, schema} from "mozel";
 
 const log = Log.instance("tween-behaviour");
 
@@ -31,10 +32,15 @@ export default class TweenBehaviourController extends BehaviourController {
 
 	init(model:TweenBehaviourModel) {
 		super.init(model);
-		this.initTimeline();
+		model.$watch(schema(TweenBehaviourModel), () => {
+			// Basically, if anything happens, we need to re-initialize the timeline
+			this.initTimeline();
+		}, {immediate, deep});
 	}
 
 	initTimeline() {
+		if(this.timeline) this.timeline.kill();
+
 		let repeat = this.tweenBehaviour.repeat;
 		if(repeat === undefined && this.tweenBehaviour.yoyo) {
 			repeat = -1; // yoyo needs repeat
@@ -43,7 +49,7 @@ export default class TweenBehaviourController extends BehaviourController {
 			repeat: repeat,
 			yoyo: this.tweenBehaviour.yoyo,
 			repeatDelay: this.tweenBehaviour.repeatDelay,
-			paused: true,
+			paused: !this.enabled,
 			onComplete: this._animationComplete.bind(this)
 		});
 		this.tweenBehaviour.steps.each((step:TweenStepModel) => {
