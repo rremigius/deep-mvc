@@ -1,4 +1,4 @@
-import Mozel from "mozel"
+import Mozel, {property, required} from "mozel"
 
 /**
  * A class to make a distinction between simple mozels and controller mozels.
@@ -7,4 +7,7 @@ import Mozel from "mozel"
  */
 export default class ControllerModel extends Mozel {
 	static get type() { return 'Controller' };
+
+	@property(Boolean, {required, default: true})
+	enabled!:boolean;
 }

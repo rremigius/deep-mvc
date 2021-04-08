@@ -3,12 +3,14 @@ import ThreeCamera from "../ThreeCamera";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import OrbitControlsModel, {OrbitControlSettings} from "@/Engine/models/ObjectModel/CameraModel/OrbitControlsModel";
 
+type Settings = OrbitControlSettings & {enabled:boolean};
+
 export default class ThreeOrbitControls implements IOrbitControls {
 	controls?:OrbitControls;
 
 	// We keep a settings object to track settings for when we don't have an OrbitControls, to be applied later
 	// This is because we cannot instantiate an empty OrbitControls without proper camera and domElement.
-	settings:OrbitControlSettings = OrbitControlsModel.defaults;
+	settings:Settings = {...OrbitControlsModel.defaults, enabled: false};
 
 	setupOrbitControls(camera: ThreeCamera, domElement:HTMLElement) {
 		if(this.controls) this.controls.dispose(); // Stop current one
@@ -23,6 +25,7 @@ export default class ThreeOrbitControls implements IOrbitControls {
 		to.minDistance = this.settings.minDistance
 		to.maxDistance = this.settings.maxDistance;
 		to.maxPolarAngle = this.settings.maxPolarAngle;
+		to.enabled = this.settings.enabled;
 	}
 
 	setZoomEnabled(enableZoom: boolean): void {
@@ -48,5 +51,10 @@ export default class ThreeOrbitControls implements IOrbitControls {
 	setMaxPolarAngle(maxPolarAngle: number): void {
 		this.settings.maxPolarAngle = maxPolarAngle;
 		if(this.controls) this.controls.maxPolarAngle = maxPolarAngle;
+	}
+
+	enable(enabled: boolean) {
+		this.settings.enabled = enabled;
+		if(this.controls) this.controls.enabled = enabled;
 	}
 }

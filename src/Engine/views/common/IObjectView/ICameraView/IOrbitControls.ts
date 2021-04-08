@@ -1,6 +1,7 @@
 import ICameraView from "../ICameraView";
 
 export default interface IOrbitControls {
+	enable(enable:boolean):void;
 	setupOrbitControls(camera:ICameraView, domElement:HTMLElement):void;
 	setRotateSpeed(rotateSpeed:number):void;
 	setMinDistance(minDistance:number):void;

@@ -6,7 +6,7 @@ import EventListener from "@/EventListener";
 import ViewFactory from "@/Engine/views/ViewFactory";
 import ControllerList from "@/Controller/ControllerList";
 import ControllerSlot from "@/Controller/ControllerSlot";
-import {alphanumeric, CollectionSchema, MozelSchema, Registry, schema} from "mozel";
+import {alphanumeric, CollectionSchema, immediate, MozelSchema, Registry, schema} from "mozel";
 import ControllerModel from "@/ControllerModel";
 import EventBus from "@/EventBus";
 import EventEmitter, {callback, Events} from "@/EventEmitter";
@@ -139,7 +139,7 @@ export default class Controller {
 	private eventListeners:EventListener<EventEmitter<unknown>>[] = [];
 
 	_started:boolean = false;
-	_enabled:boolean = false;
+	private parentEnabled:boolean = false;
 
 	protected initialized:boolean;
 
@@ -172,6 +172,11 @@ export default class Controller {
 
 		this.initClassDefinitions();
 		this.init(model);
+
+		this.model.$watch(schema(ControllerModel).enabled, enabled => {
+			if(this.initialized) this.enable(enabled);
+		});
+
 		this.initialized = true;
 	}
 
@@ -198,7 +203,7 @@ export default class Controller {
 	}
 
 	get enabled() {
-		return this._enabled;
+		return this.model.enabled && this.parentEnabled;
 	}
 
 	get started() {
@@ -219,6 +224,7 @@ export default class Controller {
 
 	setParent(parent?:Controller) {
 		this._parent = parent;
+		this.updateEnabledState();
 	}
 
 	protected error(...args:unknown[]) {
@@ -328,16 +334,16 @@ export default class Controller {
 			throw e;
 		}
 	}
-	start(enabled:boolean = true) {
+	start() {
 		log.info(`${this} starting...`);
 		this._started = true;
 		this.onStart();
 
 		this.forEachChild((child:Controller) => {
-			child.start(false);
+			child.start();
 		});
 
-		this.enable(enabled);
+		this.model.$watch(schema(ControllerModel).enabled, this.onModelEnableChanged.bind(this), {immediate});
 	}
 	destroy() {
 		this.stopListening();
@@ -350,26 +356,27 @@ export default class Controller {
 	stopListening() {
 		this.eventListeners.forEach(listener => listener.stop());
 	}
-	enable(enabled:boolean = true) {
-		// TODO: remember state if disabled from parent
-		if(enabled === this._enabled) return;
 
-		if(enabled) {
-			log.info(`${this} enabled.`);
-		} else {
-			log.info(`${this} disabled.`);
-		}
-		this._enabled = enabled;
+	enable(enabled:boolean = true) {
+		this.model.enabled = enabled;
+	}
+	private onModelEnableChanged(enabled:boolean) {
 		if(!enabled) {
+			log.info(`${this} disabled.`);
 			this.onDisable();
 			this.events.disabled.fire(new ControllerDisabledEvent(this));
 		} else {
+			log.info(`${this} enabled.`);
 			this.onEnable();
 			this.events.enabled.fire(new ControllerEnabledEvent(this));
 		}
+		this.updateEnabledState();
 		this.forEachChild((child:Controller) => {
-			child.enable(enabled);
+			child.updateEnabledState();
 		});
+	}
+	updateEnabledState() {
+		this.parentEnabled = !this.parent ? true : this.parent.enabled;
 	}
 
 	toString() {

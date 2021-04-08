@@ -2,6 +2,9 @@ import IOrbitControls from "@/Engine/views/common/IObjectView/ICameraView/IOrbit
 import CameraView from "../CameraView";
 
 export default class OrbitControls implements IOrbitControls {
+	enable(enable: boolean) {
+	}
+
 	setupOrbitControls(camera: CameraView, domElement: HTMLElement): void {
 	}
 

@@ -41,3 +41,7 @@ engine.attach(container);
 	await engine.loading;
 	engine.start();
 })()
+
+setTimeout(() => {
+	model.camera!.orbitControls!.enabled = false;
+}, 5000);

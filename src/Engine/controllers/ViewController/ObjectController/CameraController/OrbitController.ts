@@ -53,4 +53,13 @@ export default class OrbitController extends Controller {
 		const domElement = engine.domElement;
 		this.controls.setupOrbitControls(parent.view, domElement);
 	}
+
+	onEnable() {
+		super.onEnable();
+		this.controls.enable(true);
+	}
+	onDisable() {
+		super.onDisable();
+		this.controls.enable(false);
+	}
 }
