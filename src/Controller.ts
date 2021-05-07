@@ -315,6 +315,7 @@ export default class Controller {
 			sync.sync();
 		}
 		this.forEachChild(controller => controller.resolveReferences());
+		this.onResolveReferences();
 	}
 
 	async load() {

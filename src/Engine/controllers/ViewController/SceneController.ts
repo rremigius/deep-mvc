@@ -15,26 +15,13 @@ export default class SceneController extends ViewController {
 	model!:SceneModel;
 	get view() { return super.view as ISceneView };
 
-	@controllers(schema(SceneModel).objects, ObjectController)
-	objects!:ControllerList<ObjectController>;
 	@controllers(schema(SceneModel).triggers, TriggerController)
 	triggers!:ControllerList<TriggerController>;
 
 	init(model:ControllerModel) {
 		super.init(model);
 
-		this.objects.events.added.on(event => this.onObjectAdded(event.controller));
-		this.objects.events.removed.on(event => this.onObjectRemoved(event.controller));
-
 		this.triggers.events.added.on(event => event.controller.setDefaultController(this));
 		this.triggers.events.removed.on(event => event.controller.setDefaultController(undefined));
-	}
-
-	onObjectAdded(objectController:ObjectController) {
-		this.view.add(objectController.view);
-	}
-
-	onObjectRemoved(objectController:ObjectController) {
-		this.view.remove(objectController.view);
 	}
 }

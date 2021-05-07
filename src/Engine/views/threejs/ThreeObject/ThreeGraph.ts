@@ -54,7 +54,7 @@ export default class ThreeGraph extends ThreeObject implements IGraphView {
 		return new CSS3DObject(labelDiv);
 	}
 
-	createNodeThreeView(graphNode: GraphNode, autoColor?: string) {
+	createNodeThreeObject(graphNode: GraphNode, autoColor?: string) {
 		// Example taken from default node creation in three-forcegraph
 		const geometrySize = Math.cbrt(graphNode.size) * 4;
 		if (!this.sphereGeometries.hasOwnProperty(geometrySize)) {
@@ -100,18 +100,19 @@ export default class ThreeGraph extends ThreeObject implements IGraphView {
 	config(config:GraphConfig) {
 		this.graphConfig = { ...this.graphConfig, ...config};
 
-		this.graph
-			.nodeVal((node: any) => {
-				return get(node, 'graphNode.size');
+		this.graph.nodeVal((node: any) => get(node, 'graphNode.size'));
+		this.graph.nodeOpacity(this.graphConfig.nodeOpacity);
+		this.graph.nodeThreeObject((node: any) => this.createNodeThreeObject(node.graphNode, node.color));
+		this.graph.linkOpacity(this.graphConfig.linkOpacity);
+		this.graph.linkWidth((link: any) => get(link, 'graphLink.size'));
+		this.graph.linkMaterial((link: any) =>
+			// We need to make our own material because the default material lacks customProgramCacheKey
+			new MeshLambertMaterial({
+				color: colorStr2Hex(link.color),
+				transparent: true,
+				opacity: this.graphConfig.nodeOpacity! * colorAlpha(link.color)
 			})
-			.linkWidth((link: any) => {
-				return get(link, 'graphLink.size');
-			})
-			.nodeOpacity(this.graphConfig.nodeOpacity)
-			.linkOpacity(this.graphConfig.linkOpacity)
-			.nodeThreeView((node: any) =>
-				this.createNodeThreeView(node.graphNode, node.color)
-			);
+		);
 
 		// Coloring
 		if (this.graphConfig.nodeGroups) {

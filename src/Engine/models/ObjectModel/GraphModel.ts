@@ -1,5 +1,4 @@
 import ObjectModel from "@/Engine/models/ObjectModel";
-import Log from "@/log";
 import GraphLinkModel from "@/Engine/models/ObjectModel/GraphModel/GraphLinkModel";
 import GraphNodeModel from "@/Engine/models/ObjectModel/GraphModel/GraphNodeModel";
 import {Collection, collection} from "mozel";

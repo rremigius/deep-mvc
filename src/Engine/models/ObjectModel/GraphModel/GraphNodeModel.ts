@@ -4,8 +4,6 @@ import {uniqueId} from 'lodash';
 export default class GraphNodeModel extends Model {
 	static get type() { return 'GraphNode' };
 
-	id:alphanumeric = super.id || uniqueId();
-
 	@property(GenericMozel)
 	data?:GenericMozel;
 
@@ -21,8 +19,8 @@ export default class GraphNodeModel extends Model {
 	@property(Alphanumeric)
 	group?:alphanumeric;
 
-	constructor() {
-		super();
+	$init() {
+		super.$init();
 		if(!this.id) this.id = uniqueId();
 	}
 }

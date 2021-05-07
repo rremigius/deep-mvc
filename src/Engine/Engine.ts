@@ -4,11 +4,19 @@ import ViewFactory from "@/Engine/views/ViewFactory";
 import IRenderer from "@/Engine/views/common/IRenderer";
 
 import Log from "@/log";
-import EngineController, {FrameEvent} from "@/Engine/controllers/EngineController";
+import EngineController from "@/Engine/controllers/EngineController";
 import EngineControllerFactory from "@/Engine/controllers/EngineControllerFactory";
 import HeadlessViewFactory from "@/Engine/views/headless/HeadlessViewFactory";
+import {Events} from "@/EventEmitter";
 
 const log = Log.instance("engine");
+
+export class FrameEvent {
+	constructor(public timestamp:number) {}
+}
+export class EngineEvents extends Events {
+	frame = this.$event(FrameEvent);
+}
 
 export default class Engine {
 	private _container?:HTMLElement;
@@ -22,6 +30,9 @@ export default class Engine {
 
 	readonly loading?:Promise<void>;
 
+	protected _events = new EngineEvents();
+	get events() { return this._events };
+
 	constructor(model:EngineModel, viewFactory?:ViewFactory, controllerFactory?:ControllerFactory) {
 		viewFactory = viewFactory || this.createDefaultViewFactory();
 		controllerFactory = controllerFactory || this.createDefaultControllerFactory(viewFactory);
@@ -32,8 +43,9 @@ export default class Engine {
 		const dependencies = controllerFactory.extendDependencies();
 		dependencies.bind(Engine).toConstantValue(this);
 
-		this.controller = controllerFactory.createAndResolveReferences(model, EngineController);
-		this.controller.setEngine(this);
+		this.controller = controllerFactory.create(model, EngineController);
+		this.controller.resolveReferences(); // split from `create` so engine.controller is available in onResolveReferences
+		this.initController(this.controller);
 
 		if(typeof window !== 'undefined') {
 			this._onResize = this.onResize.bind(this);
@@ -45,6 +57,10 @@ export default class Engine {
 	}
 
 	init(){ }
+
+	initController(controller:EngineController) {
+		this.controller.setEngine(this);
+	}
 
 	createDefaultControllerFactory(viewFactory:ViewFactory):ControllerFactory {
 		return new EngineControllerFactory(viewFactory);
@@ -68,10 +84,6 @@ export default class Engine {
 
 	get domElement() {
 		return this.renderer.getDOMElement();
-	}
-
-	get events() {
-		return this.controller.events;
 	}
 
 	get static() {
@@ -114,7 +126,7 @@ export default class Engine {
 	 * Calls all frame listeners to do their thing
 	 */
 	frame() {
-		this.controller.events.frame.fire(new FrameEvent(Date.now()));
+		this.events.frame.fire(new FrameEvent(Date.now()));
 	}
 
 	onResize() {

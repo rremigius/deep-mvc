@@ -3,27 +3,16 @@ import Controller, {controller, ControllerActions, ControllerEvents} from "@/Con
 import {schema} from "mozel";
 import SceneController from "@/Engine/controllers/ViewController/SceneController";
 import ControllerSlot from "@/Controller/ControllerSlot";
-import ControllerModel from "@/ControllerModel";
 import CameraController from "@/Engine/controllers/ViewController/ObjectController/CameraController";
-import Log from "@/log";
 import Engine from "@/Engine/Engine";
-
-export class MarkerDetectedEvent {
-	constructor(public id:string, public first:boolean) {}
-}
-export class FrameEvent {
-	constructor(public timestamp:number) {}
-}
-
-export class EngineEvents extends ControllerEvents {
-	markerDetected = this.$event(MarkerDetectedEvent);
-	frame = this.$event(FrameEvent);
-}
 
 export class EnginePauseAction {
 	constructor() {}
 }
 
+export class EngineEvents extends ControllerEvents {
+
+}
 export class EngineActions extends ControllerActions {
 	pause = this.$action(EnginePauseAction);
 }
@@ -41,8 +30,8 @@ export default class EngineController extends Controller {
 		return this._engine;
 	}
 
-	events:EngineEvents = new EngineEvents();
-	actions:EngineActions = new EngineActions();
+	events = new EngineEvents();
+	actions = new EngineActions();
 
 	@controller(schema(EngineModel).scene, SceneController)
 	scene!:ControllerSlot<SceneController>;

@@ -5,8 +5,6 @@ import {uniqueId} from 'lodash';
 export default class GraphLinkModel extends Model {
 	static get type() { return 'GraphLink' };
 
-	id:alphanumeric = super.id || uniqueId();
-
 	@property(GenericMozel)
 	data?:GenericMozel;
 
@@ -27,4 +25,9 @@ export default class GraphLinkModel extends Model {
 
 	@property(Number, {required, default: 3})
 	size!:number;
+
+	$init() {
+		super.$init();
+		this.id = this.id || uniqueId();
+	}
 }

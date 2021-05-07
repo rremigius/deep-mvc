@@ -6,7 +6,7 @@ import IGraphView, {IGraphViewSymbol} from "@/Engine/views/common/IObjectView/IG
 import Log from "@/log";
 import {compact} from 'lodash';
 import {alphanumeric} from "validation-kit";
-import EngineController from "@/Engine/controllers/EngineController";
+import Engine from "@/Engine/Engine";
 
 const log = Log.instance("graph-controller");
 
@@ -17,7 +17,7 @@ export default class GraphController extends ObjectController {
 	static ViewInterface = IGraphViewSymbol;
 	model!:GraphModel;
 
-	engine!:EngineController;
+	engine!:Engine;
 	get view() { return super.view as IGraphView; };
 
 	debugGenerateData() {
@@ -44,16 +44,15 @@ export default class GraphController extends ObjectController {
 	}
 
 	init(model: GraphModel) {
+		this.engine = this.dependencies.get(Engine);
 		super.init(model);
-
-		this.engine = this.dependencies.get<EngineController>(EngineController);
 		this.listenTo(this.engine.events.frame, this.onFrame.bind(this));
-
-		this.debugGenerateData();
 	}
 
-	createView(model: GraphModel) {
-		const view = super.createView(model) as IGraphView;
+	createRootView() {
+		// TODO: requires controller to be finished for the camera to be available from Engine
+		const view = super.createRootView() as IGraphView;
+		const model = this.model;
 
 		// Generate graph data from definitions
 		let nodeGroups = false;
@@ -88,15 +87,19 @@ export default class GraphController extends ObjectController {
 			}))
 		};
 
-		const camera = this.engine.camera.get();
-		if(camera) {
-			this.view.setup({camera: camera.view});
-		}
 		view.config({nodeGroups, linkGroups});
 
 		log.info(`Loaded ${data.nodes.length} nodes and ${data.links.length} links.`);
 		view.setData(data);
 		return view;
+	}
+
+	onResolveReferences() {
+		super.onResolveReferences();
+		const camera = this.engine.camera;
+		if(camera) {
+			this.view.setup({camera: camera});
+		}
 	}
 
 	onFrame() {

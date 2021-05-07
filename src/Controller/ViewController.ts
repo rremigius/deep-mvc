@@ -56,11 +56,6 @@ export default class ViewController extends Controller {
 		});
 	}
 
-	// Can be overridden if initialization is more complex than creating an interface from the ViewFactory.
-	createView(model:ControllerModel):IView {
-		return this.viewFactory.create<IView>(this.static.ViewInterface);
-	}
-
 	// For override
 	onClick(event:ViewClickEvent): void {	}
 
