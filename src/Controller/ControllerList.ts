@@ -1,7 +1,7 @@
 import Controller, {ControllerConstructor} from "@/Controller";
 import {isArray, isFunction, isMatch} from 'lodash';
 import EventEmitter from "@/EventEmitter";
-import PropertySync, {PropertySyncEvents} from "@/Controller/PropertySync";
+import PropertySync, {PropertySyncEvents} from "@/PropertySync";
 import {check, Constructor, instanceOf} from "validation-kit";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import Mozel, {Collection} from "mozel";
@@ -26,6 +26,7 @@ export default class ControllerList<C extends Controller> extends PropertySync<C
 	factory:ControllerFactory;
 	current:C[] = [];
 	currentCollection?:Collection<ControllerModel<C>>;
+	parent:Controller;
 
 	addedListener = (model:unknown) => {
 		const $model = check<ControllerModel<C>>(model, instanceOf(this.ControllerModelClass), this.ControllerModelClass.name, 'model');
@@ -46,10 +47,11 @@ export default class ControllerList<C extends Controller> extends PropertySync<C
 	events = new ControllerListEvents<C>();
 
 	constructor(parent:Controller, watchModel:Mozel, path:string, PropertyType:Constructor<ControllerModel<C>>, SyncType:ControllerConstructor<C>, factory:ControllerFactory) {
-		super(parent, watchModel, path, Collection, SyncType as any); // TS: we override isSyncType
+		super(watchModel, path, Collection, SyncType as any); // TS: we override isSyncType
 		this.ControllerModelClass = PropertyType;
 		this.ControllerClass = SyncType;
 		this.factory = factory;
+		this.parent = parent;
 	}
 
 	isSyncType(value: unknown): value is C[] {

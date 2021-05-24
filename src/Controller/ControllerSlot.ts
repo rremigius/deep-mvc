@@ -1,4 +1,4 @@
-import PropertySync from "@/Controller/PropertySync";
+import PropertySync from "@/PropertySync";
 import Controller, {ControllerConstructor} from "@/Controller";
 import Mozel from "mozel";
 import {Constructor} from "validation-kit";
@@ -9,10 +9,12 @@ type ControllerModel<C extends Controller> = C['model'];
 export default class ControllerSlot<C extends Controller> extends PropertySync<ControllerModel<C>, C> {
 	SyncType!:ControllerConstructor<C>; // TS: set in super constructor
 	factory:ControllerFactory;
+	parent:Controller;
 
 	constructor(parent:Controller, watchModel:Mozel, path:string, PropertyType:Constructor<ControllerModel<C>>, SyncType:ControllerConstructor<C>, factory:ControllerFactory) {
-		super(parent, watchModel, path, PropertyType, SyncType);
+		super(watchModel, path, PropertyType, SyncType);
 		this.factory = factory;
+		this.parent = parent;
 	}
 
 	protected syncValue(model:ControllerModel<C>) {

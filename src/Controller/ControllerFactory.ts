@@ -105,7 +105,7 @@ export default class ControllerFactory {
 			throw new Error(message);
 		}
 
-		// ControllerModel needs a Model in the constructor so we inject it through the container.
+		// Controller needs a ControllerModel in the constructor so we inject it through the container.
 		let container = this.extendDependencies();
 		container.bind(ControllerModel).toConstantValue(model);
 		container.bind(Container).toConstantValue(this.dependencies);

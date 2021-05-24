@@ -1,4 +1,3 @@
-import Controller from "@/Controller";
 import Mozel, {immediate} from "mozel";
 import {isString} from 'lodash';
 import {callback, Events} from "@/EventEmitter";
@@ -18,11 +17,10 @@ export class PropertySyncEvents<T> extends Events {
 }
 
 /**
- * Watches a Model path for changes, constructs something based on the new value when it changes and fires
+ * Watches a Model path for changes, does something based on the new value when it changes and fires
  * an event with the new and old constructs.
  */
 export default class PropertySync<P extends PropertyValue,T> {
-	parent?:Controller;
 	current?:T;
 
 	events = new PropertySyncEvents<T>();
@@ -36,12 +34,11 @@ export default class PropertySync<P extends PropertyValue,T> {
 	resolveReferences:boolean = false;
 	isReference:boolean = false;
 
-	constructor(parent:Controller, watchModel:Mozel, path:string, PropertyType:PropertyType, SyncType:Constructor<T>) {
+	constructor(watchModel:Mozel, path:string, PropertyType:PropertyType, SyncType:Constructor<T>) {
 		this.model = watchModel;
 		this.path = path;
 		this.PropertyType = PropertyType;
 		this.SyncType = SyncType;
-		this.parent = parent;
 	}
 
 	isPropertyType(value:unknown):value is P {

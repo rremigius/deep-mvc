@@ -1,5 +1,5 @@
 import {Container, inject, injectable, LazyServiceIdentifer} from "inversify";
-import ControllerFactory, {ControllerModelSymbol} from "@/Controller/ControllerFactory";
+import ControllerFactory from "@/Controller/ControllerFactory";
 import Log from "@/log";
 import Loader from "deep-loader";
 import EventListener from "@/EventListener";
