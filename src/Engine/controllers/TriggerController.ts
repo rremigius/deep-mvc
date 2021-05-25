@@ -12,7 +12,7 @@ type UnknownTrigger = TriggerModel<ComponentEvent<object>,ComponentAction<object
 
 const modelSchema = schema(TriggerModel);
 export default class TriggerController extends Component {
-	static ModelClass = TriggerModel;
+	static Model = TriggerModel;
 	model!:TriggerModel<any,any>; // TS: initialized in super constructor
 
 	private defaultController?:Component;

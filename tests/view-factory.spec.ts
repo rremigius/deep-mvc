@@ -17,7 +17,7 @@ class FooModel extends ViewModel {
 }
 
 class FooComponent extends Component {
-	static ModelClass = FooModel;
+	static Model = FooModel;
 
 	@component(schema(FooModel).foo, FooComponent)
 	foo!:ComponentSlot<FooComponent>;
@@ -27,7 +27,7 @@ class FooComponent extends Component {
 }
 
 class FooView extends View {
-	static ModelClass = FooModel;
+	static Model = FooModel;
 	get type() { return 'FooView' }
 
 	component?:FooComponent;

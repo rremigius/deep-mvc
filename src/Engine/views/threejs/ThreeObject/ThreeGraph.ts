@@ -18,7 +18,7 @@ const colorAlpha = (str: string) => tinycolor(str).getAlpha();
 const log = Log.instance("three-graph");
 
 export default class ThreeGraph extends ThreeObject {
-	static ModelClass = GraphModel;
+	static Model = GraphModel;
 	model!:GraphModel;
 
 	engine!:Engine;

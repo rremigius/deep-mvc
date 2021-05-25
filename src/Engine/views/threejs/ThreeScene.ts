@@ -1,14 +1,8 @@
 import {Scene} from "three";
 import SceneModel from "@/Engine/models/SceneModel";
-import ThreeView from "@/Engine/views/threejs/ThreeView";
-import {alphanumeric} from "mozel";
-import {ViewClickEvent} from "@/View";
+import ThreeView, {extendForRootObject3D} from "@/Engine/views/threejs/ThreeView";
 
-class RootScene extends Scene {
-	public gid: alphanumeric = 0;
-	onClick(event:ViewClickEvent){};
-}
-
+const RootScene = extendForRootObject3D(Scene);
 export default class ThreeScene extends ThreeView {
 	static Model = SceneModel;
 	model!:SceneModel;

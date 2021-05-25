@@ -8,7 +8,7 @@ import {schema} from "mozel";
 import ViewController from "@/Controller/ViewController";
 
 export default class ObjectController extends ViewController {
-	static ModelClass = ObjectModel;
+	static Model = ObjectModel;
 	model!:ObjectModel;
 
 	@components(schema(ObjectModel).behaviours, BehaviourController)

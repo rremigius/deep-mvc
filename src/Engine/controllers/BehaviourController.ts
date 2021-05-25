@@ -5,7 +5,7 @@ import ComponentList from "@/Component/ComponentList";
 import {schema} from "mozel";
 
 export default class BehaviourController extends Component {
-	static ModelClass:typeof BehaviourModel = BehaviourModel;
+	static Model:typeof BehaviourModel = BehaviourModel;
 	model!:BehaviourModel;
 
 	@components(schema(BehaviourModel).triggers, TriggerController)

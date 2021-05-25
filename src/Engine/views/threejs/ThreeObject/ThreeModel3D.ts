@@ -7,12 +7,38 @@ import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 import FileModel from "@/Engine/models/FileModel";
 import Log from "@/log";
 import ThreeObject from "../ThreeObject";
+import {ThreeClickEvent} from "@/Engine/views/threejs/ThreeEngineView";
+import {check, instanceOf} from "validation-kit";
+import ObjectModel from "@/Engine/models/ObjectModel";
+import Model3DController from "@/Engine/controllers/ObjectController/Model3DController";
 
 const log = Log.instance("model-3d");
 
-export class ThreeModel3D extends ThreeObject {
+export default class ThreeModel3D extends ThreeObject {
 	static Model = Model3DModel;
 	model!:Model3DModel;
+
+	controller!:Model3DController;
+
+	init(model: ObjectModel) {
+		super.init(model);
+		this.controller = this.requireController(Model3DController);
+	}
+
+	onThreeClick(event: ThreeClickEvent) {
+		super.onThreeClick(event);
+
+		const meshNames = event.intersects.map(mesh => {
+			const $object3D = check<Object3D>(mesh, instanceOf(Object3D), "mesh");
+			return $object3D.name;
+		});
+		const foundClickableMesh = meshNames.find(name =>
+			this.model.clickableMeshes.find(name) !== undefined
+		);
+		if (foundClickableMesh) {
+			this.controller.clickMesh(foundClickableMesh);
+		}
+	}
 
 	async load(): Promise<void> {
 		const model = this.model;
@@ -101,7 +127,7 @@ export class ThreeModel3D extends ThreeObject {
 				resolve();
 			},() => {
 				// progress not implemented yet
-			},reject);
+			}, reject);
 		});
 	}
 }

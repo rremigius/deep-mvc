@@ -1,41 +1,47 @@
 import View, {ViewClickEvent} from "@/View";
-import ComponentModel from "@/ComponentModel";
 import {Object3D} from "three";
 import Vector3, {SparseVector3} from "@/Engine/views/common/Vector3";
-import {alphanumeric} from "mozel";
+import {alphanumeric, deep, immediate, schema} from "mozel";
+import ViewModel from "@/ViewModel";
+import {ThreeClickEvent} from "@/Engine/views/threejs/ThreeEngineView";
 
 export interface ThreeViewRoot {
 	gid: alphanumeric;
-	onClick(event:ViewClickEvent):void;
+	onClick(event:ThreeClickEvent):void;
 }
 
-export class RootObject3D extends Object3D {
-	public gid: alphanumeric = 0;
-	onClick(event:ViewClickEvent){};
+export function extendForRootObject3D(Class:typeof Object3D) {
+	return class extends Class {
+		public gid: alphanumeric = 0;
+		onClick(event:ThreeClickEvent){};
+	}
 }
-
+const RootObject3D = extendForRootObject3D(Object3D);
 export default class ThreeView extends View {
 	private _object3D!:Object3D & ThreeViewRoot;
 	get object3D() { return this._object3D };
 
-	init(model: ComponentModel) {
+	init(model: ViewModel) {
 		super.init(model);
-		this._object3D = this.createObject3D();
+		this._object3D = this.createRootObject3D();
+
+		model.$watch(schema(ViewModel).position, position => {
+			this.setPosition(position);
+		}, {immediate, deep, throttle: 1});
+		model.$watch(schema(ViewModel).scale, scale => {
+			this.setScale(scale);
+		}, {immediate, deep, throttle: 1});
 	}
 
+	createRootObject3D() {
+		const object3D = this.createObject3D();
+		object3D.gid = this.gid;
+		object3D.onClick = this.onThreeClick.bind(this); // To be called by ThreeEngineView
+		return object3D;
+	}
 	createObject3D() {
-		const root = new RootObject3D();
-		root.onClick = this.click.bind(this); // To be called by ThreeEngineView
-		return root;
-	}
-
-	click(event:ViewClickEvent) {
-		this.onClick(event);
-		this.events.click.fire(event);
-	}
-
-	onClick(event:ViewClickEvent) {
 		// For override
+		return new RootObject3D();
 	}
 
 	onViewAdd(view: ThreeView) {
@@ -57,13 +63,9 @@ export default class ThreeView extends View {
 		}
 	}
 
-	onSetScale(scale: Vector3 | SparseVector3) {
+	onSetScale(scale:number) {
 		super.onSetScale(scale);
-		if(scale instanceof Vector3) {
-			this.object3D.position.set(scale.x, scale.y, scale.z);
-		} else {
-			applySparseVector(this.object3D.scale, scale);
-		}
+		this.object3D.scale.set(scale, scale, scale);
 	}
 
 	onSetVisible(visible: boolean) {
@@ -79,6 +81,10 @@ export default class ThreeView extends View {
 	onDisable() {
 		super.onDisable();
 		this.object3D.visible = false;
+	}
+
+	onThreeClick(event:ThreeClickEvent) {
+		// For override
 	}
 }
 

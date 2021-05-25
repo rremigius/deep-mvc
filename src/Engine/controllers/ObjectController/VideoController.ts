@@ -15,7 +15,7 @@ export class VideoControllerEvents extends ViewControllerEvents {
 }
 
 export default class VideoController extends ObjectController {
-	static ModelClass = VideoModel;
+	static Model = VideoModel;
 	model!:VideoModel;
 
 	events = new VideoControllerEvents();

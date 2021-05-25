@@ -55,8 +55,7 @@ export default class ComponentFactory {
 	extendDependencies() {
 		const newDependencies = new Container({autoBindInjectable: true});
 		newDependencies.parent = this.dependencies;
-		this.dependencies = newDependencies;
-		return this.dependencies;
+		return newDependencies;
 	}
 
 	/**
@@ -72,10 +71,15 @@ export default class ComponentFactory {
 			}
 			return;
 		}
-		ModelClass = ModelClass || ComponentClass.ModelClass;
-		if(!ModelClass) throw new Error(`No ModelClass specified for ${ComponentClass.name}.`);
+		ModelClass = ModelClass || ComponentClass.Model;
+		if(!ModelClass) throw new Error(`No Model specified for ${ComponentClass.name}.`);
 
 		this.localDependencies.bind<Component>(Component).to(ComponentClass).whenTargetNamed(ModelClass.type);
+	}
+
+
+	registerDefault(Base:typeof Component, Implementation:typeof Component) {
+		this.localDependencies.bind(Base).to(Implementation);
 	}
 
 	/**
@@ -92,9 +96,9 @@ export default class ComponentFactory {
 		function isT(model:any) : model is T {
 			return !ExpectedClass || model instanceof ExpectedClass;
 		}
-		// Other way of saying `model instanceof ExpectedClass.ModelClass`, which TypeScript does not allow because ModelClass is not a constructor type
-		if(ExpectedClass && !isSubClass(model.constructor, ExpectedClass.ModelClass)) {
-			const message = `${ExpectedClass.name} expects ${ExpectedClass.ModelClass.name}`;
+		// Other way of saying `model instanceof ExpectedClass.Model`, which TypeScript does not allow because Model is not a constructor type
+		if(ExpectedClass && !isSubClass(model.constructor, ExpectedClass.Model)) {
+			const message = `${ExpectedClass.name} expects ${ExpectedClass.Model.name}`;
 			log.error(message, model);
 			throw new Error(message);
 		}
@@ -104,12 +108,21 @@ export default class ComponentFactory {
 		container.bind(ComponentModel).toConstantValue(model);
 		container.bind(Container).toConstantValue(this.dependencies);
 
-		const component = container.getNamed<Component>(Component, model.static.type);
+		let component;
+		if(container.isBoundNamed(Component, model.static.type)) {
+			component = container.getNamed<Component>(Component, model.static.type);
+		} else if(ExpectedClass) {
+			// Try an generic placeholder for the expected class
+			component = container.get(ExpectedClass);
+			log.info(`No Component registered for '${model.static.type}'; created generic ${ExpectedClass.name} (${component.static.name}).`);
+		} else {
+			throw new Error(`No Component registered for '${model.static.type}', and could not create generic Component.`);
+		}
 
 		// Store in Registry
 		if(!isT(component)) {
 			// TS: isT can only return false if ExpectedClass is defined
-			const message = "Created Component was not an " + ExpectedClass!.name;
+			const message = "Created Component was not a " + ExpectedClass!.name;
 			log.error(message, component, model);
 			throw new Error(message);
 		}

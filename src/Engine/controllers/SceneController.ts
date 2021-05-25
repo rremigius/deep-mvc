@@ -7,7 +7,7 @@ import {schema} from "mozel";
 import ViewController from "@/Controller/ViewController";
 
 export default class SceneController extends ViewController {
-	static ModelClass = SceneModel;
+	static Model = SceneModel;
 	model!:SceneModel;
 
 	@components(schema(SceneModel).children, ViewController)

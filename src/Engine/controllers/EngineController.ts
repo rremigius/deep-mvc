@@ -1,6 +1,9 @@
 import EngineModel from "@/Engine/models/EngineModel";
-import Component, {ComponentActions, ComponentEvents} from "@/Component";
+import Component, {component, ComponentActions, ComponentEvents} from "@/Component";
 import Engine from "@/Engine/Engine";
+import {schema} from "mozel";
+import SceneController from "@/Engine/controllers/SceneController";
+import ComponentSlot from "@/Component/ComponentSlot";
 
 export class EnginePauseAction {
 	constructor() {}
@@ -13,13 +16,12 @@ export class EngineActions extends ComponentActions {
 	pause = this.$action(EnginePauseAction);
 }
 
-/**
- * The Engine itself should not be an active part of its own rendering hierarchy, but we can add an EngineComponent that allows
- * other Components to contact the Engine.
- */
 export default class EngineController extends Component {
-	static ModelClass = EngineModel;
+	static Model = EngineModel;
 	model!:EngineModel;
+
+	@component(schema(EngineModel).scene, SceneController)
+	sceneController!:ComponentSlot<SceneController>;
 
 	_engine?:Engine;
 	get engine() {

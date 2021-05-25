@@ -1,34 +1,24 @@
 import ObjectController from "@/Engine/controllers/ObjectController";
 import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
-import {Object3D} from "three";
-import {check, instanceOf} from "validation-kit";
-import {ViewClickEvent} from "@/View";
 import {ComponentEvent} from "@/Component";
 import {ViewControllerEvents} from "@/Controller/ViewController";
+import Log from "@/log";
 
-export class ClickEvent extends ComponentEvent<{mesh:string}> {}
+const log = Log.instance("model3d-controller");
+
+export class MeshClickEvent extends ComponentEvent<{mesh:string}> {}
 export class Model3DControllerEvents extends ViewControllerEvents {
-	meshClick = this.$event(ClickEvent);
+	meshClick = this.$event(MeshClickEvent);
 }
 
 export default class Model3DController extends ObjectController {
-	static ModelClass = Model3DModel;
+	static Model = Model3DModel;
 	model!:Model3DModel;
 
 	events = new Model3DControllerEvents();
 
-	onClick(event:ViewClickEvent): void {
-		super.onClick(event);
-
-		const meshNames = event.data.intersects.map(mesh => {
-			const $object3D = check<Object3D>(mesh, instanceOf(Object3D), "mesh");
-			return $object3D.name;
-		});
-		const foundClickableMesh = meshNames.find(name =>
-			this.model.clickableMeshes.find(name) !== undefined
-		);
-		if (foundClickableMesh) {
-			this.events.meshClick.fire(new ClickEvent(this, { mesh: foundClickableMesh } ));
-		}
+	clickMesh(mesh:string) {
+		log.info("Mesh clicked:", mesh);
+		this.events.meshClick.fire(new MeshClickEvent(this, {mesh: mesh}));
 	}
 }

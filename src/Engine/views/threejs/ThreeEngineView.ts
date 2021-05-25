@@ -3,18 +3,20 @@ import EngineModel from "@/Engine/models/EngineModel";
 import {component} from "@/Component";
 import {schema} from "mozel";
 import ComponentSlot from "@/Component/ComponentSlot";
-import ComponentModel from "@/ComponentModel";
-import {Color, Object3D, Raycaster, Renderer, Vector2, WebGLRenderer} from "three";
+import {Color, Intersection, Object3D, Raycaster, Renderer, Vector2, WebGLRenderer} from "three";
 import ThreeView, {ThreeViewRoot} from "./ThreeView";
 import Log from "@/log";
 import ThreeCamera from "./ThreeObject/ThreeCamera";
-import {ViewClickEvent} from "@/View";
 
 const log = Log.instance("view/three/engine");
 
+export class ThreeClickEvent {
+	constructor(public intersects:Intersection[]) {}
+}
+
 const engineSchema = schema(EngineModel);
 export default class ThreeEngineView extends EngineView {
-	static ModelClass = EngineModel;
+	static Model = EngineModel;
 	model!:EngineModel;
 
 	@component(engineSchema.camera, ThreeCamera)
@@ -32,7 +34,7 @@ export default class ThreeEngineView extends EngineView {
 	private _handleMouseMove!: (e: MouseEvent) => void;
 	private _handleClick!: (e: MouseEvent) => void;
 
-	init(model: ComponentModel) {
+	init(model: EngineModel) {
 		super.init(model);
 		this.renderer = this.createRenderer();
 		this.css3DRenderer = this.createCSS3DRenderer();
@@ -88,13 +90,13 @@ export default class ThreeEngineView extends EngineView {
 
 	attachTo(element: HTMLElement): void {
 		element.append(this.renderer.domElement);
-		element.append(this.css3DRenderer.domElement);
+		// element.append(this.css3DRenderer.domElement);
 		this.copyStylesToCSS3D();
 	}
 
 	detach(): void {
 		this.renderer.domElement.remove();
-		this.css3DRenderer.domElement.remove();
+		// this.css3DRenderer.domElement.remove();
 	}
 
 	render(): void {
@@ -110,7 +112,7 @@ export default class ThreeEngineView extends EngineView {
 		}
 
 		this.renderer.render(scene.object3D, camera.camera);
-		this.css3DRenderer.render(scene.object3D, camera.camera);
+		// this.css3DRenderer.render(scene.object3D, camera.camera);
 	}
 
 	protected handleMouseMove(event: MouseEvent) {
@@ -138,8 +140,7 @@ export default class ThreeEngineView extends EngineView {
 		if (!root) {
 			return;
 		}
-		const meshes = intersects.map((i) => i.object);
-		root.onClick(new ViewClickEvent(meshes));
+		root.onClick(new ThreeClickEvent(intersects));
 	}
 }
 

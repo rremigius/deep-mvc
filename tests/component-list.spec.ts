@@ -14,7 +14,7 @@ describe("ComponentList", () => {
 			foos!:Collection<FooModel>;
 		}
 		class FooComponent extends Component {
-			static ModelClass = FooModel
+			static Model = FooModel
 			model!:FooModel;
 		}
 		factory.register(FooComponent);

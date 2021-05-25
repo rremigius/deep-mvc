@@ -1,16 +1,17 @@
 import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import {PerspectiveCamera} from "three";
-import {ThreeViewRoot} from "@/Engine/views/threejs/ThreeView";
-import {alphanumeric} from "mozel";
-import {ViewClickEvent} from "@/View";
+import {extendForRootObject3D} from "@/Engine/views/threejs/ThreeView";
 
-export class RootPerspectiveCamera extends PerspectiveCamera implements ThreeViewRoot {
-	public gid: alphanumeric = 0;
-	onClick(event:ViewClickEvent){};
-}
-
+const RootPerspectiveCamera = extendForRootObject3D(PerspectiveCamera);
 export default class ThreePerspectiveCamera extends ThreeCamera {
-	createObject3D(): RootPerspectiveCamera {
+	createObject3D() {
 		return new RootPerspectiveCamera();
+	}
+
+	setAspectRatio(ratio: number) {
+		super.setAspectRatio(ratio);
+		const camera = <PerspectiveCamera>this.camera;
+		camera.aspect = ratio;
+		camera.updateProjectionMatrix();
 	}
 }

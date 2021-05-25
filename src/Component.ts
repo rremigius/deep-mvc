@@ -18,7 +18,7 @@ const log = Log.instance("component");
 
 export type ComponentConstructor<T extends Component> = {
 	new (...args: any[]): T;
-	ModelClass:(typeof ComponentModel);
+	Model:(typeof ComponentModel);
 };
 
 export type ComponentActionData<E> = E extends ComponentAction<infer D> ? D : object;
@@ -84,11 +84,11 @@ export function components<C extends Component, M extends C['model']>(
 
 @injectable()
 export default class Component {
-	static ModelClass:(typeof ComponentModel) = ComponentModel; // should be set for each extending class
+	static Model:(typeof ComponentModel) = ComponentModel; // should be set for each extending class
 
 	static createFactory() {
 		const factory = new ComponentFactory();
-		factory.register(this);
+		if(this !== Component) factory.register(this);
 		return factory;
 	}
 
@@ -153,7 +153,7 @@ export default class Component {
 		@inject(EventBus) eventBus:EventBus,
 		@inject(Container) dependencies:Container
 	) {
-		if(!this.static.ModelClass || !(model instanceof this.static.ModelClass)) {
+		if(!this.static.Model || !(model instanceof this.static.Model)) {
 			throw new Error(`Invalid Model provided to Component '${this.static.name}'.`);
 		}
 		this.model = model;
@@ -171,10 +171,6 @@ export default class Component {
 
 		this.initClassDefinitions();
 		this.init(model);
-
-		this.model.$watch(schema(ComponentModel).enabled, enabled => {
-			if(this.initialized) this.enable(enabled);
-		});
 
 		this.initialized = true;
 	}
@@ -219,6 +215,9 @@ export default class Component {
 
 	init(model:ComponentModel) {
 		// For override
+		this.model.$watch(schema(ComponentModel).enabled, enabled => {
+			if(this.initialized) this.updateEnabledState();
+		});
 	}
 
 	setParent(parent?:Component) {
@@ -251,7 +250,7 @@ export default class Component {
 		if(modelPath instanceof Property) {
 			modelPath = modelPath.getPathFrom(this.model);
 		}
-		const sync = new ComponentSlot<T>(this, this.model, modelPath, ComponentClass.ModelClass, ComponentClass, this.factory);
+		const sync = new ComponentSlot<T>(this, this.model, modelPath, ComponentClass.Model, ComponentClass, this.factory);
 		sync.startWatching();
 
 		this.allChildren[modelPath] = sync as unknown as ComponentSlot<Component>;
@@ -266,7 +265,7 @@ export default class Component {
 		if(modelPath instanceof Property) {
 			modelPath = modelPath.getPathFrom(this.model);
 		}
-		const list = new ComponentList<T>(this, this.model, modelPath, ComponentClass.ModelClass, ComponentClass, this.factory);
+		const list = new ComponentList<T>(this, this.model, modelPath, ComponentClass.Model, ComponentClass, this.factory);
 		list.startWatching();
 
 		this.allChildren[modelPath] = list as unknown as ComponentList<Component>;
@@ -372,6 +371,7 @@ export default class Component {
 
 	enable(enabled:boolean = true) {
 		this.model.enabled = enabled;
+		this.updateEnabledState();
 	}
 	updateEnabledState() {
 		const wasEnabled = this.enabled;

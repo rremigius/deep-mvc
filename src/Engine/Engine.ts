@@ -29,7 +29,7 @@ export default class Engine {
 	protected readonly controller:EngineController;
 	protected readonly view:EngineView;
 
-	readonly loading?:Promise<void>;
+	readonly loading?:Promise<unknown>;
 
 	protected _events = new EngineEvents();
 	get events() { return this._events };
@@ -39,15 +39,13 @@ export default class Engine {
 		viewFactory = viewFactory || this.createDefaultViewFactory(controllerFactory.registry);
 
 		// Allow access to Engine from Components
-		const dependencies = controllerFactory.extendDependencies();
-		dependencies.bind(Engine).toConstantValue(this);
+		controllerFactory.dependencies.bind(Engine).toConstantValue(this);
 
 		this.controller = controllerFactory.create(model, EngineController);
 		this.controller.setEngine(this);
 		this.controller.resolveReferences(); // split from `create` so engine is available in onResolveReferences
 
 		this.view = viewFactory.create(model, EngineView);
-		// TODO: setEngine
 		this.view.resolveReferences(); // split from `create` so engine is available in onResolveReferences
 
 		if(typeof window !== 'undefined') {
@@ -118,18 +116,23 @@ export default class Engine {
 	}
 
 	async load() {
-		return this.controller.load();
+		return Promise.all([
+			this.controller.load(),
+			this.view.load()
+		]);
 	}
 
 	start() {
 		this.running = true;
 		this.controller.start();
+		this.view.start();
 		this.animate();
 	}
 
 	stop() {
 		this.running = false;
 		this.controller.destroy();
+		this.view.destroy();
 		this.destroy();
 	}
 

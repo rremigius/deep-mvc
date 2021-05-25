@@ -19,7 +19,7 @@ class TweenBehaviourControllerEvents extends ComponentEvents {
 }
 
 export default class TweenBehaviourController extends BehaviourController {
-	static ModelClass = TweenBehaviourModel;
+	static Model = TweenBehaviourModel;
 
 	events = new TweenBehaviourControllerEvents();
 

@@ -4,12 +4,12 @@ import Log from "@/log";
 import ThreeObject from "@/Engine/views/threejs/ThreeObject";
 import {createVideo} from "@/Engine/views/common/Video";
 import {schema} from "mozel";
-import VideoController from "@/Engine/controllers/ViewController/ObjectController/VideoController";
+import VideoController from "@/Engine/controllers/ObjectController/VideoController";
 
 const log = Log.instance("three-video");
 
 export default class ThreeVideo extends ThreeObject {
-	static ModelClass = VideoModel;
+	static Model = VideoModel;
 	model!:VideoModel;
 
 	controller!:VideoController;

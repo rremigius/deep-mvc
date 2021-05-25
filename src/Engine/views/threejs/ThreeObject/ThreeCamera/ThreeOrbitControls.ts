@@ -1,7 +1,6 @@
 import ThreeCamera from "../ThreeCamera";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import OrbitControlsModel, {OrbitControlSettings} from "@/Engine/models/ObjectModel/CameraModel/OrbitControlsModel";
-import ThreeView from "@/Engine/views/threejs/ThreeView";
+import OrbitControlsModel from "@/Engine/models/ObjectModel/CameraModel/OrbitControlsModel";
 import Component from "@/Component";
 import ThreeEngineView from "@/Engine/views/threejs/ThreeEngineView";
 import Log from "@/log";
@@ -9,14 +8,11 @@ import {immediate, schema} from "mozel";
 
 const log = Log.instance("view/three/camera/orbit-controls");
 
-type Settings = OrbitControlSettings & {enabled:boolean};
+export default class ThreeOrbitControls extends Component {
+	static Model = OrbitControlsModel;
+	model!:OrbitControlsModel;
 
-export default class ThreeOrbitControls extends ThreeView {
 	controls?:OrbitControls;
-
-	// We keep a settings object to track settings for when we don't have an OrbitControls, to be applied later
-	// This is because we cannot instantiate an empty OrbitControls without proper camera and domElement.
-	settings:Settings = {...OrbitControlsModel.defaults, enabled: false};
 
 	init(model:OrbitControlsModel) {
 		super.init(model);
@@ -31,6 +27,11 @@ export default class ThreeOrbitControls extends ThreeView {
 
 	setParent(parent?:Component) {
 		super.setParent(parent);
+		if(!parent) {
+			if(this.controls) this.controls.enabled = false;
+			return;
+		}
+
 		if(!(parent instanceof ThreeCamera)) {
 			throw new Error("OrbitControls only work on a ThreeCamera.");
 		}
@@ -58,41 +59,35 @@ export default class ThreeOrbitControls extends ThreeView {
 	}
 
 	applySettings(to:OrbitControls) {
-		to.enableZoom = this.settings.enableZoom;
-		to.rotateSpeed = this.settings.rotateSpeed;
-		to.minDistance = this.settings.minDistance
-		to.maxDistance = this.settings.maxDistance;
-		to.maxPolarAngle = this.settings.maxPolarAngle;
-		to.enabled = this.settings.enabled;
+		to.enableZoom = this.model.enableZoom;
+		to.rotateSpeed = this.model.rotateSpeed;
+		to.minDistance = this.model.minDistance
+		to.maxDistance = this.model.maxDistance;
+		to.maxPolarAngle = this.model.maxPolarAngle;
+		to.enabled = this.model.enabled;
 	}
 
 	setZoomEnabled(enableZoom: boolean): void {
-		this.settings.enableZoom = enableZoom;
 		if(this.controls) this.controls.enableZoom = enableZoom;
 	}
 
 	setRotateSpeed(rotateSpeed: number): void {
-		this.settings.rotateSpeed = rotateSpeed;
 		if(this.controls) this.controls.rotateSpeed = rotateSpeed;
 	}
 
 	setMinDistance(minDistance: number): void {
-		this.settings.minDistance = minDistance;
 		if(this.controls) this.controls.minDistance = minDistance;
 	}
 
 	setMaxDistance(maxDistance: number): void {
-		this.settings.maxDistance = maxDistance;
 		if(this.controls) this.controls.maxDistance = maxDistance;
 	}
 
 	setMaxPolarAngle(maxPolarAngle: number): void {
-		this.settings.maxPolarAngle = maxPolarAngle;
 		if(this.controls) this.controls.maxPolarAngle = maxPolarAngle;
 	}
 
 	setEnabled(enabled:boolean) {
-		this.settings.enabled = enabled;
 		if(this.controls) this.controls.enabled = enabled;
 	}
 

@@ -10,7 +10,7 @@ export class PlayActions extends ComponentActions {
 }
 
 export default class SoundBehaviourController extends BehaviourController {
-	static ModelClass = SoundBehaviourModel;
+	static Model = SoundBehaviourModel;
 
 	actions = new PlayActions();
 

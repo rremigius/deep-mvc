@@ -6,7 +6,7 @@ import Controller from "@/Controller";
 import ViewModel from "@/ViewModel";
 import ComponentList from "@/Component/ComponentList";
 
-export class ViewClickEvent extends ComponentEvent<{intersects:object[]}>{}
+export class ViewClickEvent extends ComponentEvent<{}>{}
 export class ViewEvents extends ComponentEvents {
 	click = this.$event(ViewClickEvent);
 }
@@ -27,10 +27,10 @@ export default class View extends Component {
 		super.init(model);
 
 		this.children.events.added.on(event => {
-			this.onViewAdd(event.component);
+			this.addView(event.component);
 		});
 		this.children.events.removed.on(event => {
-			this.onViewRemove(event.component);
+			this.removeView(event.component);
 		})
 	}
 
@@ -47,11 +47,35 @@ export default class View extends Component {
 	requireController<C extends Component>(ExpectedClass:ComponentConstructor<C>) {
 		const component = this.findController(ExpectedClass);
 		if(!component) {
-			throw new Error(`No component found for View '${this.static.name} (GID ${this.model.gid}).`);
+			throw new Error(`No Controller found for View '${this.static.name} (GID ${this.model.gid}).`);
 		}
 		return component;
 	}
 
+	click() {
+		const event = new ViewClickEvent(this, {});
+		this.onClick(event);
+		this.events.click.fire(new ViewClickEvent(this, {}));
+	}
+	addView(view:View) {
+		this.onViewAdd(view);
+	}
+	removeView(view:View) {
+		this.onViewRemove(view);
+	}
+	setPosition(position:Vector3|SparseVector3) {
+		this.onSetPosition(position);
+	}
+	setScale(scale:number) {
+		this.onSetScale(scale);
+	}
+	setVisible(visible:boolean) {
+		this.onSetVisible(visible);
+	}
+
+	onClick(event:ViewClickEvent) {
+		// For override
+	}
 	onViewAdd(view:View) {
 		// For override
 	}
@@ -61,7 +85,7 @@ export default class View extends Component {
 	onSetPosition(position:Vector3|SparseVector3) {
 		// For override
 	}
-	onSetScale(scale:Vector3|SparseVector3) {
+	onSetScale(scale:number) {
 		// For override
 	}
 	onSetVisible(visible:boolean) {

@@ -6,7 +6,7 @@ import ThreeObject from "../ThreeObject";
 const log = Log.instance("three-image");
 
 export default class ThreeImage extends ThreeObject {
-	static ModelClass = ImageModel;
+	static Model = ImageModel;
 	model!:ImageModel;
 
 	async load():Promise<void> {

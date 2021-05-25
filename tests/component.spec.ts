@@ -19,7 +19,7 @@ class FooModel extends BehaviourModel {
 }
 
 class FooComponent extends Component {
-	static ModelClass = FooModel;
+	static Model = FooModel;
 
 	@component(schema(FooModel).otherFoo, FooComponent)
 	otherFoo!:ComponentSlot<FooComponent>;
@@ -87,7 +87,7 @@ describe('Component', () => {
 			modelFactory.register(BarModel);
 
 			class BarComponent extends Component {
-				static ModelClass = BarModel;
+				static Model = BarModel;
 				model!:BarModel; // TS: initialized in super constructor
 
 				childBar = this.setupSubComponent(this.model.$('childBar'), BarComponent)
@@ -164,7 +164,7 @@ describe('Component', () => {
 			modelFactory.register(FooModel);
 
 			class FooComponent extends Component {
-				static ModelClass = FooModel;
+				static Model = FooModel;
 				model!:FooModel;
 				@component('foo', FooComponent)
 				foo!:ComponentSlot<FooComponent>;
@@ -193,7 +193,7 @@ describe('Component', () => {
 				right?:FooModel;
 			}
 			class FooComponent extends Component {
-				static ModelClass = FooModel;
+				static Model = FooModel;
 				model!:FooModel;
 				@component(schema(FooModel).left, FooComponent)
 				left!:ComponentSlot<FooComponent>;
