@@ -87,7 +87,9 @@ export default class Component {
 	static ModelClass:(typeof ComponentModel) = ComponentModel; // should be set for each extending class
 
 	static createFactory() {
-		return new ComponentFactory();
+		const factory = new ComponentFactory();
+		factory.register(this);
+		return factory;
 	}
 
 	private static _classComponentSlotDefinitions: ComponentSlotDefinition[] = [];

@@ -6,13 +6,10 @@ import Component, {component} from "../src/Component";
 import ComponentSlot from "../src/Component/ComponentSlot";
 import View from "../src/View";
 import ViewModel from "../src/ViewModel";
-import ComponentModel from "../src/ComponentModel";
 
-class FooModel extends ComponentModel {
+class FooModel extends ViewModel {
 	static get type() { return 'FooModel' }
 
-	@property(String)
-	name?:string;
 	@property(FooModel)
 	foo?:FooModel
 	@property(FooModel)
