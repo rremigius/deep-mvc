@@ -1,13 +1,12 @@
 import {components} from "@/Component";
 import ComponentModel from "@/ComponentModel";
 import SceneModel from "@/Engine/models/SceneModel";
-import TriggerController from "../TriggerController";
+import TriggerController from "@/Engine/controllers/TriggerController";
 import ComponentList from "@/Component/ComponentList";
 import {schema} from "mozel";
-import Controller from "@/Controller";
 import ViewController from "@/Controller/ViewController";
 
-export default class SceneController extends Controller {
+export default class SceneController extends ViewController {
 	static ModelClass = SceneModel;
 	model!:SceneModel;
 

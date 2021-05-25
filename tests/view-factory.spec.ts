@@ -1,15 +1,15 @@
-import { assert } from "chai";
+import {assert} from "chai";
 import {MozelFactory, property, schema} from "mozel";
 import ComponentFactory from "../src/Component/ComponentFactory";
 import ViewFactory from "../src/View/ViewFactory";
 import Component, {component} from "../src/Component";
 import ComponentSlot from "../src/Component/ComponentSlot";
-import ComponentModel from "../src/ComponentModel";
 import View from "../src/View";
 import ViewModel from "../src/ViewModel";
+import ComponentModel from "../src/ComponentModel";
 
 class FooModel extends ComponentModel {
-	static get type() { return 'FooView' }
+	static get type() { return 'FooModel' }
 
 	@property(String)
 	name?:string;

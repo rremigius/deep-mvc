@@ -6,7 +6,7 @@ import ComponentFactory from "@/Component/ComponentFactory";
 import {Container} from "inversify";
 import SceneModel from "@/Engine/models/SceneModel";
 import ObjectModel from "@/Engine/models/ObjectModel";
-import SceneComponent from "@/Engine/controllers/ViewController/SceneController";
+import SceneComponent from "@/Engine/controllers/SceneController";
 import ActionModel from "@/Engine/models/ActionModel";
 import TriggerModel from "@/Engine/models/TriggerModel";
 import BehaviourModel from "@/Engine/models/BehaviourModel";

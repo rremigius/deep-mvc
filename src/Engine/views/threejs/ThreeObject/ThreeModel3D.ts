@@ -1,4 +1,3 @@
-import IModel3DView, {IModel3DViewSymbol} from "@/Engine/views/common/IObjectView/IModel3DView";
 import Model3DModel, {FileType} from "@/Engine/models/ObjectModel/Model3DModel";
 import {Group, Object3D} from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
@@ -11,22 +10,24 @@ import ThreeObject from "../ThreeObject";
 
 const log = Log.instance("model-3d");
 
-export class ThreeModel3D extends ThreeObject implements IModel3DView {
-	static ViewInterface  = IModel3DViewSymbol;
+export class ThreeModel3D extends ThreeObject {
+	static Model = Model3DModel;
+	model!:Model3DModel;
 
-	async load(xrModel3D: Model3DModel): Promise<this> {
-		switch(xrModel3D.determineFileType()) {
+	async load(): Promise<void> {
+		const model = this.model;
+		switch(model.determineFileType()) {
 			case FileType.Collada:
-				return this.loadCollada(xrModel3D);
+				return this.loadCollada(model);
 			case FileType.Obj:
-				return this.loadObjFiles(xrModel3D);
+				return this.loadObjFiles(model);
 			case FileType.Fbx:
-				return this.loadFbx(xrModel3D);
+				return this.loadFbx(model);
 		}
 		return Promise.reject(new Error("Could not determine file type."));
 	}
 
-	async loadObjFiles(xrModel3D: Model3DModel): Promise<this> {
+	async loadObjFiles(xrModel3D: Model3DModel): Promise<void> {
 		const loader = new OBJLoader();
 		const files = xrModel3D.files;
 
@@ -55,7 +56,7 @@ export class ThreeModel3D extends ThreeObject implements IModel3DView {
 			loader.load(url, (obj) => {
 				log.log("Loaded Obj", url);
 				this.object3D.add(obj);
-				resolve(this);
+				resolve();
 			}, progress => {
 
 			}, reject);
@@ -63,7 +64,7 @@ export class ThreeModel3D extends ThreeObject implements IModel3DView {
 
 	}
 
-	async loadCollada(xrModel3D: Model3DModel): Promise<this> {
+	async loadCollada(xrModel3D: Model3DModel): Promise<void> {
 		let loader = new ColladaLoader();
 		const url = xrModel3D.mainFile && xrModel3D.mainFile.url;
 
@@ -76,14 +77,14 @@ export class ThreeModel3D extends ThreeObject implements IModel3DView {
 			loader.load(url, (collada) => {
 				log.log("Loaded Collada", url);
 				this.object3D.add(collada.scene);
-				resolve(this);
+				resolve();
 			},() => {
 				// progress not implemented yet
 			},reject);
 		});
 	}
 
-	async loadFbx(xrModel3D: Model3DModel): Promise<this> {
+	async loadFbx(xrModel3D: Model3DModel): Promise<void> {
 		let loader = new FBXLoader();
 		const url = xrModel3D.mainFile && xrModel3D.mainFile.url;
 
@@ -97,7 +98,7 @@ export class ThreeModel3D extends ThreeObject implements IModel3DView {
 				log.log("Loaded Fbx", url);
 				const object3D = fbx as Object3D;
 				this.object3D.add(object3D);
-				resolve(this);
+				resolve();
 			},() => {
 				// progress not implemented yet
 			},reject);

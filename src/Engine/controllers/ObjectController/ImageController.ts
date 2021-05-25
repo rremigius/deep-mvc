@@ -1,4 +1,4 @@
-import ObjectController from "@/Engine/controllers/ViewController/ObjectController";
+import ObjectController from "@/Engine/controllers/ObjectController";
 import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
 
 export default class ImageController extends ObjectController {

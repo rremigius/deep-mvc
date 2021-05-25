@@ -1,15 +1,15 @@
 import EngineController from "./EngineController";
 import ControllerFactory from "@/Controller/ControllerFactory";
-import SceneController from "./ViewController/SceneController";
-import Model3DController from "./ViewController/ObjectController/Model3DController";
-import ImageController from "./ViewController/ObjectController/ImageController";
-import GraphController from "./ViewController/ObjectController/GraphController";
-import VideoController from "./ViewController/ObjectController/VideoController";
+import SceneController from "./SceneController";
+import Model3DController from "./ObjectController/Model3DController";
+import ImageController from "./ObjectController/ImageController";
+import GraphController from "./ObjectController/GraphController";
+import VideoController from "./ObjectController/VideoController";
 import TweenBehaviourController from "./BehaviourController/TweenBehaviourController";
 import SoundBehaviourController from "./BehaviourController/SoundBehaviourController";
 import BehaviourController from "./BehaviourController";
 import TriggerController from "./TriggerController";
-import ObjectController from "./ViewController/ObjectController";
+import ObjectController from "./ObjectController";
 
 export default class EngineControllerFactory extends ControllerFactory {
 	initDependencies() {

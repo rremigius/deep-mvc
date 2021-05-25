@@ -1,4 +1,4 @@
-import ObjectController from "@/Engine/controllers/ViewController/ObjectController";
+import ObjectController from "@/Engine/controllers/ObjectController";
 import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
 import Log from "@/log";
 import {ViewControllerEvents} from "@/Controller/ViewController";

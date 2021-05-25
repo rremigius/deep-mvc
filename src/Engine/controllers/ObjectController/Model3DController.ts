@@ -1,4 +1,4 @@
-import ObjectController from "@/Engine/controllers/ViewController/ObjectController";
+import ObjectController from "@/Engine/controllers/ObjectController";
 import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
 import {Object3D} from "three";
 import {check, instanceOf} from "validation-kit";

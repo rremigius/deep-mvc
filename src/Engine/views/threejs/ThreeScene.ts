@@ -1,15 +1,19 @@
-import {BoxGeometry, Mesh, MeshBasicMaterial, Scene} from "three";
-import ISceneView, {ISceneViewSymbol} from "@/Engine/views/common/ISceneView";
+import {Scene} from "three";
+import SceneModel from "@/Engine/models/SceneModel";
 import ThreeView from "@/Engine/views/threejs/ThreeView";
-import ThreeViewRoot from "@/Engine/views/threejs/ThreeViewRoot";
+import {alphanumeric} from "mozel";
+import {ViewClickEvent} from "@/View";
 
-export default class ThreeScene extends ThreeViewRoot implements ISceneView {
-	static ViewInterface = ISceneViewSymbol;
+class RootScene extends Scene {
+	public gid: alphanumeric = 0;
+	onClick(event:ViewClickEvent){};
+}
 
-	protected createObject3D():Scene {
-		return new Scene();
-	}
-	public getObject3D():Scene {
-		return <Scene>super.getObject3D();
+export default class ThreeScene extends ThreeView {
+	static Model = SceneModel;
+	model!:SceneModel;
+
+	createObject3D() {
+		return new RootScene();
 	}
 }
