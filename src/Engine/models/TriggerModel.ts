@@ -3,12 +3,12 @@ import EventModel from "@/Engine/models/EventModel";
 import ActionModel from "@/Engine/models/ActionModel";
 import MappingModel from "@/Engine/models/MappingModel";
 import ConditionModel from "@/Engine/models/ConditionModel";
-import ControllerModel from "@/ControllerModel";
-import {ControllerAction, ControllerActionData, ControllerEvent, ControllerEventData} from "@/Controller";
+import ComponentModel from "@/ComponentModel";
+import {ComponentAction, ComponentActionData, ComponentEvent, ComponenetEventData} from "@/Component";
 
-export type UnknownTriggerModel = TriggerModel<ControllerEvent<object>, ControllerAction<object>>;
+export type UnknownTriggerModel = TriggerModel<ComponentEvent<object>, ComponentAction<object>>;
 
-export default class TriggerModel<E extends ControllerEvent<any>, A extends ControllerAction<any>> extends ControllerModel {
+export default class TriggerModel<E extends ComponentEvent<any>, A extends ComponentAction<any>> extends ComponentModel {
 	static get type() { return 'Trigger' };
 
 	@property(EventModel, {required})
@@ -18,7 +18,7 @@ export default class TriggerModel<E extends ControllerEvent<any>, A extends Cont
 	action!:ActionModel;
 
 	@property(GenericMozel, {required})
-	mapping!:MappingModel<ControllerActionData<A>, ControllerEventData<E>>;
+	mapping!:MappingModel<ComponentActionData<A>, ComponenetEventData<E>>;
 
 	@property(ConditionModel)
 	condition?:ConditionModel<E>

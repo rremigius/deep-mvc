@@ -1,6 +1,6 @@
 import BehaviourController from "@/Engine/controllers/BehaviourController";
 import TweenBehaviourModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel";
-import {ControllerEvent, ControllerEvents} from "@/Controller";
+import {ComponentEvent, ComponentEvents} from "@/Component";
 import TweenStepModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel/TweenStepModel";
 import Log from "@/log";
 import {TimelineMax, TweenLite} from "gsap";
@@ -10,10 +10,10 @@ import {deep, immediate, schema} from "mozel";
 
 const log = Log.instance("tween-behaviour");
 
-class TweenStartedEvent extends ControllerEvent<object> {}
-class TweenCompletedEvent extends ControllerEvent<object> {}
+class TweenStartedEvent extends ComponentEvent<object> {}
+class TweenCompletedEvent extends ComponentEvent<object> {}
 
-class TweenBehaviourControllerEvents extends ControllerEvents {
+class TweenBehaviourControllerEvents extends ComponentEvents {
 	started = this.$event(TweenStartedEvent);
 	completed = this.$event(TweenCompletedEvent);
 }

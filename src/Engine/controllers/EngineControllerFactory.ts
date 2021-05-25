@@ -1,8 +1,6 @@
 import EngineController from "./EngineController";
-import ViewController from "../../Controller/ViewController";
 import ControllerFactory from "@/Controller/ControllerFactory";
 import SceneController from "./ViewController/SceneController";
-import CameraController from "./ViewController/ObjectController/CameraController";
 import Model3DController from "./ViewController/ObjectController/Model3DController";
 import ImageController from "./ViewController/ObjectController/ImageController";
 import GraphController from "./ViewController/ObjectController/GraphController";
@@ -12,16 +10,14 @@ import SoundBehaviourController from "./BehaviourController/SoundBehaviourContro
 import BehaviourController from "./BehaviourController";
 import TriggerController from "./TriggerController";
 import ObjectController from "./ViewController/ObjectController";
-import LightController from "@/Engine/controllers/ViewController/ObjectController/LightController";
-import OrbitController from "@/Engine/controllers/ViewController/ObjectController/CameraController/OrbitController";
 
 export default class EngineControllerFactory extends ControllerFactory {
 	initDependencies() {
 		super.initDependencies();
 		this.register([
-			EngineController, ViewController, SceneController, CameraController, Model3DController, ImageController,
+			EngineController, SceneController, Model3DController, ImageController,
 			GraphController, VideoController, BehaviourController, TweenBehaviourController, SoundBehaviourController,
-			TriggerController, ObjectController, LightController, OrbitController
+			TriggerController, ObjectController
 		])
 	}
 }

@@ -1,29 +1,26 @@
-import {controllers} from "@/Controller";
-import ControllerModel from "@/ControllerModel";
-import Log from "@/log";
+import {components} from "@/Component";
+import ComponentModel from "@/ComponentModel";
 import ObjectModel from "@/Engine/models/ObjectModel";
 import TriggerController from "@/Engine/controllers/TriggerController";
 import BehaviourController from "@/Engine/controllers/BehaviourController";
-import ControllerList from "@/Controller/ControllerList";
+import ComponentList from "@/Component/ComponentList";
 import {schema} from "mozel";
 import ViewController from "@/Controller/ViewController";
-import {IObjectViewSymbol} from "@/Engine/views/common/IObjectView";
 
 export default class ObjectController extends ViewController {
 	static ModelClass = ObjectModel;
 	model!:ObjectModel;
-	viewInterface = IObjectViewSymbol;
 
-	@controllers(schema(ObjectModel).behaviours, BehaviourController)
-	behaviours!:ControllerList<BehaviourController>;
+	@components(schema(ObjectModel).behaviours, BehaviourController)
+	behaviours!:ComponentList<BehaviourController>;
 
-	@controllers(schema(ObjectModel).triggers, TriggerController)
-	triggers!:ControllerList<TriggerController>;
+	@components(schema(ObjectModel).triggers, TriggerController)
+	triggers!:ComponentList<TriggerController>;
 
-	init(xrObject:ControllerModel) {
-		super.init(xrObject);
+	init(model:ComponentModel) {
+		super.init(model);
 
-		this.triggers.events.added.on(event => event.controller.setDefaultController(this));
-		this.triggers.events.removed.on(event => event.controller.setDefaultController(undefined));
+		this.triggers.events.added.on(event => event.component.setDefaultController(this));
+		this.triggers.events.removed.on(event => event.component.setDefaultController(undefined));
 	}
 }

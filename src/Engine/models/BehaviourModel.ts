@@ -1,8 +1,8 @@
 import {collection, Collection} from 'mozel';
-import ControllerModel from "@/ControllerModel";
+import ComponentModel from "@/ComponentModel";
 import TriggerModel from "@/Engine/models/TriggerModel";
 
-export default class BehaviourModel extends ControllerModel {
+export default class BehaviourModel extends ComponentModel {
 	static get type() { return 'Behaviour' };
 
 	@collection(TriggerModel)

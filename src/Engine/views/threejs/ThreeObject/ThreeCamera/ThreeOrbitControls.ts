@@ -1,21 +1,59 @@
-import IOrbitControls from "@/Engine/views/common/IObjectView/ICameraView/IOrbitControls";
 import ThreeCamera from "../ThreeCamera";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import OrbitControlsModel, {OrbitControlSettings} from "@/Engine/models/ObjectModel/CameraModel/OrbitControlsModel";
+import ThreeView from "@/Engine/views/threejs/ThreeView";
+import Component from "@/Component";
+import ThreeEngineView from "@/Engine/views/threejs/ThreeEngineView";
+import Log from "@/log";
+import {immediate, schema} from "mozel";
+
+const log = Log.instance("view/three/camera/orbit-controls");
 
 type Settings = OrbitControlSettings & {enabled:boolean};
 
-export default class ThreeOrbitControls implements IOrbitControls {
+export default class ThreeOrbitControls extends ThreeView {
 	controls?:OrbitControls;
 
 	// We keep a settings object to track settings for when we don't have an OrbitControls, to be applied later
 	// This is because we cannot instantiate an empty OrbitControls without proper camera and domElement.
 	settings:Settings = {...OrbitControlsModel.defaults, enabled: false};
 
-	setupOrbitControls(camera: ThreeCamera, domElement:HTMLElement) {
+	init(model:OrbitControlsModel) {
+		super.init(model);
+
+		const s = schema(OrbitControlsModel);
+		model.$watch(s.rotateSpeed, speed => this.setRotateSpeed(speed), {immediate});
+		model.$watch(s.maxPolarAngle, angle => this.setMaxPolarAngle(angle), {immediate});
+		model.$watch(s.minDistance, distance => this.setMinDistance(distance), {immediate});
+		model.$watch(s.maxDistance, distance => this.setMaxDistance(distance), {immediate});
+		model.$watch(s.enableZoom, zoom => this.setZoomEnabled(zoom), {immediate});
+	}
+
+	setParent(parent?:Component) {
+		super.setParent(parent);
+		if(!(parent instanceof ThreeCamera)) {
+			throw new Error("OrbitControls only work on a ThreeCamera.");
+		}
+		(async () => {
+			// We need to wait for the parent to initialize; setParent is called first time before initialization of parent
+			await parent.loading.wait();
+			if(!(parent === this.parent)) {
+				log.info("Parent changed before OrbitControls were setup.");
+				return;
+			}
+			this.setupOrbitControls(parent);
+		})();
+	}
+
+	setupOrbitControls(camera: ThreeCamera) {
 		if(this.controls) this.controls.dispose(); // Stop current one
 
-		this.controls = new OrbitControls(camera.getObject3D(), domElement);
+		const engine = this.getRootComponent();
+		if(!(engine instanceof ThreeEngineView)) {
+			throw new Error("ThreeOrbitControls only work on ThreeEngineView");
+		}
+
+		this.controls = new OrbitControls(camera.camera, engine.renderer.domElement);
 		this.applySettings(this.controls);
 	}
 
@@ -53,8 +91,18 @@ export default class ThreeOrbitControls implements IOrbitControls {
 		if(this.controls) this.controls.maxPolarAngle = maxPolarAngle;
 	}
 
-	enable(enabled: boolean) {
+	setEnabled(enabled:boolean) {
 		this.settings.enabled = enabled;
 		if(this.controls) this.controls.enabled = enabled;
+	}
+
+	onEnable() {
+		super.onEnable();
+		this.setEnabled(true);
+	}
+
+	onDisable() {
+		super.onDisable();
+		this.setEnabled(false);
 	}
 }

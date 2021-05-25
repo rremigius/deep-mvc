@@ -1,12 +1,12 @@
 import {assert} from 'chai';
-import Controller, {controller, controllers} from "@/Controller";
+import Component, {component, components} from "../src/Component";
 import BehaviourModel from "@/Engine/models/BehaviourModel";
 import Mozel, {collection, Collection, MozelFactory, property, reference, required, schema} from "mozel";
-import ControllerFactory from "@/Controller/ControllerFactory";
+import ComponentFactory from "@/Component/ComponentFactory";
 import {isNil} from 'lodash';
-import ControllerModel from "@/ControllerModel";
-import ControllerSlot from "@/Controller/ControllerSlot";
-import ControllerList from "@/Controller/ControllerList";
+import ComponentModel from "@/ComponentModel";
+import ComponentSlot from "@/Component/ComponentSlot";
+import ComponentList from "@/Component/ComponentList";
 
 class FooModel extends BehaviourModel {
 	static get type() { return 'FooModel'; }
@@ -18,14 +18,14 @@ class FooModel extends BehaviourModel {
 	childFoos!:Collection<FooModel>;
 }
 
-class FooController extends Controller {
+class FooComponent extends Component {
 	static ModelClass = FooModel;
 
-	@controller(schema(FooModel).otherFoo, FooController)
-	otherFoo!:ControllerSlot<FooController>;
+	@component(schema(FooModel).otherFoo, FooComponent)
+	otherFoo!:ComponentSlot<FooComponent>;
 
-	@controllers(schema(FooModel).childFoos, FooController)
-	childFoos!:ControllerList<FooController>;
+	@components(schema(FooModel).childFoos, FooComponent)
+	childFoos!:ComponentList<FooComponent>;
 
 	get foo():FooModel {
 		return <FooModel>this.model;
@@ -37,41 +37,41 @@ class TestModelFactory extends MozelFactory {
 		this.register(FooModel);
 	}
 }
-class TestControllerFactory extends ControllerFactory {
+class TestComponentFactory extends ComponentFactory {
 	initDependencies() {
 		super.initDependencies();
-		this.register(FooController);
+		this.register(FooComponent);
 	}
 }
 
-describe('Controller', () => {
-	it('changing children in Mozel reflects in Controller', () => {
+describe('Component', () => {
+	it('changing children in Mozel reflects in Component', () => {
 		const modelFactory = new TestModelFactory();
-		const controllerFactory = new TestControllerFactory();
+		const componentFactory = new TestComponentFactory();
 
 		const fooModel = modelFactory.create(FooModel, {}, true);
-		const fooController = controllerFactory.createAndResolveReferences(fooModel, FooController);
+		const fooComponent = componentFactory.createAndResolveReferences(fooModel, FooComponent);
 
 		fooModel.childFoos.add(modelFactory.create(FooModel, {gid: 'foo1'}));
 
-		// Check if non-exisitng models/controllers still return false on find
+		// Check if non-exisitng models/components still return false on find
 		assert.notOk(fooModel.childFoos.find({gid: 'nonexistent'}) instanceof FooModel, "Non-existing Model GID is not found");
-		assert.notOk(fooController.childFoos.find({gid: 'nonexistent'}) instanceof FooController, "Non-existing Controller GID is not found.")
+		assert.notOk(fooComponent.childFoos.find({gid: 'nonexistent'}) instanceof FooComponent, "Non-existing Component GID is not found.")
 
 		let foo1Model = fooModel.childFoos.find({gid: 'foo1'});
-		let foo1Controller = fooController.childFoos.find({gid: 'foo1'});
+		let foo1Component = fooComponent.childFoos.find({gid: 'foo1'});
 		assert.ok(foo1Model instanceof FooModel, "Model was added from Model.");
-		assert.ok(foo1Controller instanceof FooController, "Controller was added from Model");
+		assert.ok(foo1Component instanceof FooComponent, "Component was added from Model");
 
-		assert.equal(foo1Controller && foo1Controller.model, foo1Model, "Controller added from Model has reference to Model in Model hierarchy.");
+		assert.equal(foo1Component && foo1Component.model, foo1Model, "Component added from Model has reference to Model in Model hierarchy.");
 
 		foo1Model && fooModel.childFoos.remove(foo1Model);
 
 		assert.ok(isNil(fooModel.childFoos.find({gid: 'foo1'})), "Model was removed from Model.");
-		assert.ok(isNil(fooController.childFoos.find({gid: 'foo1'})), "Controller was removed from Model");
+		assert.ok(isNil(fooComponent.childFoos.find({gid: 'foo1'})), "Component was removed from Model");
 	});
-	describe("controller", () => {
-		it('syncs controller references based on model', ()=>{
+	describe("component", () => {
+		it('syncs component references based on model', ()=>{
 			// Create instances
 			const modelFactory = new TestModelFactory();
 
@@ -86,12 +86,12 @@ describe('Controller', () => {
 			}
 			modelFactory.register(BarModel);
 
-			class BarController extends Controller {
+			class BarComponent extends Component {
 				static ModelClass = BarModel;
 				model!:BarModel; // TS: initialized in super constructor
 
-				childBar = this.controller(this.model.$('childBar'), BarController)
-				otherBar = this.controller(this.model.$('otherBar'), BarController)
+				childBar = this.setupSubComponent(this.model.$('childBar'), BarComponent)
+				otherBar = this.setupSubComponent(this.model.$('otherBar'), BarComponent)
 			}
 
 			const barModel = modelFactory.create(BarModel, {
@@ -100,15 +100,15 @@ describe('Controller', () => {
 				otherBar: {gid: 2}
 			}, true);
 
-			const factory = new TestControllerFactory();
-			factory.register(BarController);
+			const factory = new TestComponentFactory();
+			factory.register(BarComponent);
 
-			const bar = factory.createAndResolveReferences<BarController>(barModel, BarController);
+			const bar = factory.createAndResolveReferences<BarComponent>(barModel, BarComponent);
 
-			assert.equal(bar.childBar.get(), bar.otherBar.get(), "Child and reference refer to same Controller");
+			assert.equal(bar.childBar.get(), bar.otherBar.get(), "Child and reference refer to same Component");
 
 			barModel.childBar = modelFactory.create(BarModel, {gid: 3});
-			assert.equal(bar.childBar.get()!.gid, 3, "Child controller updated");
+			assert.equal(bar.childBar.get()!.gid, 3, "Child component updated");
 
 			try {
 				barModel.otherBar = modelFactory.create(BarModel, {gid: 4});
@@ -118,9 +118,9 @@ describe('Controller', () => {
 			}
 
 			barModel.otherBar = barModel.childBar;
-			assert.equal(bar.otherBar.get(), bar.childBar.get(), "Setting reference to same model will resolve to same controller");
+			assert.equal(bar.otherBar.get(), bar.childBar.get(), "Setting reference to same model will resolve to same component");
 		});
-		it('can resolve other Controllers from the Registry', () => {
+		it('can resolve other Components from the Registry', () => {
 			// Create instances
 			const modelFactory = new TestModelFactory();
 			const foo = modelFactory.create<FooModel>(FooModel, {
@@ -139,19 +139,19 @@ describe('Controller', () => {
 				]
 			});
 
-			const factory = new TestControllerFactory();
-			const controller = factory.createAndResolveReferences(foo, FooController);
+			const factory = new TestComponentFactory();
+			const component = factory.createAndResolveReferences(foo, FooComponent);
 
-			const gid11 = controller.childFoos.find({gid: 11});
-			const gid12 = controller.childFoos.find({gid: 12});
-			assert.ok(gid11 instanceof Controller, "Child with GID 11 is a Controller.");
-			assert.ok(gid12 instanceof Controller, "Child with GID 12 is a Controller.");
+			const gid11 = component.childFoos.find({gid: 11});
+			const gid12 = component.childFoos.find({gid: 12});
+			assert.ok(gid11 instanceof Component, "Child with GID 11 is a Component.");
+			assert.ok(gid12 instanceof Component, "Child with GID 12 is a Component.");
 			assert.equal(gid11!.childFoos.find({gid:111}), gid12!.otherFoo.get());
 		});
 	});
-	describe("@controller and @controllerList", () => {
-		it("create a ControllerSlot and ControllerList, respectively", () => {
-			class FooModel extends ControllerModel {
+	describe("@component and @componentList", () => {
+		it("create a ComponentSlot and ComponentList, respectively", () => {
+			class FooModel extends ComponentModel {
 				@property(String, {required})
 				name!:string;
 				@property(FooModel)
@@ -159,52 +159,52 @@ describe('Controller', () => {
 				@collection(FooModel)
 				foos!:Collection<FooModel>;
 			}
-			const controllerFactory = Controller.createFactory();
+			const componentFactory = Component.createFactory();
 			const modelFactory = Mozel.createFactory();
 			modelFactory.register(FooModel);
 
-			class FooController extends Controller {
+			class FooComponent extends Component {
 				static ModelClass = FooModel;
 				model!:FooModel;
-				@controller('foo', FooController)
-				foo!:ControllerSlot<FooController>;
-				@controllers('foos', FooController)
-				foos!:ControllerList<FooController>;
+				@component('foo', FooComponent)
+				foo!:ComponentSlot<FooComponent>;
+				@components('foos', FooComponent)
+				foos!:ComponentList<FooComponent>;
 			}
-			controllerFactory.register(FooController);
+			componentFactory.register(FooComponent);
 
 			const fooModel = modelFactory.create(FooModel, {
 				foo: {name: 'foo1'},
 				foos: [{name: 'foo2'}]
 			});
 
-			const fooController = controllerFactory.createAndResolveReferences(fooModel, FooController);
+			const fooComponent = componentFactory.createAndResolveReferences(fooModel, FooComponent);
 
-			assert.equal(fooController.foo.get()!.model, fooModel.foo, "ControllerSlot synchronized");
-			assert.equal(fooController.foos.getIndex(0).model, fooModel.foos.get(0), "ControllerList synchronized");
+			assert.equal(fooComponent.foo.get()!.model, fooModel.foo, "ComponentSlot synchronized");
+			assert.equal(fooComponent.foos.getIndex(0).model, fooModel.foos.get(0), "ComponentList synchronized");
 		});
 	});
 	describe("enable", () => {
 		it("with can disable all children, and re-enable only those that were not disabled before", () => {
-			class FooModel extends ControllerModel {
+			class FooModel extends ComponentModel {
 				@property(FooModel)
 				left?:FooModel;
 				@property(FooModel)
 				right?:FooModel;
 			}
-			class FooController extends Controller {
+			class FooComponent extends Component {
 				static ModelClass = FooModel;
 				model!:FooModel;
-				@controller(schema(FooModel).left, FooController)
-				left!:ControllerSlot<FooController>;
-				@controller(schema(FooModel).right, FooController)
-				right!:ControllerSlot<FooController>;
+				@component(schema(FooModel).left, FooComponent)
+				left!:ComponentSlot<FooComponent>;
+				@component(schema(FooModel).right, FooComponent)
+				right!:ComponentSlot<FooComponent>;
 			}
 
 			const models = Mozel.createFactory();
 			models.register(FooModel);
-			const controllers = Controller.createFactory();
-			controllers.register(FooController);
+			const components = Component.createFactory();
+			components.register(FooComponent);
 
 			const model = models.create(FooModel, {
 				gid: 'root',
@@ -218,10 +218,10 @@ describe('Controller', () => {
 					}
 				},
 			});
-			const ctrl = controllers.create(model, FooController);
-			const ctrl1 = controllers.registry.byGid(1) as FooController;
-			const ctrl12 = controllers.registry.byGid(12) as FooController;
-			const ctrl13 = controllers.registry.byGid(13) as FooController;
+			const ctrl = components.create(model, FooComponent);
+			const ctrl1 = components.registry.byGid(1) as FooComponent;
+			const ctrl12 = components.registry.byGid(12) as FooComponent;
+			const ctrl13 = components.registry.byGid(13) as FooComponent;
 
 			assert.equal(ctrl.enabled, false, "Root disabled before start.");
 			assert.equal(ctrl1.enabled, false, "Ctrl1 disabled before start.");

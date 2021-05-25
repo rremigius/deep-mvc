@@ -1,4 +1,4 @@
-import ControllerModel from "@/ControllerModel";
+import ComponentModel from "@/ComponentModel";
 import {property, required} from "mozel";
 
 export type OrbitControlSettings = {
@@ -9,7 +9,7 @@ export type OrbitControlSettings = {
 	maxPolarAngle:number
 }
 
-export default class OrbitControlsModel extends ControllerModel {
+export default class OrbitControlsModel extends ComponentModel {
 	static get type() { return 'OrbitControls' }
 	static get defaults():OrbitControlSettings {
 		return {

@@ -1,11 +1,11 @@
 import BehaviourController from "@/Engine/controllers/BehaviourController";
-import {ControllerAction, ControllerActions} from "@/Controller";
+import {ComponentAction, ComponentActions} from "@/Component";
 import Log from "@/log";
 // import {Howl } from 'howler';
 import SoundBehaviourModel from "@/Engine/models/BehaviourModel/SoundBehaviourModel";
 
-export class PlayAction extends ControllerAction<void> {}
-export class PlayActions extends ControllerActions {
+export class PlayAction extends ComponentAction<void> {}
+export class PlayActions extends ComponentActions {
 	play = this.$action(PlayAction);
 }
 

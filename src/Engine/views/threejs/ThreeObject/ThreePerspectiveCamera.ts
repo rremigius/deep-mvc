@@ -1,19 +1,16 @@
-import {PerspectiveCamera} from "three";
-import ICameraView, {ICameraViewSymbol} from "@/Engine/views/common/IObjectView/ICameraView";
 import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
+import {PerspectiveCamera} from "three";
+import {ThreeViewRoot} from "@/Engine/views/threejs/ThreeView";
+import {alphanumeric} from "mozel";
+import {ViewClickEvent} from "@/View";
 
-export default class ThreePerspectiveCamera extends ThreeCamera implements ICameraView {
-	static ViewInterface = ICameraViewSymbol;
+export class RootPerspectiveCamera extends PerspectiveCamera implements ThreeViewRoot {
+	public gid: alphanumeric = 0;
+	onClick(event:ViewClickEvent){};
+}
 
-	createObject3D() {
-		return new PerspectiveCamera();
-	}
-	getObject3D():PerspectiveCamera {
-		return <PerspectiveCamera>super.getObject3D();
-	}
-
-	public setAspectRatio(ratio: number): void {
-		this.getObject3D().aspect = ratio;
-		this.getObject3D().updateProjectionMatrix();
+export default class ThreePerspectiveCamera extends ThreeCamera {
+	createObject3D(): RootPerspectiveCamera {
+		return new RootPerspectiveCamera();
 	}
 }

@@ -14,4 +14,12 @@ export default class VideoModel extends ObjectModel {
 
 	@property(File)
 	file?: File;
+
+	/* State */
+
+	@property(Boolean)
+	playing?:boolean;
+
+	@property(Number)
+	time?:number;
 }

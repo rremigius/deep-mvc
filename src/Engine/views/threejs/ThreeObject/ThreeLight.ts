@@ -1,20 +1,23 @@
 import {AmbientLight, Color, Light} from "three";
-import ILightView, {ILightViewSymbol, LightType} from "@/Engine/views/common/IObjectView/ILightView";
 import ThreeObject from "../ThreeObject";
+import LightModel from "@/Engine/models/ObjectModel/LightModel";
+import {LightType} from "@/Engine/views/common/Light";
 
-export default class ThreeLight extends ThreeObject implements ILightView {
-	static ViewInterface = ILightViewSymbol;
+export default class ThreeLight extends ThreeObject {
+	static Model = LightModel;
+	model!:LightModel;
 
-	light:Light;
-	color:number|string;
-	lightType:LightType;
+	light!:Light;
+	color!:number|string;
+	lightType!:LightType;
 
-	constructor() {
-		super();
+	init(model:LightModel) {
+		super.init(model);
+
 		this.lightType = LightType.AMBIENT;
 		this.color = 0xffffff;
 		this.light = this.createLight(this.lightType);
-		this.getObject3D().add(this.light);
+		this.object3D.add(this.light);
 	}
 
 	createLight(type:LightType) {

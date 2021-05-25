@@ -1,8 +1,8 @@
 import Model from "mozel";
-import {ControllerEvent, ControllerEventData} from "@/Controller";
+import {ComponentEvent, ComponenetEventData} from "@/Component";
 
-export default class ConditionModel<E extends ControllerEvent<any>> extends Model {
-	eval(data:ControllerEventData<E>):boolean {
+export default class ConditionModel<E extends ComponentEvent<any>> extends Model {
+	eval(data:ComponenetEventData<E>):boolean {
 		throw new Error("Not implemented")
 	}
 }

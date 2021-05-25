@@ -1,19 +1,19 @@
-import Controller, {controllers} from "@/Controller";
+import Component, {components} from "@/Component";
 import BehaviourModel from "@/Engine/models/BehaviourModel";
 import TriggerController from "@/Engine/controllers/TriggerController";
-import ControllerList from "@/Controller/ControllerList";
+import ComponentList from "@/Component/ComponentList";
 import {schema} from "mozel";
 
-export default class BehaviourController extends Controller {
+export default class BehaviourController extends Component {
 	static ModelClass:typeof BehaviourModel = BehaviourModel;
 	model!:BehaviourModel;
 
-	@controllers(schema(BehaviourModel).triggers, TriggerController)
-	triggers!:ControllerList<TriggerController>;
+	@components(schema(BehaviourModel).triggers, TriggerController)
+	triggers!:ComponentList<TriggerController>;
 
 	init(model: BehaviourModel) {
 		super.init(model);
-		this.triggers.events.added.on(event => event.controller.setDefaultController(this));
-		this.triggers.events.removed.on(event => event.controller.setDefaultController(undefined));
+		this.triggers.events.added.on(event => event.component.setDefaultController(this));
+		this.triggers.events.removed.on(event => event.component.setDefaultController(undefined));
 	}
 }

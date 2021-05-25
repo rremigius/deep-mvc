@@ -1,15 +1,16 @@
 import {Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
 import Log from "@/log";
 import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
-import IImageView, {IImageViewSymbol} from "@/Engine/views/common/IObjectView/IImageView";
 import ThreeObject from "../ThreeObject";
 
 const log = Log.instance("three-image");
 
-export default class ThreeImage extends ThreeObject implements IImageView {
-	static ViewInterface = IImageViewSymbol;
+export default class ThreeImage extends ThreeObject {
+	static ModelClass = ImageModel;
+	model!:ImageModel;
 
-	async load(model: ImageModel): Promise<this> {
+	async load():Promise<void> {
+		const model = this.model;
 		return new Promise((resolve, reject) => {
 			if (!model.file || !model.file.url) {
 				const err = new Error("ImageModel has no image file. Cannot load.");
@@ -40,7 +41,7 @@ export default class ThreeImage extends ThreeObject implements IImageView {
 					this.object3D.add(mesh);
 
 					log.log("Loaded image", url);
-					resolve(this);
+					resolve();
 				},
 				undefined, // progress callback currently not supported (THREE docs)
 				() => {

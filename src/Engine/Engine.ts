@@ -1,13 +1,14 @@
 import EngineModel from "@/Engine/models/EngineModel";
-import ControllerFactory from "@/Controller/ControllerFactory";
-import ViewFactory from "@/Engine/views/ViewFactory";
-import IRenderer from "@/Engine/views/common/IRenderer";
+import ComponentFactory from "@/Component/ComponentFactory";
 
 import Log from "@/log";
 import EngineController from "@/Engine/controllers/EngineController";
 import EngineControllerFactory from "@/Engine/controllers/EngineControllerFactory";
-import HeadlessViewFactory from "@/Engine/views/headless/HeadlessViewFactory";
 import {Events} from "@/EventEmitter";
+import {Registry} from "mozel";
+import Controller from "@/Controller";
+import ViewFactory from "@/View/ViewFactory";
+import EngineView from "@/Engine/views/EngineView";
 
 const log = Log.instance("engine");
 
@@ -25,27 +26,29 @@ export default class Engine {
 	private readonly _onResize!:()=>void;
 
 	protected running = false;
-	protected readonly renderer:IRenderer;
 	protected readonly controller:EngineController;
+	protected readonly view:EngineView;
 
 	readonly loading?:Promise<void>;
 
 	protected _events = new EngineEvents();
 	get events() { return this._events };
 
-	constructor(model:EngineModel, viewFactory?:ViewFactory, controllerFactory?:ControllerFactory) {
-		viewFactory = viewFactory || this.createDefaultViewFactory();
-		controllerFactory = controllerFactory || this.createDefaultControllerFactory(viewFactory);
+	constructor(model:EngineModel, viewFactory?:ViewFactory, controllerFactory?:ComponentFactory) {
+		controllerFactory = controllerFactory || this.createDefaultControllerFactory();
+		viewFactory = viewFactory || this.createDefaultViewFactory(controllerFactory.registry);
 
-		this.renderer = viewFactory.createRenderer();
-
-		// Allow access to Engine from Controllers
+		// Allow access to Engine from Components
 		const dependencies = controllerFactory.extendDependencies();
 		dependencies.bind(Engine).toConstantValue(this);
 
 		this.controller = controllerFactory.create(model, EngineController);
-		this.controller.resolveReferences(); // split from `create` so engine.controller is available in onResolveReferences
-		this.initController(this.controller);
+		this.controller.setEngine(this);
+		this.controller.resolveReferences(); // split from `create` so engine is available in onResolveReferences
+
+		this.view = viewFactory.create(model, EngineView);
+		// TODO: setEngine
+		this.view.resolveReferences(); // split from `create` so engine is available in onResolveReferences
 
 		if(typeof window !== 'undefined') {
 			this._onResize = this.onResize.bind(this);
@@ -58,32 +61,12 @@ export default class Engine {
 
 	init(){ }
 
-	initController(controller:EngineController) {
-		this.controller.setEngine(this);
+	createDefaultControllerFactory():ComponentFactory {
+		return new EngineControllerFactory();
 	}
 
-	createDefaultControllerFactory(viewFactory:ViewFactory):ControllerFactory {
-		return new EngineControllerFactory(viewFactory);
-	}
-
-	createDefaultViewFactory():ViewFactory {
-		return new HeadlessViewFactory();
-	}
-
-	get camera() {
-		const cameraController = this.controller.camera.get();
-		if(!cameraController) return undefined;
-		return cameraController.view;
-	}
-
-	get scene() {
-		const sceneController = this.controller.scene.get();
-		if(!sceneController) return undefined;
-		return sceneController.view;
-	}
-
-	get domElement() {
-		return this.renderer.getDOMElement();
+	createDefaultViewFactory(controllerRegistry:Registry<Controller>):ViewFactory {
+		return new ViewFactory(controllerRegistry);
 	}
 
 	get static() {
@@ -92,22 +75,18 @@ export default class Engine {
 
 	attach(container:HTMLElement) {
 		this._container = container;
-		this.renderer.attachTo(container);
+		this.view.attachTo(container);
 		this.onResize();
 	}
 
 	detach() {
 		if(!this._container) return;
-		this.renderer.detach();
+		this.view.detach();
 		this._container = undefined;
 	}
 
 	render() {
-		const camera = this.controller.camera.get();
-		const scene = this.controller.scene.get();
-		if(!camera || !scene) return;
-
-		this.renderer.render(scene.view, camera.view);
+		this.view.render();
 	}
 
 	private animate() {
@@ -134,12 +113,7 @@ export default class Engine {
 			let height = this._container.clientHeight;
 			let width = this._container.clientWidth;
 
-			this.renderer.setSize(width, height);
-
-			const camera = this.controller.camera.get();
-			if(camera) {
-				camera.setAspectRatio(width / height);
-			}
+			this.view.setSize(width, height);
 		}
 	}
 
@@ -169,6 +143,5 @@ export default class Engine {
 		}
 
 		this.detach();
-		if(this.renderer) this.renderer.destroy();
 	}
 }

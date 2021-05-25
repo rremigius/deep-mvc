@@ -1,27 +1,27 @@
-import Controller, {controller, ControllerAction, ControllerEvent} from "@/Controller";
+import Component, {component, ComponentAction, ComponentEvent} from "@/Component";
 import Log from "@/log";
 import TriggerModel from "@/Engine/models/TriggerModel";
 import {forEach, isEmpty, isPlainObject, isString} from 'lodash';
-import ControllerSlot from "@/Controller/ControllerSlot";
+import ComponentSlot from "@/Component/ComponentSlot";
 import {isSubClass} from "validation-kit";
 import {immediate, schema} from "mozel";
 
 const log = Log.instance("trigger-controller");
 
-type UnknownTrigger = TriggerModel<ControllerEvent<object>,ControllerAction<object>>;
+type UnknownTrigger = TriggerModel<ComponentEvent<object>,ComponentAction<object>>;
 
 const modelSchema = schema(TriggerModel);
-export default class TriggerController extends Controller {
+export default class TriggerController extends Component {
 	static ModelClass = TriggerModel;
 	model!:TriggerModel<any,any>; // TS: initialized in super constructor
 
-	private defaultController?:Controller;
+	private defaultController?:Component;
 
-	@controller(modelSchema.event.source, Controller)
-	source!:ControllerSlot<Controller>;
+	@component(modelSchema.event.source, Component)
+	source!:ComponentSlot<Component>;
 
-	@controller(modelSchema.action.target, Controller)
-	target!:ControllerSlot<Controller>;
+	@component(modelSchema.action.target, Component)
+	target!:ComponentSlot<Component>;
 
 	get triggerModel() {
 		return <UnknownTrigger>this.model;
@@ -30,7 +30,9 @@ export default class TriggerController extends Controller {
 	init(xrTrigger:UnknownTrigger) {
 		super.init(xrTrigger);
 
-		this.source.init(()=>this.restartListening());
+		this.source.init(()=>{
+			this.restartListening();
+		});
 
 		this.triggerModel.$watch(schema(TriggerModel).event.name, ()=> {
 				this.restartListening();
@@ -56,7 +58,7 @@ export default class TriggerController extends Controller {
 		this.listenToEventName(events, eventName, callback);
 	}
 
-	setDefaultController(controller?:Controller) {
+	setDefaultController(controller?:Component) {
 		this.defaultController = controller;
 	}
 
@@ -74,7 +76,7 @@ export default class TriggerController extends Controller {
 	}
 
 	onEvent(event:unknown) {
-		if(!(event instanceof ControllerEvent)) {
+		if(!(event instanceof ComponentEvent)) {
 			throw this.error("Cannot handle non-ControllerEvents", event);
 		}
 		const data = event.data;
@@ -128,7 +130,7 @@ export default class TriggerController extends Controller {
 		} catch(e) {
 			throw new Error(`Unknown action '${this.triggerModel.action.name}' on ${target.static.name}.`);
 		}
-		if(!isSubClass(action.type, ControllerAction)) {
+		if(!isSubClass(action.type, ComponentAction)) {
 			throw new Error("Trigger action is not a ControllerAction.");
 		}
 		const Action = action.type;

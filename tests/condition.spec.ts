@@ -1,13 +1,13 @@
 import {assert} from 'chai';
 import {MozelFactory} from "mozel";
 import ConditionEqualsModel from "@/Engine/models/ConditionModel/ConditionEqualsModel";
-import {ControllerEvent} from "@/Controller";
+import {ComponentEvent} from "../src/Component";
 
 describe("ConditionEqualsModel", () => {
 	it('compares all keys and values in `check` property on equality.', ()=>{
 		const factory = new MozelFactory();
 
-		class FooEvent extends ControllerEvent<{foo?:string, bar?:number}> {}
+		class FooEvent extends ComponentEvent<{foo?:string, bar?:number}> {}
 
 		const condition = factory.create<ConditionEqualsModel<FooEvent>>(ConditionEqualsModel, {
 			check: { // type-checked

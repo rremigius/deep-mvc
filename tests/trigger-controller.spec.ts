@@ -1,44 +1,43 @@
 import {assert} from 'chai';
 import {describe} from 'mocha';
 import {MozelFactory} from "mozel";
-import TriggerController from "@/Engine/controllers/TriggerController";
-import ControllerFactory from "@/Controller/ControllerFactory";
+import TriggerComponent from "@/Engine/controllers/TriggerController";
+import ComponentFactory from "@/Component/ComponentFactory";
 import {Container} from "inversify";
 import SceneModel from "@/Engine/models/SceneModel";
 import ObjectModel from "@/Engine/models/ObjectModel";
-import SceneController from "@/Engine/controllers/ViewController/SceneController";
+import SceneComponent from "@/Engine/controllers/ViewController/SceneController";
 import ActionModel from "@/Engine/models/ActionModel";
 import TriggerModel from "@/Engine/models/TriggerModel";
 import BehaviourModel from "@/Engine/models/BehaviourModel";
-import BehaviourController from "@/Engine/controllers/BehaviourController";
-import {ControllerAction, ControllerEvent} from "@/Controller";
+import BehaviourComponent from "@/Engine/controllers/BehaviourController";
+import {ComponentAction, ComponentEvent} from "../src/Component";
 import ConditionEqualsModel from "@/Engine/models/ConditionModel/ConditionEqualsModel";
-import HeadlessViewFactory from "../src/Engine/views/headless/HeadlessViewFactory";
 import EngineControllerFactory from "../src/Engine/controllers/EngineControllerFactory";
 
 class Factory {
 	model:MozelFactory;
-	controller:ControllerFactory;
+	component:ComponentFactory;
 
-	constructor(config?:{modelContainer?:Container, controllerContainer?:Container}) {
+	constructor(config?:{modelContainer?:Container, componentContainer?:Container}) {
 		this.model = new MozelFactory(config && config.modelContainer);
-		this.controller = new EngineControllerFactory(new HeadlessViewFactory());
+		this.component = new EngineControllerFactory();
 	}
 }
 
-class FooEvent extends ControllerEvent<{foo:string}> {}
-class FooAction extends ControllerAction<{foo:string}> {}
-class BarEvent extends ControllerEvent<{bar:string}> {}
-class BarAction extends ControllerAction<{bar:string}> {}
+class FooEvent extends ComponentEvent<{foo:string}> {}
+class FooAction extends ComponentAction<{foo:string}> {}
+class BarEvent extends ComponentEvent<{bar:string}> {}
+class BarAction extends ComponentAction<{bar:string}> {}
 
-describe('TriggerController', () => {
+describe('TriggerComponent', () => {
 	it('listens to an event on source Behaviour and calls an action on its target Behaviour', done => {
 		const factory = new Factory();
 
 		const fooModel = factory.model.create<BehaviourModel>(BehaviourModel, {gid: 'fooBehaviour'});
 		const barModel = factory.model.create<BehaviourModel>(BehaviourModel, {gid: 'barBehaviour'});
 
-		const triggerModel = factory.model.create<TriggerModel<FooEvent, BarAction>>(TriggerModel, {
+		const triggerModel = factory.model.createAndResolveReferences<TriggerModel<FooEvent, BarAction>>(TriggerModel, {
 			event: {
 				name: FooEvent.name,
 				source: {gid: 'fooBehaviour'},
@@ -48,12 +47,12 @@ describe('TriggerController', () => {
 				target: {gid: 'barBehaviour'}
 			},
 			mapping: {bar: "foo"}
-		}, true);
+		});
 
 		const expected = 'bar';
 
-		const foo = factory.controller.createAndResolveReferences(fooModel, BehaviourController);
-		const bar = factory.controller.createAndResolveReferences(barModel, BehaviourController);
+		const foo = factory.component.createAndResolveReferences(fooModel, BehaviourComponent);
+		const bar = factory.component.createAndResolveReferences(barModel, BehaviourComponent);
 
 		foo.actions.$action(BarAction).on(() => {
 			assert.ok(false, "BarAction on Foo was avoided");
@@ -63,7 +62,7 @@ describe('TriggerController', () => {
 			done();
 		});
 
-		const trigger = factory.controller.createAndResolveReferences(triggerModel, TriggerController);
+		const trigger = factory.component.createAndResolveReferences(triggerModel, TriggerComponent);
 		trigger.start();
 
 		foo.events.$fire(new FooEvent(foo, {foo: expected}));
@@ -89,14 +88,14 @@ describe('TriggerController', () => {
 
 		const expected = 'correct';
 
-		// Create Controllers
-		const behaviourCtl = factory.controller.create(barBehaviourModel, BehaviourController);
+		// Create Components
+		const behaviourCtl = factory.component.create(barBehaviourModel, BehaviourComponent);
 		behaviourCtl.actions.$action(BarAction).on(received => {
 			assert.equal(received && received.data.bar, expected);
 			done();
 		});
 
-		const triggerCtl = factory.controller.createAndResolveReferences(triggerModel, TriggerController);
+		const triggerCtl = factory.component.createAndResolveReferences(triggerModel, TriggerComponent);
 		triggerCtl.start();
 
 		const eventBus = triggerCtl.eventBus;
@@ -128,9 +127,9 @@ describe('TriggerController', () => {
 			})
 		});
 
-		const foo = factory.controller.create(fooModel, BehaviourController);
-		const negative = factory.controller.create(negativeModel, BehaviourController);
-		const positive = factory.controller.create(positiveModel, BehaviourController);
+		const foo = factory.component.create(fooModel, BehaviourComponent);
+		const negative = factory.component.create(negativeModel, BehaviourComponent);
+		const positive = factory.component.create(positiveModel, BehaviourComponent);
 
 		negative.actions.$action(BarAction).on(() => {
 			assert.ok(false, "Non-matching trigger did not call target action.");
@@ -140,20 +139,20 @@ describe('TriggerController', () => {
 			done();
 		});
 
-		const negativeTrigger = factory.controller.createAndResolveReferences(negativeTriggerModel);
-		const positiveTrigger = factory.controller.createAndResolveReferences(positiveTriggerModel);
+		const negativeTrigger = factory.component.createAndResolveReferences(negativeTriggerModel);
+		const positiveTrigger = factory.component.createAndResolveReferences(positiveTriggerModel);
 
 		negativeTrigger.start();
 		positiveTrigger.start();
 
 		foo.events.$fire(new FooEvent(undefined, {foo: correctValue}));
 	});
-	it('with default controller uses that controller for actions and events if no behaviour specified.', done=>{
+	it('with default component uses that component for actions and events if no behaviour specified.', done=>{
 		const factory = new Factory();
 		const model = factory.model.create(BehaviourModel);
-		const controller = factory.controller.create(model, BehaviourController);
-		controller.actions.$action(BarAction).on(() => {
-			assert.ok(true, "Action called on default controller.");
+		const component = factory.component.create(model, BehaviourComponent);
+		component.actions.$action(BarAction).on(() => {
+			assert.ok(true, "Action called on default component.");
 			done();
 		});
 
@@ -165,30 +164,30 @@ describe('TriggerController', () => {
 				name: BarAction.name
 			}
 		});
-		const triggerController = factory.controller.create(triggerModel, TriggerController);
-		triggerController.setDefaultController(controller);
-		triggerController.start();
+		const triggerComponent = factory.component.create(triggerModel, TriggerComponent);
+		triggerComponent.setDefaultController(component);
+		triggerComponent.start();
 
-		controller.events.$fire(new FooEvent(controller, {foo: 'bar'}));
+		component.events.$fire(new FooEvent(component, {foo: 'bar'}));
 	});
-	it('can be used on SceneController, ObjectController and BehaviourController.', done=>{
+	it('can be used on SceneComponent, ObjectComponent and BehaviourComponent.', done=>{
 		const factory = new Factory();
 
-		class SceneEvent extends ControllerEvent<object> {}
-		class ObjectEvent extends ControllerEvent<object> {}
-		class BehaviourEvent extends ControllerEvent<object> {}
-		class SceneAction extends ControllerAction<object> {}
-		class ObjectAction extends ControllerAction<object> {}
-		class BehaviourAction extends ControllerAction<object> {}
+		class SceneEvent extends ComponentEvent<object> {}
+		class ObjectEvent extends ComponentEvent<object> {}
+		class BehaviourEvent extends ComponentEvent<object> {}
+		class SceneAction extends ComponentAction<object> {}
+		class ObjectAction extends ComponentAction<object> {}
+		class BehaviourAction extends ComponentAction<object> {}
 
 		let count = 0;
-		const sceneModel = factory.model.create(SceneModel, {
+		const sceneModel = factory.model.createAndResolveReferences(SceneModel, {
 			gid: 'scene',
 			triggers: [{
 				event: { name: SceneEvent.name },
 				action: { target: { gid: 'obj' }, name: ObjectAction.name }
 			}], // from here to another
-			objects: [
+			children: [
 				factory.model.create(ObjectModel, {
 					gid: 'obj',
 					triggers: [{
@@ -206,11 +205,11 @@ describe('TriggerController', () => {
 					]
 				})
 			]
-		}, true);
-		const scene = factory.controller.createAndResolveReferences(sceneModel, SceneController);
+		});
+		const scene = factory.component.createAndResolveReferences(sceneModel, SceneComponent);
 
-		const object = factory.controller.registry.byGid('obj');
-		const behaviour = factory.controller.registry.byGid('bvr');
+		const object = factory.component.registry.byGid('obj');
+		const behaviour = factory.component.registry.byGid('bvr');
 
 		if(!object || !behaviour) {
 			throw new Error("Objects were not retrieved correctly from Registry.");
@@ -241,7 +240,7 @@ describe('TriggerController', () => {
 	it('can change event and action at runtime.', done => {
 		const factory = new Factory();
 		const sceneModel = factory.model.create(SceneModel, {
-			objects: [
+			children: [
 				factory.model.create(ObjectModel, {
 					gid: 'foo',
 					triggers: [
@@ -262,12 +261,12 @@ describe('TriggerController', () => {
 				})
 			]
 		}, true);
-		const scene = factory.controller.createAndResolveReferences(sceneModel, SceneController);
-		const foo = factory.controller.registry.byGid('foo');
-		const bar = factory.controller.registry.byGid('bar');
-		const triggerController = factory.controller.registry.byGid<TriggerController>('trigger');
+		const scene = factory.component.createAndResolveReferences(sceneModel, SceneComponent);
+		const foo = factory.component.registry.byGid('foo');
+		const bar = factory.component.registry.byGid('bar');
+		const triggerComponent = factory.component.registry.byGid<TriggerComponent>('trigger');
 
-		if(!foo || !bar || !triggerController) {
+		if(!foo || !bar || !triggerComponent) {
 			throw new Error("Objects were not retrieved correctly from Registry.");
 		}
 

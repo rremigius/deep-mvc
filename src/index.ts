@@ -15,7 +15,7 @@ const model = models.createAndResolveReferences(EngineModel, {
 			models.create(CameraModel, {
 				gid: 'camera',
 				position: {z: 2},
-				orbitControls: {
+				controls: {
 					maxDistance: 4,
 					minDistance: 2,
 					enableZoom: true,

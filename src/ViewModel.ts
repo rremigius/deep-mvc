@@ -1,8 +1,8 @@
-import ControllerModel from "@/ControllerModel";
+import ComponentModel from "@/ComponentModel";
 import {Collection, collection, property, required} from "mozel";
 import Vector3Model from "@/Engine/models/Vector3Model";
 
-export default class ViewModel extends ControllerModel {
+export default class ViewModel extends ComponentModel {
 	@property(String, {required, default: "View"})
 	name!:string;
 

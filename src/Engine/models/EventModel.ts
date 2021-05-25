@@ -1,11 +1,11 @@
 import Model, {property, reference, required} from "mozel";
-import ControllerModel from "@/ControllerModel";
+import ComponentModel from "@/ComponentModel";
 
 export default class EventModel extends Model {
 	static get type() { return 'Event' };
 
-	@property(ControllerModel, {reference})
-	source?:ControllerModel;
+	@property(ComponentModel, {reference})
+	source?:ComponentModel;
 
 	@property(String, {required})
 	name!:string;

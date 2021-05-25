@@ -1,14 +1,14 @@
 import { assert } from "chai";
 import {MozelFactory, property, schema} from "mozel";
-import ControllerFactory from "../src/Controller/ControllerFactory";
+import ComponentFactory from "../src/Component/ComponentFactory";
 import ViewFactory from "../src/View/ViewFactory";
-import Controller, {controller} from "../src/Controller";
-import View, {view} from "../src/View";
-import ControllerSlot from "../src/Controller/ControllerSlot";
-import ControllerModel from "../src/ControllerModel";
-import ViewSlot from "../src/View/ViewSlot";
+import Component, {component} from "../src/Component";
+import ComponentSlot from "../src/Component/ComponentSlot";
+import ComponentModel from "../src/ComponentModel";
+import View from "../src/View";
+import ViewModel from "../src/ViewModel";
 
-class FooModel extends ControllerModel {
+class FooModel extends ComponentModel {
 	static get type() { return 'FooView' }
 
 	@property(String)
@@ -19,53 +19,53 @@ class FooModel extends ControllerModel {
 	bar?:FooModel
 }
 
-class FooController extends Controller {
+class FooComponent extends Component {
 	static ModelClass = FooModel;
 
-	@controller(schema(FooModel).foo, FooController)
-	foo!:ControllerSlot<FooController>;
+	@component(schema(FooModel).foo, FooComponent)
+	foo!:ComponentSlot<FooComponent>;
 
-	@controller(schema(FooModel).bar, FooController)
-	bar!:ControllerSlot<FooController>;
+	@component(schema(FooModel).bar, FooComponent)
+	bar!:ComponentSlot<FooComponent>;
 }
 
 class FooView extends View {
 	static ModelClass = FooModel;
 	get type() { return 'FooView' }
 
-	controller?:FooController;
+	component?:FooComponent;
 
-	init() {
-		super.init();
-		this.controller = this.findController(FooController);
+	init(model:ViewModel) {
+		super.init(model);
+		this.component = this.findController(FooComponent);
 	}
 
-	@view(schema(FooModel).foo, FooView)
-	foo!:ViewSlot<FooView>;
+	@component(schema(FooModel).foo, FooView)
+	foo!:ComponentSlot<FooView>;
 
-	@view(schema(FooModel).bar, FooView)
-	bar!:ViewSlot<FooView>
+	@component(schema(FooModel).bar, FooView)
+	bar!:ComponentSlot<FooView>
 }
 
 function createFactories() {
 	const mozelFactory = new MozelFactory();
-	const controllerFactory = new ControllerFactory();
-	const viewFactory = new ViewFactory(controllerFactory.registry);
+	const componentFactory = new ComponentFactory();
+	const viewFactory = new ViewFactory(componentFactory.registry);
 
 	mozelFactory.register(FooModel);
-	controllerFactory.register(FooController);
+	componentFactory.register(FooComponent);
 	viewFactory.register(FooView);
 
 	return {
 		model: mozelFactory,
-		controller: controllerFactory,
+		component: componentFactory,
 		view: viewFactory
 	};
 }
 
 describe("ViewFactory", () => {
 	describe("create", () => {
-		it("constructs a view hierarchy based on the given controller hierarchy", () => {
+		it("constructs a view hierarchy based on the given component hierarchy", () => {
 			const factory = createFactories();
 
 			const model = factory.model.create(FooModel, {
@@ -79,49 +79,49 @@ describe("ViewFactory", () => {
 			assert.instanceOf(view.foo.get(), FooView, "FooView child instantiated");
 			assert.equal(view.foo.get()!.model, model.foo, "FooView child has access to child model");
 		});
+		describe("(created view)", () => {
+			it("modifies view hierarchy based on changes in the model", () => {
+				const factory = createFactories();
+
+				const model = factory.model.create(FooModel, {
+					name: 'root',
+					foo: {
+						name: 'foo',
+						foo: {name: 'foofoo'}
+					},
+					bar: {
+						name: 'bar'
+					}
+				});
+				const view = factory.view.create(model, FooView);
+
+				const foofooView = view.foo.get()!.foo.get();
+				assert.ok(foofooView, "foo.foo created at 3rd level");
+				assert.notOk(view.bar.get()!.bar.get(), "bar.bar path not available");
+
+				// Transfer foofoo model
+				model.bar!.bar = model.foo!.foo;
+
+				assert.notOk(view.foo.get()!.foo.get(), "foo.foo path no longer available");
+				assert.equal(view.bar.get()!.bar.get(), foofooView, "foo.foo view transferred to bar.bar path");
+			});
+			it("has access to component if available", () => {
+				const factory = createFactories();
+				const model = factory.model.create(FooModel, {
+					name: 'root',
+					foo: {
+						name: 'foo'
+					}
+				});
+				const component = factory.component.create(model, FooComponent);
+				const view = factory.view.create(model, FooView);
+
+				const fooComponent = component.foo.get();
+				const fooView = view.foo.get();
+
+				assert.ok(fooComponent);
+				assert.equal(fooView!.component, fooComponent, "View has reference to Component");
+			});
+		})
 	});
-	describe("created view", () => {
-		it("modifies view hierarchy based on changes in the model", () => {
-			const factory = createFactories();
-
-			const model = factory.model.create(FooModel, {
-				name: 'root',
-				foo: {
-					name: 'foo',
-					foo: {name: 'foofoo'}
-				},
-				bar: {
-					name: 'bar'
-				}
-			});
-			const view = factory.view.create(model, FooView);
-
-			const foofooView = view.foo.get()!.foo.get();
-			assert.ok(foofooView, "foo.foo created at 3rd level");
-			assert.notOk(view.bar.get()!.bar.get(), "bar.bar path not available");
-
-			// Transfer foofoo model
-			model.bar!.bar = model.foo!.foo;
-
-			assert.notOk(view.foo.get()!.foo.get(), "foo.foo path no longer available");
-			assert.equal(view.bar.get()!.bar.get(), foofooView, "foo.foo view transferred to bar.bar path");
-		});
-		it("has access to controller if available", () => {
-			const factory = createFactories();
-			const model = factory.model.create(FooModel, {
-				name: 'root',
-				foo: {
-					name: 'foo'
-				}
-			});
-			const controller = factory.controller.create(model, FooController);
-			const view = factory.view.create(model, FooView);
-
-			const fooController = controller.foo.get();
-			const fooView = view.foo.get();
-
-			assert.ok(fooController);
-			assert.equal(fooView!.controller, fooController, "View has reference to Controller");
-		});
-	})
 });

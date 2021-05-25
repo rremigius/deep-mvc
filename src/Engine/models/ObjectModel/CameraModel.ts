@@ -6,5 +6,5 @@ export default class CameraModel extends ObjectModel {
 	static get type() { return 'Camera' };
 
 	@property(OrbitControlsModel)
-	orbitControls?:OrbitControlsModel;
+	controls?:OrbitControlsModel;
 }
