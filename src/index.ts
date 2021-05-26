@@ -6,7 +6,9 @@ import LightModel from "@/Engine/models/ObjectModel/LightModel";
 import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
 import OrbitControlsModel from "@/Engine/models/ObjectModel/CameraModel/OrbitControlsModel";
 import TweenBehaviourModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel";
+import Log from "@/log";
 
+const log = Log.instance("index");
 const models = new EngineModelFactory();
 
 const model = models.createAndResolveReferences(EngineModel, {
@@ -51,7 +53,16 @@ const container = document.getElementById('engine');
 if(!container) throw new Error("No element found with id 'engine'.");
 engine.attach(container);
 
-(async () => {
-	await engine.loading;
-	engine.start();
-})()
+document.addEventListener('keyup', () => {
+	if(!engine.isLoaded) {
+		log.info("Engine not loaded yet. Cannot start.");
+		return;
+	}
+	if(!engine.isStarted) {
+		engine.start();
+	} else if(engine.isRunning) {
+		engine.pause();
+	} else {
+		engine.resume();
+	}
+});

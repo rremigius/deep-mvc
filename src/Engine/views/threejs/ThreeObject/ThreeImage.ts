@@ -9,7 +9,7 @@ export default class ThreeImage extends ThreeObject {
 	static Model = ImageModel;
 	model!:ImageModel;
 
-	async load():Promise<void> {
+	async onLoad():Promise<void> {
 		const model = this.model;
 		return new Promise((resolve, reject) => {
 			if (!model.file || !model.file.url) {

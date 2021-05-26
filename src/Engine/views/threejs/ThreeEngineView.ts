@@ -42,9 +42,9 @@ export default class ThreeEngineView extends EngineView {
 		this.copyStylesToCSS3D();
 
 		this._handleMouseMove = this.handleMouseMove.bind(this);
-		window.addEventListener('mousemove', (e) => { this._handleMouseMove(e);} );
-		this._handleClick = this.handleClick.bind(this);
-		window.addEventListener('click', (e) => { this._handleClick(e);} );
+		window.addEventListener('mousemove', this.handleMouseMove.bind(this) );
+		window.addEventListener('click', this.handleClick.bind(this) );
+		window.addEventListener('keyup', this.handleKeyUp.bind(this) );
 	}
 
 	createRenderer() {
@@ -116,11 +116,13 @@ export default class ThreeEngineView extends EngineView {
 	}
 
 	protected handleMouseMove(event: MouseEvent) {
+		if(!this.enabled) return;
 		this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 		this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 	}
 
 	protected handleClick(event: MouseEvent) {
+		if(!this.enabled) return;
 		const cameraView = this.camera.get();
 		const sceneView = this.scene.get();
 		if(!cameraView || !sceneView) return;
@@ -141,6 +143,11 @@ export default class ThreeEngineView extends EngineView {
 			return;
 		}
 		root.onClick(new ThreeClickEvent(intersects));
+	}
+
+	protected handleKeyUp(event: KeyboardEvent) {
+		if(!this.engine || !this.enabled) return;
+		this.engine.keyUp(event.key);
 	}
 }
 

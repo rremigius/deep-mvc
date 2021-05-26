@@ -41,7 +41,7 @@ export default class ThreeModel3D extends ThreeObject {
 		}
 	}
 
-	async load(): Promise<void> {
+	async onLoad(): Promise<void> {
 		const model = this.model;
 		switch(model.determineFileType()) {
 			case FileType.Collada:

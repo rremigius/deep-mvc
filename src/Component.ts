@@ -330,9 +330,12 @@ export default class Component {
 	}
 
 	async load() {
+		const start = Date.now();
 		log.info(`${this} loading...`);
+
 		let promise = this.onLoad();
 		this.loading.start('main', undefined, promise);
+
 		let i = 0;
 		this.forEachChild((child:Component) => {
 			let promise = child.load();
@@ -340,7 +343,8 @@ export default class Component {
 		});
 		try {
 			await this.loading.wait(undefined, 10000);
-			log.info(`${this} loaded.`);
+			const end = Date.now();
+			log.info(`${this} loaded (${end-start} ms).`);
 		} catch(e) {
 			log.error(`${this} loading failed.`, e);
 			throw e;

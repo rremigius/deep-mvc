@@ -15,8 +15,12 @@ const log = Log.instance("engine");
 export class FrameEvent {
 	constructor(public timestamp:number) {}
 }
+export class KeyboardEvent {
+	constructor(public key:string) {}
+}
 export class EngineEvents extends Events {
 	frame = this.$event(FrameEvent);
+	keyUp = this.$event(KeyboardEvent);
 }
 
 export default class Engine {
@@ -25,11 +29,13 @@ export default class Engine {
 
 	private readonly _onResize!:()=>void;
 
+	protected started = false;
 	protected running = false;
 	protected readonly controller:EngineController;
 	protected readonly view:EngineView;
 
 	readonly loading?:Promise<unknown>;
+	private loaded = false;
 
 	protected _events = new EngineEvents();
 	get events() { return this._events };
@@ -46,6 +52,7 @@ export default class Engine {
 		this.controller.resolveReferences(); // split from `create` so engine is available in onResolveReferences
 
 		this.view = viewFactory.create(model, EngineView);
+		this.view.setEngine(this);
 		this.view.resolveReferences(); // split from `create` so engine is available in onResolveReferences
 
 		log.log("Controllers:", this.controller.toTree());
@@ -58,6 +65,7 @@ export default class Engine {
 
 		this.init();
 		this.loading = this.load();
+		this.loading.then(()=>this.loaded = true);
 	}
 
 	init(){ }
@@ -125,25 +133,49 @@ export default class Engine {
 		]);
 	}
 
+	get isLoaded() {
+		return this.loaded;
+	}
+
+	get isRunning() {
+		return this.running;
+	}
+
+	get isStarted() {
+		return this.started;
+	}
+
+	keyUp(key:string) {
+		log.debug("Key up:", key);
+		this.events.keyUp.fire(new KeyboardEvent(key));
+	}
+
 	start() {
-		this.running = true;
+		this.started = true;
 		this.controller.start();
 		this.view.start();
+		this.resume();
+	}
+
+	resume() {
+		this.running = true;
+		this.controller.enable(true);
+		this.view.enable(true);
 		this.animate();
 	}
 
-	stop() {
+	pause() {
 		this.running = false;
-		this.controller.destroy();
-		this.view.destroy();
-		this.destroy();
+		this.controller.enable(false);
+		this.view.enable(false);
 	}
 
-	/**
-	 * Destroys the engine and frees up memory.
-	 */
 	destroy() {
 		log.info("Destroying Engine");
+		this.pause();
+
+		this.controller.destroy();
+		this.view.destroy();
 		if(typeof window !== 'undefined') {
 			window.removeEventListener('resize', this._onResize);
 		}

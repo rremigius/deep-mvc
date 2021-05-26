@@ -55,7 +55,7 @@ export default class ThreeVideo extends ThreeObject {
 		}
 	}
 
-	async load():Promise<void> {
+	async onLoad():Promise<void> {
 		const model = this.model;
 		return new Promise((resolve, reject) => {
 			if (!model.file || !model.file.url) {
