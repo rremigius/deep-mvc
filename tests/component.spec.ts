@@ -255,5 +255,30 @@ describe('Component', () => {
 			assert.equal(ctrl12.enabled, true, "Ctrl12 enabled after root enable.");
 			assert.equal(ctrl13.enabled, false, "Ctrl13 still disabled after root enable.");
 		});
-	})
+	});
+	describe("toTree", () => {
+		it("generates a nested object with all sub-components", () => {
+			const modelFactory = new TestModelFactory();
+			const componentFactory = new TestComponentFactory();
+
+			const model = modelFactory.createAndResolveReferences(FooModel, {
+				gid: 'a',
+				otherFoo: {
+					gid: 'a0'
+				},
+				childFoos: [{
+					gid: 'a0', otherFoo: {gid: 'a'}
+				}]
+			});
+			const component = componentFactory.createAndResolveReferences(model, FooComponent);
+
+			const tree = <any>component.toTree();
+
+			assert.equal(tree.gid, 'a');
+			assert.equal(tree.otherFoo.gid, 'a0');
+			assert.equal(tree.childFoos[0].gid, 'a0');
+			assert.equal(tree.childFoos[0].otherFoo.gid, 'a');
+			assert.equal(tree.childFoos[0].otherFoo._this, component);
+		});
+	});
 });

@@ -399,6 +399,29 @@ export default class Component {
 		return this.parent + '/' + name;
 	}
 
+	toTree(asReference = false) {
+		const tree:Record<string, any> = {
+			_this: this,
+			gid: this.gid
+		};
+		if(asReference) {
+			tree._reference = true;
+			return tree;
+		}
+		for(let path in this.allChildren) {
+			const child = this.allChildren[path];
+			if(child instanceof ComponentSlot) {
+				const component = child.get();
+				tree[path] = component ? component.toTree(child.isReference) : undefined;
+			} else if (child instanceof ComponentList) {
+				const list:object[] = [];
+				child.each(component => list.push(component.toTree(child.isReference)));
+				tree[path] = list;
+			}
+		}
+		return tree;
+	}
+
 	/*
 	Life cycle hooks
 	 */

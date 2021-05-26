@@ -48,6 +48,9 @@ export default class Engine {
 		this.view = viewFactory.create(model, EngineView);
 		this.view.resolveReferences(); // split from `create` so engine is available in onResolveReferences
 
+		log.log("Controllers:", this.controller.toTree());
+		log.log("Views:", this.view.toTree());
+
 		if(typeof window !== 'undefined') {
 			this._onResize = this.onResize.bind(this);
 			window.addEventListener('resize', this._onResize);
