@@ -27,8 +27,8 @@ export default class TriggerController extends Component {
 		return <UnknownTrigger>this.model;
 	}
 
-	init(xrTrigger:UnknownTrigger) {
-		super.init(xrTrigger);
+	onInit() {
+		super.onInit();
 
 		this.source.init(()=>{
 			this.restartListening();
@@ -108,6 +108,7 @@ export default class TriggerController extends Component {
 			return;
 		}
 
+		// Map data from event to action based on mapping
 		let input:Record<string, unknown>|undefined = undefined;
 		let mapping = this.triggerModel.mapping.exportGeneric();
 		if(isPlainObject(payload)) {

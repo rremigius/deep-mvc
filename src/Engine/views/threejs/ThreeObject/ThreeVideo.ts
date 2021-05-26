@@ -19,14 +19,16 @@ export default class ThreeVideo extends ThreeObject {
 	loaded:boolean = false;
 	pendingPlay:boolean = false;
 
-	init(model:VideoModel) {
-		super.init(model);
+	onInit() {
+		super.onInit();
 
 		this.controller = this.requireController(VideoController);
-		model.$watch(schema(VideoModel).playing, playing => {
+		this.model.$watch(schema(VideoModel).playing, playing => {
 			if(playing) this.play();
 			else this.pause();
 		});
+
+		// TODO: make source reactive
 	}
 
 	play() {

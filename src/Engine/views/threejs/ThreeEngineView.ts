@@ -31,17 +31,13 @@ export default class ThreeEngineView extends EngineView {
 	protected mouse = new Vector2();
 	protected raycaster = new Raycaster();
 
-	private _handleMouseMove!: (e: MouseEvent) => void;
-	private _handleClick!: (e: MouseEvent) => void;
-
-	init(model: EngineModel) {
-		super.init(model);
+	onInit() {
+		super.onInit();
 		this.renderer = this.createRenderer();
 		this.css3DRenderer = this.createCSS3DRenderer();
 
 		this.copyStylesToCSS3D();
 
-		this._handleMouseMove = this.handleMouseMove.bind(this);
 		window.addEventListener('mousemove', this.handleMouseMove.bind(this) );
 		window.addEventListener('click', this.handleClick.bind(this) );
 		window.addEventListener('keyup', this.handleKeyUp.bind(this) );

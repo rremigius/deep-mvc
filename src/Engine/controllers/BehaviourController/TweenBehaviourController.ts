@@ -30,9 +30,9 @@ export default class TweenBehaviourController extends BehaviourController {
 		return <TweenBehaviourModel>this.model;
 	}
 
-	init(model:TweenBehaviourModel) {
-		super.init(model);
-		model.$watch(schema(TweenBehaviourModel), () => {
+	onInit() {
+		super.onInit();
+		this.model.$watch(schema(TweenBehaviourModel), () => {
 			// Basically, if anything happens, we need to re-initialize the timeline
 			this.initTimeline();
 		}, {immediate, deep});

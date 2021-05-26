@@ -18,8 +18,8 @@ export default class SoundBehaviourController extends BehaviourController {
 		return <SoundBehaviourModel>this.model;
 	}
 
-	init(model:SoundBehaviourModel) {
-		super.init(model);
+	onInit() {
+		super.onInit();
 
 		this.actions.play.on(this.play.bind(this));
 	}

@@ -11,8 +11,10 @@ export default class ThreeLight extends ThreeObject {
 	color!:number|string;
 	lightType!:LightType;
 
-	init(model:LightModel) {
-		super.init(model);
+	onInit() {
+		super.onInit();
+
+		// TODO: make configurable (reactive)
 
 		this.lightType = LightType.AMBIENT;
 		this.color = 0xffffff;

@@ -20,10 +20,10 @@ export default class VideoController extends ObjectController {
 
 	events = new VideoControllerEvents();
 
-	init(model: VideoModel) {
-		super.init(model);
+	onInit() {
+		super.onInit();
 
-		model.$watch(schema(VideoModel).playing, playing => {
+		this.model.$watch(schema(VideoModel).playing, playing => {
 			if(playing) {
 				this.events.play.fire(new PlayEvent(this));
 			} else {

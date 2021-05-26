@@ -170,7 +170,7 @@ export default class Component {
 		this.loading.log.setLevel(LogLevel.WARN);
 
 		this.initClassDefinitions();
-		this.init(model);
+		this.onInit();
 
 		this.initialized = true;
 	}
@@ -213,7 +213,7 @@ export default class Component {
 		return this.model.static.name;
 	}
 
-	init(model:ComponentModel) {
+	onInit() {
 		// For override
 		this.model.$watch(schema(ComponentModel).enabled, enabled => {
 			if(this.initialized) this.updateEnabledState();

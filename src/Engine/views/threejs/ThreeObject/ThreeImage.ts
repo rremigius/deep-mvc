@@ -9,6 +9,8 @@ export default class ThreeImage extends ThreeObject {
 	static Model = ImageModel;
 	model!:ImageModel;
 
+	// TODO: make reactive
+
 	async onLoad():Promise<void> {
 		const model = this.model;
 		return new Promise((resolve, reject) => {

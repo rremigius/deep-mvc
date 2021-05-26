@@ -42,8 +42,8 @@ export default class ThreeGraph extends ThreeObject {
 		linkGroups: true
 	};
 
-	init(model: GraphModel) {
-		super.init(model);
+	onInit() {
+		super.onInit();
 
 		this.engine = this.dependencies.get(Engine);
 		this.listenTo(this.engine.events.frame, this.onFrame.bind(this));
@@ -54,7 +54,15 @@ export default class ThreeGraph extends ThreeObject {
 
 	onResolveReferences() {
 		super.onResolveReferences();
+		this.updateCamera();
+	}
 
+	setParent(parent?: Component) {
+		super.setParent(parent);
+		this.updateCamera();
+	}
+
+	updateCamera() {
 		this.engineView = <ThreeEngineView>this.findParent(component => component instanceof ThreeEngineView);
 		const camera = this.engineView.camera.get();
 		if(camera) {

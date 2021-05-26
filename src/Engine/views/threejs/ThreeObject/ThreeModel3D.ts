@@ -21,9 +21,11 @@ export default class ThreeModel3D extends ThreeObject {
 
 	controller!:Model3DController;
 
-	init(model: ObjectModel) {
-		super.init(model);
+	onInit() {
+		super.onInit();
 		this.controller = this.requireController(Model3DController);
+
+		// TODO: make reactive
 	}
 
 	onThreeClick(event: ThreeClickEvent) {

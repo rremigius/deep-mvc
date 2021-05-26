@@ -26,8 +26,8 @@ export default class View extends Component {
 
 	events = new ViewEvents();
 
-	init(model:ViewModel) {
-		super.init(model);
+	onInit() {
+		super.onInit();
 
 		this.children.events.added.on(event => {
 			this.addView(event.component);

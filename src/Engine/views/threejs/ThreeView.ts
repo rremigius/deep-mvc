@@ -21,14 +21,14 @@ export default class ThreeView extends View {
 	private _object3D!:Object3D & ThreeViewRoot;
 	get object3D() { return this._object3D };
 
-	init(model: ViewModel) {
-		super.init(model);
+	onInit() {
+		super.onInit();
 		this._object3D = this.createRootObject3D();
 
-		model.$watch(schema(ViewModel).position, position => {
+		this.model.$watch(schema(ViewModel).position, position => {
 			this.setPosition(position);
 		}, {immediate, deep, throttle: 1});
-		model.$watch(schema(ViewModel).scale, scale => {
+		this.model.$watch(schema(ViewModel).scale, scale => {
 			this.setScale(scale);
 		}, {immediate, deep, throttle: 1});
 	}

@@ -17,8 +17,8 @@ export default class ObjectController extends ViewController {
 	@components(schema(ObjectModel).triggers, TriggerController)
 	triggers!:ComponentList<TriggerController>;
 
-	init(model:ComponentModel) {
-		super.init(model);
+	onInit() {
+		super.onInit();
 
 		this.triggers.events.added.on(event => event.component.setDefaultController(this));
 		this.triggers.events.removed.on(event => event.component.setDefaultController(undefined));
