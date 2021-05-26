@@ -1,4 +1,4 @@
-import View, {ViewClickEvent} from "@/View";
+import View from "@/View";
 import {Object3D} from "three";
 import Vector3, {SparseVector3} from "@/Engine/views/common/Vector3";
 import {alphanumeric, deep, immediate, schema} from "mozel";
@@ -10,13 +10,13 @@ export interface ThreeViewRoot {
 	onClick(event:ThreeClickEvent):void;
 }
 
-export function extendForRootObject3D(Class:typeof Object3D) {
+export function root(Class:typeof Object3D) {
 	return class extends Class {
 		public gid: alphanumeric = 0;
 		onClick(event:ThreeClickEvent){};
 	}
 }
-const RootObject3D = extendForRootObject3D(Object3D);
+const RootObject3D = root(Object3D);
 export default class ThreeView extends View {
 	private _object3D!:Object3D & ThreeViewRoot;
 	get object3D() { return this._object3D };

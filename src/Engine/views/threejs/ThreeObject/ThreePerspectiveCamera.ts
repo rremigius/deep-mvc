@@ -1,8 +1,8 @@
 import ThreeCamera from "@/Engine/views/threejs/ThreeObject/ThreeCamera";
 import {PerspectiveCamera} from "three";
-import {extendForRootObject3D} from "@/Engine/views/threejs/ThreeView";
+import {root} from "@/Engine/views/threejs/ThreeView";
 
-const RootPerspectiveCamera = extendForRootObject3D(PerspectiveCamera);
+const RootPerspectiveCamera = root(PerspectiveCamera);
 export default class ThreePerspectiveCamera extends ThreeCamera {
 	createObject3D() {
 		return new RootPerspectiveCamera();

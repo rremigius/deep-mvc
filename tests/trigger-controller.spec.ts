@@ -10,7 +10,7 @@ import SceneComponent from "@/Engine/controllers/SceneController";
 import ActionModel from "@/Engine/models/ActionModel";
 import TriggerModel from "@/Engine/models/TriggerModel";
 import BehaviourModel from "@/Engine/models/BehaviourModel";
-import BehaviourComponent from "@/Engine/controllers/BehaviourController";
+import BehaviourComponent from "../src/Engine/controllers/BehaviourComponent";
 import {ComponentAction, ComponentEvent} from "../src/Component";
 import ConditionEqualsModel from "@/Engine/models/ConditionModel/ConditionEqualsModel";
 import EngineControllerFactory from "../src/Engine/controllers/EngineControllerFactory";

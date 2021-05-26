@@ -1,12 +1,14 @@
 import {assert} from 'chai';
 import Component, {component, components} from "../src/Component";
 import BehaviourModel from "@/Engine/models/BehaviourModel";
-import Mozel, {collection, Collection, MozelFactory, property, reference, required, schema} from "mozel";
+import Mozel, {collection, Collection, MozelFactory, property, reference, Registry, required, schema} from "mozel";
 import ComponentFactory from "@/Component/ComponentFactory";
 import {isNil} from 'lodash';
 import ComponentModel from "@/ComponentModel";
 import ComponentSlot from "@/Component/ComponentSlot";
 import ComponentList from "@/Component/ComponentList";
+import {Container, injectable} from "inversify";
+import EventBus from "../src/EventBus";
 
 class FooModel extends BehaviourModel {
 	static get type() { return 'FooModel'; }

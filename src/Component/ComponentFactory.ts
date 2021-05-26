@@ -10,6 +10,8 @@ import {isArray} from "lodash";
 
 const log = Log.instance("component-factory");
 
+const ComponentSymbol = Symbol.for("Component");
+
 @injectable()
 export default class ComponentFactory {
 
@@ -74,7 +76,7 @@ export default class ComponentFactory {
 		ModelClass = ModelClass || ComponentClass.Model;
 		if(!ModelClass) throw new Error(`No Model specified for ${ComponentClass.name}.`);
 
-		this.localDependencies.bind<Component>(Component).to(ComponentClass).whenTargetNamed(ModelClass.type);
+		this.localDependencies.bind<Component>(ComponentSymbol).to(ComponentClass).whenTargetNamed(ModelClass.type);
 	}
 
 
@@ -109,14 +111,14 @@ export default class ComponentFactory {
 		container.bind(Container).toConstantValue(this.dependencies);
 
 		let component;
-		if(container.isBoundNamed(Component, model.static.type)) {
-			component = container.getNamed<Component>(Component, model.static.type);
+		if(container.isBoundNamed(ComponentSymbol, model.static.type)) {
+			component = container.getNamed<Component>(ComponentSymbol, model.static.type);
 		} else if(ExpectedClass) {
 			// Try an generic placeholder for the expected class
 			component = container.get(ExpectedClass);
 			log.info(`No Component registered for '${model.static.type}'; created generic ${ExpectedClass.name} (${component.static.name}).`);
 		} else {
-			throw new Error(`No Component registered for '${model.static.type}', and could not create generic Component.`);
+			throw new Error(`No Component registered for '${model.static.type}'; could not create generic Component.`);
 		}
 
 		// Store in Registry

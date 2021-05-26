@@ -1,8 +1,8 @@
 import {Scene} from "three";
 import SceneModel from "@/Engine/models/SceneModel";
-import ThreeView, {extendForRootObject3D} from "@/Engine/views/threejs/ThreeView";
+import ThreeView, {root} from "@/Engine/views/threejs/ThreeView";
 
-const RootScene = extendForRootObject3D(Scene);
+const RootScene = root(Scene);
 export default class ThreeScene extends ThreeView {
 	static Model = SceneModel;
 	model!:SceneModel;

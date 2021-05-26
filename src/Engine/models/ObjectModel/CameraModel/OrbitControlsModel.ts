@@ -1,17 +1,9 @@
-import ComponentModel from "@/ComponentModel";
 import {property, required} from "mozel";
+import BehaviourModel from "@/Engine/models/BehaviourModel";
 
-export type OrbitControlSettings = {
-	enableZoom:boolean,
-	rotateSpeed:number,
-	minDistance:number,
-	maxDistance:number,
-	maxPolarAngle:number
-}
-
-export default class OrbitControlsModel extends ComponentModel {
+export default class OrbitControlsModel extends BehaviourModel {
 	static get type() { return 'OrbitControls' }
-	static get defaults():OrbitControlSettings {
+	static get defaults() {
 		return {
 			rotateSpeed: 0.5,
 			minDistance: 1,
