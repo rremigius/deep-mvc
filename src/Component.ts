@@ -356,6 +356,7 @@ export default class Component {
 		});
 
 		this.model.$watch(schema(ComponentModel).enabled, this.updateEnabledState.bind(this), {immediate});
+		log.info(`${this} started.`);
 	}
 	destroy() {
 		this.stopListening();

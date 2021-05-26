@@ -5,6 +5,9 @@ import Vector3, {SparseVector3} from "@/Engine/views/common/Vector3";
 import Controller from "@/Controller";
 import ViewModel from "@/ViewModel";
 import ComponentList from "@/Component/ComponentList";
+import Log from "@/log";
+
+const log = Log.instance("view");
 
 export class ViewClickEvent extends ComponentEvent<{}>{}
 export class ViewEvents extends ComponentEvents {
@@ -53,6 +56,7 @@ export default class View extends Component {
 	}
 
 	click() {
+		log.info(`${this} clicked.`);
 		const event = new ViewClickEvent(this, {});
 		this.onClick(event);
 		this.events.click.fire(new ViewClickEvent(this, {}));

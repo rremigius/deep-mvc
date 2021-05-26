@@ -36,12 +36,16 @@ export default class ThreeView extends View {
 	createRootObject3D() {
 		const object3D = this.createObject3D();
 		object3D.gid = this.gid;
-		object3D.onClick = this.onThreeClick.bind(this); // To be called by ThreeEngineView
+		object3D.onClick = this.threeClick.bind(this); // To be called by ThreeEngineView
 		return object3D;
 	}
 	createObject3D() {
 		// For override
 		return new RootObject3D();
+	}
+	threeClick(event:ThreeClickEvent) {
+		this.onThreeClick(event);
+		this.click();
 	}
 
 	onViewAdd(view: ThreeView) {

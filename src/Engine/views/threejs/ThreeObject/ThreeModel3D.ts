@@ -11,6 +11,7 @@ import {ThreeClickEvent} from "@/Engine/views/threejs/ThreeEngineView";
 import {check, instanceOf} from "validation-kit";
 import ObjectModel from "@/Engine/models/ObjectModel";
 import Model3DController from "@/Engine/controllers/ObjectController/Model3DController";
+import {get} from 'lodash';
 
 const log = Log.instance("model-3d");
 
@@ -29,8 +30,8 @@ export default class ThreeModel3D extends ThreeObject {
 		super.onThreeClick(event);
 
 		const meshNames = event.intersects.map(mesh => {
-			const $object3D = check<Object3D>(mesh, instanceOf(Object3D), "mesh");
-			return $object3D.name;
+			const object3D = check<Object3D>(get(mesh, 'object'), instanceOf(Object3D), "Object3D", 'mesh.object');
+			return object3D.name;
 		});
 		const foundClickableMesh = meshNames.find(name =>
 			this.model.clickableMeshes.find(name) !== undefined
