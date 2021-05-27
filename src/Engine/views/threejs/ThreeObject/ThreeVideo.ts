@@ -5,6 +5,7 @@ import ThreeObject from "@/Engine/views/threejs/ThreeObject";
 import {createVideo} from "@/Engine/views/common/Video";
 import {schema} from "mozel";
 import VideoController from "@/Engine/controllers/ObjectController/VideoController";
+import {get} from "lodash";
 
 const log = Log.instance("three-video");
 
@@ -18,7 +19,6 @@ export default class ThreeVideo extends ThreeObject {
 	video?: HTMLVideoElement;
 	videoTexture?: VideoTexture;
 	loaded:boolean = false;
-	pendingPlay:boolean = false;
 
 	onInit() {
 		super.onInit();
@@ -35,9 +35,8 @@ export default class ThreeVideo extends ThreeObject {
 
 	play() {
 		if (this.video && this.loaded) {
+			log.info("Playing video.");
 			this.video.play();
-		} else {
-			this.pendingPlay = true;
 		}
 	}
 
@@ -45,6 +44,7 @@ export default class ThreeVideo extends ThreeObject {
 		if(!this.video) {
 			return;
 		}
+		log.info("Pausing video.");
 		this.video.pause();
 	}
 
@@ -53,8 +53,10 @@ export default class ThreeVideo extends ThreeObject {
 			log.error("onVideoReady was called but there is no video.");
 			return;
 		}
+		log.info(`Video loaded: ${get(this.model, 'file.url')}.`);
 		this.loaded = true;
-		if(this.pendingPlay) {
+
+		if(this.model.playing) {
 			this.play();
 		}
 	}
@@ -69,7 +71,27 @@ export default class ThreeVideo extends ThreeObject {
 
 		this.object3D.remove(this.mesh);
 		this.mesh = undefined;
+
+		if(this.video) {
+			this.video.remove();
+			this.video = undefined;
+		}
 		log.info("Video cleared");
+	}
+
+	createMesh(video:HTMLVideoElement) {
+		const videoTexture = new VideoTexture(video);
+		videoTexture.minFilter = LinearFilter;
+		videoTexture.magFilter = LinearFilter;
+
+		const height = video.videoHeight / video.videoWidth;
+
+		const geometry = new PlaneGeometry(1, height, 4, 4);
+		const material = new MeshBasicMaterial({ map: videoTexture, side: DoubleSide });
+		const mesh = new Mesh(geometry, material);
+		mesh.rotation.x = -Math.PI / 2;
+
+		return mesh;
 	}
 
 	async loadVideo(url:string):Promise<void> {
@@ -77,28 +99,22 @@ export default class ThreeVideo extends ThreeObject {
 			log.log("Loading video", url);
 
 			const video = createVideo(url);
-			const videoTexture = new VideoTexture(video);
-			videoTexture.minFilter = LinearFilter;
-			videoTexture.magFilter = LinearFilter;
+			video.style.display = 'none';
 
 			video.addEventListener('loadeddata', () => {
+				this.mesh = this.createMesh(video);
+				this.object3D.add(this.mesh);
 				this.onVideoReady();
 				resolve();
 			});
 			video.addEventListener('error', (error) => {
+				this.clear();
 				log.error("Could not load video: " + error);
 				reject(new Error("Could not load video: " + error));
 			});
 
-			// Create geometry
-			const geometry = new PlaneGeometry( 2.4, 1, 4, 4);
-			const material = new MeshBasicMaterial( { map: videoTexture, side: DoubleSide  } );
-			const mesh = new Mesh( geometry, material );
-			mesh.rotation.x = -Math.PI / 2;
-
 			this.clear();
-			this.mesh = mesh;
-			this.object3D.add(mesh);
+			this.video = video;
 		});
 	}
 }

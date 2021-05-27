@@ -8,6 +8,7 @@ import OrbitControlsModel from "@/Engine/models/ObjectModel/CameraModel/OrbitCon
 import TweenBehaviourModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel";
 import Log from "@/log";
 import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
+import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
@@ -29,9 +30,9 @@ const model = models.createAndResolveReferences(EngineModel, {
 					maxPolarAngle: 1.5
 				})]
 			}),
-			models.create(ImageModel, {
-				gid: 'image',
-				file: {url: 'https://i.imgur.com/49yX9EG.jpg'},
+			models.create(VideoModel, {
+				gid: 'video',
+				file: {url: 'assets/videos/cat01.mp4'},
 				scale: 0.5,
 				position: {z: 0.5},
 				behaviours: [models.create(TweenBehaviourModel, {
@@ -39,7 +40,7 @@ const model = models.createAndResolveReferences(EngineModel, {
 					steps: [{
 						gid: 'step',
 						path: 'position',
-						to: {x: -5},
+						to: {x: -2},
 						duration: 5,
 						ease: "Sine.easeInOut"
 					}],
@@ -54,7 +55,6 @@ const engine = new PlainEngine(model);
 const container = document.getElementById('engine');
 if(!container) throw new Error("No element found with id 'engine'.");
 engine.attach(container);
-
 document.addEventListener('keyup', () => {
 	if(!engine.isLoaded) {
 		log.info("Engine not loaded yet. Cannot start.");
@@ -63,8 +63,8 @@ document.addEventListener('keyup', () => {
 	if(!engine.isStarted) {
 		engine.start();
 		setTimeout(() => {
-			const image = models.registry.byGid<ImageModel>('image');
-			image!.file!.url = 'https://i.imgur.com/AD3MbBi.jpeg';
+			const video = models.registry.byGid<VideoModel>('video');
+			video!.file!.url = 'assets/videos/cat02.mp4';
 		},2000);
 	} else if(engine.isRunning) {
 		engine.pause();
