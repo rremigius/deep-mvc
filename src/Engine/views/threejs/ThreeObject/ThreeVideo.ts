@@ -14,6 +14,7 @@ export default class ThreeVideo extends ThreeObject {
 
 	controller!:VideoController;
 
+	mesh?:Mesh;
 	video?: HTMLVideoElement;
 	videoTexture?: VideoTexture;
 	loaded:boolean = false;
@@ -27,8 +28,9 @@ export default class ThreeVideo extends ThreeObject {
 			if(playing) this.play();
 			else this.pause();
 		});
-
-		// TODO: make source reactive
+		this.model.$watch(schema(VideoModel).file.url, async url => {
+			await this.loadVideo(url);
+		});
 	}
 
 	play() {
@@ -58,33 +60,35 @@ export default class ThreeVideo extends ThreeObject {
 	}
 
 	async onLoad():Promise<void> {
-		const model = this.model;
-		return new Promise((resolve, reject) => {
-			if (!model.file || !model.file.url) {
-				const err = new Error("Video has no video file. Cannot load.");
-				log.error(err.message);
-				reject(err);
-				return;
-			}
+		if(!this.model.file || !this.model.file.url) return;
+		await this.loadVideo(this.model.file.url);
+	}
 
-			const url = model.file.url;
+	clear() {
+		if(!this.mesh) return;
+
+		this.object3D.remove(this.mesh);
+		this.mesh = undefined;
+		log.info("Video cleared");
+	}
+
+	async loadVideo(url:string):Promise<void> {
+		return new Promise((resolve, reject) => {
 			log.log("Loading video", url);
 
-			this.video = createVideo(model.file.url);
+			const video = createVideo(url);
+			const videoTexture = new VideoTexture(video);
+			videoTexture.minFilter = LinearFilter;
+			videoTexture.magFilter = LinearFilter;
 
-			this.video.addEventListener('loadeddata', () => {
+			video.addEventListener('loadeddata', () => {
 				this.onVideoReady();
 				resolve();
 			});
-			this.video.addEventListener('error', (error) => {
+			video.addEventListener('error', (error) => {
 				log.error("Could not load video: " + error);
 				reject(new Error("Could not load video: " + error));
 			});
-
-			const videoTexture = new VideoTexture(this.video);
-			videoTexture.minFilter = LinearFilter;
-			videoTexture.magFilter = LinearFilter;
-			this.videoTexture = videoTexture;
 
 			// Create geometry
 			const geometry = new PlaneGeometry( 2.4, 1, 4, 4);
@@ -92,6 +96,8 @@ export default class ThreeVideo extends ThreeObject {
 			const mesh = new Mesh( geometry, material );
 			mesh.rotation.x = -Math.PI / 2;
 
+			this.clear();
+			this.mesh = mesh;
 			this.object3D.add(mesh);
 		});
 	}

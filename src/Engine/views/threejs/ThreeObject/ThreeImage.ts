@@ -26,9 +26,9 @@ export default class ThreeImage extends ThreeObject {
 	clear() {
 		if(!this.mesh) return;
 
-		log.log("Image cleared.");
 		this.object3D.remove(this.mesh);
 		this.mesh = undefined;
+		log.log("Image cleared.");
 	}
 
 	async onLoad() {
@@ -36,7 +36,7 @@ export default class ThreeImage extends ThreeObject {
 		await this.loadImage(this.model.file.url);
 	}
 
-	async loadImage(url:string) {
+	async loadImage(url:string):Promise<void> {
 		return new Promise((resolve, reject) => {
 			log.log("Loading image", url);
 			new TextureLoader().load(url,
@@ -61,7 +61,7 @@ export default class ThreeImage extends ThreeObject {
 					this.object3D.add(mesh);
 
 					log.log("Loaded image", url);
-					resolve(texture);
+					resolve();
 				},
 				undefined, // progress callback currently not supported (THREE docs)
 				() => {
