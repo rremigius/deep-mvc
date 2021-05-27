@@ -9,13 +9,14 @@ import ThreeModel3D from "@/Engine/views/threejs/ThreeObject/ThreeModel3D";
 import ThreeEngineView from "@/Engine/views/threejs/ThreeEngineView";
 import ThreeOrbitControls from "@/Engine/views/threejs/ThreeObject/ThreeCamera/ThreeOrbitControls";
 import View from "@/View";
+import ThreeImage from "@/Engine/views/threejs/ThreeObject/ThreeImage";
 
 export default class ThreeViewFactory extends ViewFactory {
 	initDependencies() {
 		super.initDependencies();
 		this.register([
-			ThreeEngineView, ThreeView, ThreeScene, ThreeGraph, ThreeLight, ThreeModel3D, ThreePerspectiveCamera, ThreeVideo,
-			ThreeOrbitControls
+			ThreeEngineView, ThreeView, ThreeScene, ThreeGraph, ThreeLight, ThreeModel3D, ThreeImage, ThreePerspectiveCamera,
+			ThreeVideo, ThreeOrbitControls
 		]);
 		this.registerDefault(View, ThreeView);
 	}

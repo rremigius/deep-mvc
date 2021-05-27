@@ -2,6 +2,7 @@ import {Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
 import Log from "@/log";
 import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
 import ThreeObject from "../ThreeObject";
+import {schema} from "mozel";
 
 const log = Log.instance("three-image");
 
@@ -9,19 +10,34 @@ export default class ThreeImage extends ThreeObject {
 	static Model = ImageModel;
 	model!:ImageModel;
 
-	// TODO: make reactive
+	mesh?:Mesh;
 
-	async onLoad():Promise<void> {
-		const model = this.model;
-		return new Promise((resolve, reject) => {
-			if (!model.file || !model.file.url) {
-				const err = new Error("ImageModel has no image file. Cannot load.");
-				log.error(err.message);
-				reject(err);
-				return;
+	onInit() {
+		super.onInit();
+		this.model.$watch(schema(ImageModel).file.url, async url => {
+			if(url) {
+				await this.loadImage(url);
+			} else {
+				this.clear();
 			}
+		});
+	}
 
-			const url = model.file.url;
+	clear() {
+		if(!this.mesh) return;
+
+		log.log("Image cleared.");
+		this.object3D.remove(this.mesh);
+		this.mesh = undefined;
+	}
+
+	async onLoad() {
+		if(!this.model.file || !this.model.file.url) return;
+		await this.loadImage(this.model.file.url);
+	}
+
+	async loadImage(url:string) {
+		return new Promise((resolve, reject) => {
 			log.log("Loading image", url);
 			new TextureLoader().load(url,
 				texture => {
@@ -40,15 +56,17 @@ export default class ThreeImage extends ThreeObject {
 					const height = img.height / img.width;
 					mesh.scale.set(1, height, 1);
 
+					this.clear();
+					this.mesh = mesh;
 					this.object3D.add(mesh);
 
 					log.log("Loaded image", url);
-					resolve();
+					resolve(texture);
 				},
 				undefined, // progress callback currently not supported (THREE docs)
 				() => {
 					const err = new Error("Failed to load image.");
-					log.error(err.message, model.file);
+					log.error(err.message, url);
 					reject(err);
 				}
 			);

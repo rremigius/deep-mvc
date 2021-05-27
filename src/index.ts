@@ -7,6 +7,7 @@ import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
 import OrbitControlsModel from "@/Engine/models/ObjectModel/CameraModel/OrbitControlsModel";
 import TweenBehaviourModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel";
 import Log from "@/log";
+import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
@@ -28,8 +29,9 @@ const model = models.createAndResolveReferences(EngineModel, {
 					maxPolarAngle: 1.5
 				})]
 			}),
-			models.create(Model3DModel, {
-				files: [{url: 'assets/models/vw/model.dae'}],
+			models.create(ImageModel, {
+				gid: 'image',
+				file: {url: 'https://i.imgur.com/49yX9EG.jpg'},
 				scale: 0.5,
 				position: {z: 0.5},
 				behaviours: [models.create(TweenBehaviourModel, {
@@ -60,6 +62,10 @@ document.addEventListener('keyup', () => {
 	}
 	if(!engine.isStarted) {
 		engine.start();
+		setTimeout(() => {
+			const image = models.registry.byGid<ImageModel>('image');
+			image!.file!.url = 'https://i.imgur.com/AD3MbBi.jpeg';
+		},2000);
 	} else if(engine.isRunning) {
 		engine.pause();
 	} else {
