@@ -8,11 +8,13 @@ import OrbitControlsModel from "@/Engine/models/ObjectModel/CameraModel/OrbitCon
 import Log from "@/log";
 import {ViewClickEvent} from "@/View";
 import {ComponentEnableAction} from "@/Component";
+import {EngineDestroyAction} from "@/Engine/controllers/EngineController";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
 
 const model = models.createAndResolveReferences(EngineModel, {
+	gid: 'engine',
 	camera: {gid: 'camera'},
 	scene: {
 		marker: 'data-nft/pinball',
@@ -65,7 +67,8 @@ const model = models.createAndResolveReferences(EngineModel, {
 				},{
 					event: { name: ViewClickEvent.name },
 					action: {
-						name: ComponentEnableAction.name,
+						target: {gid: 'engine'},
+						name: EngineDestroyAction.name,
 						input: { enable: false }
 					}
 				}]

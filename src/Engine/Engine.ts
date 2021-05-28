@@ -171,7 +171,7 @@ export default class Engine {
 	}
 
 	destroy() {
-		log.info("Destroying Engine");
+		log.info("Destroying Engine...");
 		this.pause();
 
 		this.controller.destroy();
@@ -181,5 +181,6 @@ export default class Engine {
 		}
 
 		this.detach();
+		log.info("Engine destroyed.");
 	}
 }

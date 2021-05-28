@@ -427,6 +427,7 @@ export default class Component {
 		this.forEachChild((child:Component) => {
 			child.destroy();
 		});
+		log.info(`${this} destroyed.`);
 	}
 	stopListening() {
 		this.eventListeners.forEach(listener => listener.stop());

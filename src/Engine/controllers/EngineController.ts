@@ -1,12 +1,13 @@
 import EngineModel from "@/Engine/models/EngineModel";
-import Component, {component, ComponentActions, ComponentEvents} from "@/Component";
+import Component, {component, ComponentAction, ComponentActions, ComponentEvents} from "@/Component";
 import Engine from "@/Engine/Engine";
 import {schema} from "mozel";
 import SceneController from "@/Engine/controllers/SceneController";
 import ComponentSlot from "@/Component/ComponentSlot";
 
-export class EnginePauseAction {
-	constructor() {}
+export class EnginePauseAction extends ComponentAction<{}> {
+}
+export class EngineDestroyAction extends ComponentAction<{}> {
 }
 
 export class EngineEvents extends ComponentEvents {
@@ -14,6 +15,7 @@ export class EngineEvents extends ComponentEvents {
 }
 export class EngineActions extends ComponentActions {
 	pause = this.$action(EnginePauseAction);
+	destroy = this.$action(EngineDestroyAction);
 }
 
 export default class EngineController extends Component {
@@ -42,7 +44,11 @@ export default class EngineController extends Component {
 		this.actions.pause.on(() => {
 			if(!this.engine) return;
 			this.engine.pause();
-		})
+		});
+		this.actions.destroy.on(() => {
+			if(!this.engine) return;
+			this.engine.destroy();
+		});
 	}
 
 	setEngine(engine:Engine) {
