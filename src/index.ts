@@ -7,6 +7,9 @@ import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
 import OrbitControlsModel from "@/Engine/models/ObjectModel/CameraModel/OrbitControlsModel";
 import TweenBehaviourModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel";
 import Log from "@/log";
+import TriggerModel from "@/Engine/models/TriggerModel";
+import {ViewClickEvent} from "@/View";
+import {ComponentEnableAction} from "@/Component";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
@@ -43,7 +46,15 @@ const model = models.createAndResolveReferences(EngineModel, {
 						ease: "Sine.easeInOut"
 					}],
 					yoyo: true
-				})]
+				})],
+				triggers: [{
+					event: {
+						name: ViewClickEvent.name
+					},
+					action: {
+						name: ComponentEnableAction.name
+					}
+				}]
 			})
 		]
 	}

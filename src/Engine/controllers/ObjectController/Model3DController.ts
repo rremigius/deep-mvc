@@ -15,7 +15,12 @@ export default class Model3DController extends ObjectController {
 	static Model = Model3DModel;
 	model!:Model3DModel;
 
-	events = new Model3DControllerEvents();
+	events!:Model3DControllerEvents;
+
+	onSetupEventsAndActions() {
+		super.onSetupEventsAndActions();
+		this.events = new Model3DControllerEvents();
+	}
 
 	clickMesh(mesh:string) {
 		log.info("Mesh clicked:", mesh);

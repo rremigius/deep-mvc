@@ -28,8 +28,22 @@ export default class EngineController extends Component {
 		return this._engine;
 	}
 
-	events = new EngineEvents();
-	actions = new EngineActions();
+	events!:EngineEvents;
+	actions!:EngineActions;
+
+	onSetupEventsAndActions() {
+		super.onSetupEventsAndActions();
+		this.events = new EngineEvents();
+		this.actions = new EngineActions();
+	}
+
+	onBindActions() {
+		super.onBindActions();
+		this.actions.pause.on(() => {
+			if(!this.engine) return;
+			this.engine.pause();
+		})
+	}
 
 	setEngine(engine:Engine) {
 		this._engine = engine;

@@ -20,14 +20,19 @@ class TweenBehaviourControllerEvents extends ComponentEvents {
 
 export default class TweenBehaviourController extends BehaviourController {
 	static Model = TweenBehaviourModel;
+	model!:TweenBehaviourModel;
 
-	events = new TweenBehaviourControllerEvents();
+	events!:TweenBehaviourControllerEvents;
 
-	// Created on init
 	timeline!:TimelineMax;
 
 	get tweenBehaviour() {
 		return <TweenBehaviourModel>this.model;
+	}
+
+	onSetupEventsAndActions() {
+		super.onSetupEventsAndActions();
+		this.events = new TweenBehaviourControllerEvents();
 	}
 
 	onInit() {

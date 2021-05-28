@@ -45,7 +45,6 @@ export type ComponentListDefinition = {property:string, modelPath:string, Expect
 
 export class ComponentEnabledEvent extends ComponentEvent<object> { }
 export class ComponentDisabledEvent extends ComponentEvent<object> { }
-
 export class ComponentEvents extends Events {
 	enabled = this.$event(ComponentEnabledEvent)
 	disabled = this.$event(ComponentDisabledEvent)
@@ -55,10 +54,13 @@ export class ComponentEvents extends Events {
 	}
 }
 
+export class ComponentEnableAction extends ComponentAction<{enable:boolean}> { }
 export class ComponentActions extends Events {
 	$action<T>(ActionClass:Constructor<T>) {
 		return this.$event(ActionClass);
 	}
+
+	enable = this.$action(ComponentEnableAction);
 }
 
 // DECORATORS
@@ -135,8 +137,8 @@ export default class Component {
 
 	loading:Loader;
 
-	events = new ComponentEvents();
-	actions = new ComponentActions();
+	events!:ComponentEvents;
+	actions!:ComponentActions;
 
 	private lastReportedEnabledState?:boolean;
 
@@ -148,6 +150,26 @@ export default class Component {
 	private parentEnabled:boolean = false;
 
 	protected initialized:boolean;
+
+	get static() {
+		return <typeof Component>this.constructor;
+	}
+
+	get enabled() {
+		return this.started && this.model.enabled && this.parentEnabled;
+	}
+
+	get started() {
+		return this._started;
+	}
+
+	get name() {
+		return this.static.name;
+	}
+
+	get modelName() {
+		return this.model.static.name;
+	}
 
 	constructor(
 		// using LazyServiceIdentifier to prevent circular dependency problem
@@ -177,6 +199,8 @@ export default class Component {
 		this.loading.log.setLevel(LogLevel.WARN);
 
 		this.initClassDefinitions();
+		this.onSetupEventsAndActions();
+		this.onBindActions();
 		this.onInit();
 
 		this.initialized = true;
@@ -200,28 +224,16 @@ export default class Component {
 		_defineData(this.static);
 	}
 
-	get static() {
-		return <typeof Component>this.constructor;
-	}
-
-	get enabled() {
-		return this.started && this.model.enabled && this.parentEnabled;
-	}
-
-	get started() {
-		return this._started;
-	}
-
-	get name() {
-		return this.static.name;
-	}
-
-	get modelName() {
-		return this.model.static.name;
-	}
-
 	onInit() {
 		// For override
+	}
+
+	onSetupEventsAndActions() {
+		this.events = new ComponentEvents();
+		this.actions = new ComponentActions();
+	}
+	onBindActions() {
+		this.actions.enable.on(action => this.enable(action.data.enable));
 	}
 
 	createWatcher<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {

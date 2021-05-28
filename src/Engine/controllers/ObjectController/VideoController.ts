@@ -18,7 +18,12 @@ export default class VideoController extends ObjectController {
 	static Model = VideoModel;
 	model!:VideoModel;
 
-	events = new VideoControllerEvents();
+	events!:VideoControllerEvents;
+
+	onSetupEventsAndActions() {
+		super.onSetupEventsAndActions();
+		this.events = new VideoControllerEvents();
+	}
 
 	onInit() {
 		super.onInit();
