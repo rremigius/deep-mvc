@@ -18,11 +18,11 @@ export default class ThreeOrbitControls extends Component {
 		super.onInit();
 
 		const s = schema(OrbitControlsModel);
-		this.model.$watch(s.rotateSpeed, speed => this.setRotateSpeed(speed), {immediate});
-		this.model.$watch(s.maxPolarAngle, angle => this.setMaxPolarAngle(angle), {immediate});
-		this.model.$watch(s.minDistance, distance => this.setMinDistance(distance), {immediate});
-		this.model.$watch(s.maxDistance, distance => this.setMaxDistance(distance), {immediate});
-		this.model.$watch(s.enableZoom, zoom => this.setZoomEnabled(zoom), {immediate});
+		this.watch(s.rotateSpeed, speed => this.setRotateSpeed(speed), {immediate});
+		this.watch(s.maxPolarAngle, angle => this.setMaxPolarAngle(angle), {immediate});
+		this.watch(s.minDistance, distance => this.setMinDistance(distance), {immediate});
+		this.watch(s.maxDistance, distance => this.setMaxDistance(distance), {immediate});
+		this.watch(s.enableZoom, zoom => this.setZoomEnabled(zoom), {immediate});
 	}
 
 	setParent(parent?:Component) {

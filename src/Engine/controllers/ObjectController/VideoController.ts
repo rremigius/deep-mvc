@@ -51,13 +51,13 @@ export default class VideoController extends ObjectController {
 
 	onDisable() {
 		super.onDisable();
-		log.info("Pausing video");
+		log.info("Pausing video.");
 		this.pause();
 	}
 
 	onEnable() {
 		super.onEnable();
-		log.info("Playing video");
+		log.info("Playing video.");
 		this.play();
 	}
 }

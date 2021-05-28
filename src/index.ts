@@ -62,13 +62,14 @@ document.addEventListener('keyup', () => {
 	}
 	if(!engine.isStarted) {
 		engine.start();
-		setTimeout(() => {
-			const video = models.registry.byGid<VideoModel>('video');
-			video!.file!.url = 'assets/videos/cat02.mp4';
-		},2000);
 	} else if(engine.isRunning) {
 		engine.pause();
 	} else {
 		engine.resume();
 	}
 });
+
+setTimeout(() => {
+	const video = models.registry.byGid<VideoModel>('video');
+	video!.file!.url = 'assets/videos/cat02.mp4';
+},2000);

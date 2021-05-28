@@ -5,14 +5,15 @@ import Loader from "deep-loader";
 import EventListener from "@/EventListener";
 import ComponentList from "@/Component/ComponentList";
 import ComponentSlot from "@/Component/ComponentSlot";
-import {alphanumeric, CollectionSchema, immediate, MozelSchema, Registry, schema} from "mozel";
+import {alphanumeric, CollectionSchema, immediate, MozelSchema, PropertySchema, Registry, schema} from "mozel";
 import ComponentModel from "@/ComponentModel";
 import EventBus from "@/EventBus";
 import EventEmitter, {callback, Events} from "@/EventEmitter";
 import {isString} from 'lodash';
-import Property from "mozel/dist/Property";
+import Property, {PropertyValue} from "mozel/dist/Property";
 import {Constructor} from "validation-kit";
 import {LogLevel} from "log-control";
+import PropertyWatcher, {PropertyChangeHandler, PropertyWatcherOptionsArgument} from "mozel/dist/PropertyWatcher";
 
 const log = Log.instance("component");
 
@@ -140,6 +141,7 @@ export default class Component {
 	private lastReportedEnabledState?:boolean;
 
 	private eventListeners:EventListener<EventEmitter<unknown>>[] = [];
+	private watchers:PropertyWatcher[];
 
 	_started:boolean = false;
 	private parentEnabled:boolean = false;
@@ -166,6 +168,7 @@ export default class Component {
 		this.dependencies = dependencies;
 
 		this.initialized = false;
+		this.watchers = [];
 
 		const name = this.toString();
 		this.loading = new Loader(name);
@@ -217,9 +220,27 @@ export default class Component {
 
 	onInit() {
 		// For override
-		this.model.$watch(schema(ComponentModel).enabled, enabled => {
-			if(this.initialized) this.updateEnabledState();
-		});
+	}
+
+	/**
+	 * Watches model at the given path, but only when the Component is enabled.
+	 * Will always use `immediate` option, so will check for changes every time the Component gets enabled.
+	 * @param {string|PropertySchema<T>|MozelSchema<T>} path
+	 * @param {PropertyChangeHandler<T>} handler
+	 * @param {PropertyWatcherOptionsArgument} options
+	 */
+	watch<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {
+		const finalPath = isString(path) ? path : path.$path;
+		const allOptions = {
+			...options,
+			...{
+				path:finalPath,
+				handler:<PropertyChangeHandler<PropertyValue>><unknown>handler,
+				immediate: true
+			}
+		}
+		const watcher = new PropertyWatcher(this.model, allOptions);
+		this.watchers.push(watcher);
 	}
 
 	setParent(parent?:Component) {
@@ -375,6 +396,12 @@ export default class Component {
 	stopListening() {
 		this.eventListeners.forEach(listener => listener.stop());
 	}
+	startWatchers() {
+		this.watchers.forEach(watcher => this.model.$addWatcher(watcher));
+	}
+	stopWatchers() {
+		this.watchers.forEach(watcher => this.model.$removeWatcher(watcher));
+	}
 
 	enable(enabled:boolean = true) {
 		this.model.enabled = enabled;
@@ -388,11 +415,13 @@ export default class Component {
 			this.lastReportedEnabledState = true;
 			this.onEnable();
 			this.events.enabled.fire(new ComponentEnabledEvent(this));
+			this.startWatchers();
 		} else if (!this.enabled && this.lastReportedEnabledState !== false) {
 			log.info(`${this} disabled.`);
 			this.lastReportedEnabledState = false;
 			this.onDisable();
 			this.events.disabled.fire(new ComponentDisabledEvent(this));
+			this.stopWatchers();
 		}
 
 		this.forEachChild(child => child.updateEnabledState());

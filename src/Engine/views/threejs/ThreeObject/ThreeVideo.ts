@@ -25,11 +25,12 @@ export default class ThreeVideo extends ThreeObject {
 		super.onInit();
 
 		this.controller = this.requireController(VideoController);
-		this.model.$watch(schema(VideoModel).playing, playing => {
+
+		this.watch(schema(VideoModel).playing, playing => {
 			if(playing) this.play();
 			else this.pause();
 		});
-		this.model.$watch(schema(VideoModel).file.url, async url => {
+		this.watch(schema(VideoModel).file.url, async url => {
 			await this.loadVideo(url);
 		});
 	}

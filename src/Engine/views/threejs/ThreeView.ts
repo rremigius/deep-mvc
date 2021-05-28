@@ -4,6 +4,7 @@ import Vector3, {SparseVector3} from "@/Engine/views/common/Vector3";
 import {alphanumeric, deep, immediate, schema} from "mozel";
 import ViewModel from "@/ViewModel";
 import {ThreeClickEvent} from "@/Engine/views/threejs/ThreeEngineView";
+import {createDebugCube} from "@/Engine/views/threejs/Debug";
 
 export interface ThreeViewRoot {
 	gid: alphanumeric;
@@ -25,12 +26,12 @@ export default class ThreeView extends View {
 		super.onInit();
 		this._object3D = this.createRootObject3D();
 
-		this.model.$watch(schema(ViewModel).position, position => {
+		this.watch(schema(ViewModel).position, position => {
 			this.setPosition(position);
-		}, {immediate, deep, throttle: 1});
-		this.model.$watch(schema(ViewModel).scale, scale => {
+		}, {deep, throttle: 1});
+		this.watch(schema(ViewModel).scale, scale => {
 			this.setScale(scale);
-		}, {immediate, deep, throttle: 1});
+		}, {deep, throttle: 1});
 	}
 
 	createRootObject3D() {

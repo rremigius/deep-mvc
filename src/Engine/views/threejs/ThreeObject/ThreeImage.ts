@@ -15,12 +15,8 @@ export default class ThreeImage extends ThreeObject {
 
 	onInit() {
 		super.onInit();
-		this.model.$watch(schema(ImageModel).file.url, async url => {
-			if(url) {
-				await this.loadImage(url);
-			} else {
-				this.clear();
-			}
+		this.watch(schema(ImageModel).file.url, async url => {
+			await this.loadImage(url);
 		});
 	}
 
