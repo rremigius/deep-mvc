@@ -1,10 +1,9 @@
 import View from "@/View";
 import {Object3D} from "three";
 import Vector3, {SparseVector3} from "@/Engine/views/common/Vector3";
-import {alphanumeric, deep, immediate, schema} from "mozel";
+import {alphanumeric, deep, schema} from "mozel";
 import ViewModel from "@/ViewModel";
 import {ThreeClickEvent} from "@/Engine/views/threejs/ThreeEngineView";
-import {createDebugCube} from "@/Engine/views/threejs/Debug";
 
 export interface ThreeViewRoot {
 	gid: alphanumeric;
@@ -22,6 +21,8 @@ export default class ThreeView extends View {
 	private _object3D!:Object3D & ThreeViewRoot;
 	get object3D() { return this._object3D };
 
+	private parentObject3D?:Object3D;
+
 	onInit() {
 		super.onInit();
 		this._object3D = this.createRootObject3D();
@@ -32,6 +33,13 @@ export default class ThreeView extends View {
 		this.watch(schema(ViewModel).scale, scale => {
 			this.setScale(scale);
 		}, {deep, throttle: 1});
+	}
+
+	setParent(parent?:ThreeView) {
+		super.setParent(parent);
+		if(parent) {
+			this.parentObject3D = parent.object3D;
+		}
 	}
 
 	createRootObject3D() {
@@ -49,10 +57,7 @@ export default class ThreeView extends View {
 		this.click();
 	}
 
-	onViewAdd(view: ThreeView) {
-		super.onViewAdd(view);
-		this.object3D.add(view.object3D);
-	}
+	// Note: adding the object3D is done by the child view, onEnable
 
 	onViewRemove(view: ThreeView) {
 		super.onViewRemove(view);
@@ -80,12 +85,16 @@ export default class ThreeView extends View {
 
 	onEnable() {
 		super.onEnable();
-		this.object3D.visible = true;
+		if(this.parentObject3D) {
+			this.parentObject3D.add(this.object3D);
+		}
 	}
 
 	onDisable() {
 		super.onDisable();
-		this.object3D.visible = false;
+		if(this.parentObject3D) {
+			this.parentObject3D.remove(this.object3D);
+		}
 	}
 
 	onThreeClick(event:ThreeClickEvent) {

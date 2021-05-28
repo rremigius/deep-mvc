@@ -34,9 +34,9 @@ export default class TriggerController extends Component {
 			this.restartListening();
 		});
 
-		this.triggerModel.$watch(schema(TriggerModel).event.name, ()=> {
-				this.restartListening();
-		}, {immediate});
+		this.watch(schema(TriggerModel).event.name, ()=> {
+			this.restartListening();
+		});
 	}
 
 	/**
@@ -108,11 +108,15 @@ export default class TriggerController extends Component {
 			return;
 		}
 
+		// Get input data for the action
+		let input:Record<string, unknown> = {};
+		if(this.triggerModel.action.input) {
+			input = this.triggerModel.action.input.exportGeneric();
+		}
+
 		// Map data from event to action based on mapping
-		let input:Record<string, unknown>|undefined = undefined;
 		let mapping = this.triggerModel.mapping.exportGeneric();
 		if(isPlainObject(payload)) {
-			input = <Record<string, unknown>>payload;
 			if(!isEmpty(mapping)) {
 				// Map data from source to target
 				forEach(mapping, (from:any, to:string) => {
@@ -120,7 +124,7 @@ export default class TriggerController extends Component {
 						log.error("Cannot map from non-string.", from);
 						return;
 					}
-					input![to] = (<any>payload)[from];
+					input[to] = (<any>payload)[from];
 				});
 			}
 		}

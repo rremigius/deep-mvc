@@ -39,7 +39,7 @@ export class ComponentEvent<T extends object> {
 		this.data = data;
 	}
 }
-export type ComponenetEventData<E> = E extends ComponentEvent<infer D> ? D : object;
+export type ComponentEventData<E> = E extends ComponentEvent<infer D> ? D : object;
 export type ComponentSlotDefinition = {property:string, modelPath:string, ExpectedComponentClass:ComponentConstructor<any>};
 export type ComponentListDefinition = {property:string, modelPath:string, ExpectedComponentClass:ComponentConstructor<any>};
 

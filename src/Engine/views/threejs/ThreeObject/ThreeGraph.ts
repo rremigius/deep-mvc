@@ -7,10 +7,9 @@ import ThreeForceGraph from "three-forcegraph";
 import Log from "@/log";
 import ThreeObject from "../ThreeObject";
 import GraphModel from "@/Engine/models/ObjectModel/GraphModel";
-import Component from "@/Component";
-import EngineView from "@/Engine/views/EngineView";
 import Engine from "@/Engine/Engine";
 import ThreeEngineView from "@/Engine/views/threejs/ThreeEngineView";
+import ThreeView from "@/Engine/views/threejs/ThreeView";
 
 const colorStr2Hex = (str: string) => parseInt(tinycolor(str).toHex(), 16);
 const colorAlpha = (str: string) => tinycolor(str).getAlpha();
@@ -57,7 +56,7 @@ export default class ThreeGraph extends ThreeObject {
 		this.updateCamera();
 	}
 
-	setParent(parent?: Component) {
+	setParent(parent?:ThreeView) {
 		super.setParent(parent);
 		this.updateCamera();
 	}

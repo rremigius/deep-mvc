@@ -2,14 +2,14 @@ import ConditionModel from "@/Engine/models/ConditionModel";
 import {GenericMozel, property, required} from "mozel";
 
 import {findKey} from 'lodash';
-import {ComponentEvent, ComponenetEventData} from "../../../Component";
+import {ComponentEvent, ComponentEventData} from "../../../Component";
 
 export default class ConditionEqualsModel<E extends ComponentEvent<any>> extends ConditionModel<E> {
 
 	@property(GenericMozel, {required})
-	check!:GenericMozel<ComponenetEventData<E>>;
+	check!:GenericMozel<ComponentEventData<E>>;
 
-	eval(data:ComponenetEventData<E>): boolean {
+	eval(data:ComponentEventData<E>): boolean {
 		const match = this.check.exportGeneric();
 		let noMatch = findKey(match, (value:any, key:string) => {
 			return data[key] !== match[key];

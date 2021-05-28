@@ -10,10 +10,10 @@ import SceneComponent from "@/Engine/controllers/SceneController";
 import ActionModel from "@/Engine/models/ActionModel";
 import TriggerModel from "@/Engine/models/TriggerModel";
 import BehaviourModel from "@/Engine/models/BehaviourModel";
-import BehaviourComponent from "../src/Engine/controllers/BehaviourComponent";
-import {ComponentAction, ComponentEvent} from "../src/Component";
+import BehaviourComponent from "@/Engine/controllers/BehaviourController";
+import {ComponentAction, ComponentEvent} from "@/Component";
 import ConditionEqualsModel from "@/Engine/models/ConditionModel/ConditionEqualsModel";
-import EngineControllerFactory from "../src/Engine/controllers/EngineControllerFactory";
+import EngineControllerFactory from "@/Engine/controllers/EngineControllerFactory";
 
 class Factory {
 	model:MozelFactory;

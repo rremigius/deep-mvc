@@ -4,7 +4,7 @@ import ActionModel from "@/Engine/models/ActionModel";
 import MappingModel from "@/Engine/models/MappingModel";
 import ConditionModel from "@/Engine/models/ConditionModel";
 import ComponentModel from "@/ComponentModel";
-import {ComponentAction, ComponentActionData, ComponentEvent, ComponenetEventData} from "@/Component";
+import {ComponentAction, ComponentActionData, ComponentEvent, ComponentEventData} from "@/Component";
 
 export type UnknownTriggerModel = TriggerModel<ComponentEvent<object>, ComponentAction<object>>;
 
@@ -18,7 +18,7 @@ export default class TriggerModel<E extends ComponentEvent<any>, A extends Compo
 	action!:ActionModel;
 
 	@property(GenericMozel, {required})
-	mapping!:MappingModel<ComponentActionData<A>, ComponenetEventData<E>>;
+	mapping!:MappingModel<ComponentActionData<A>, ComponentEventData<E>>;
 
 	@property(ConditionModel)
 	condition?:ConditionModel<E>

@@ -6,6 +6,7 @@ import Controller from "@/Controller";
 import ViewModel from "@/ViewModel";
 import ComponentList from "@/Component/ComponentList";
 import Log from "@/log";
+import ViewController from "@/Controller/ViewController";
 
 const log = Log.instance("view");
 
@@ -21,6 +22,7 @@ export default class View extends Component {
 	@components(schema(ViewModel).children, View)
 	children!:ComponentList<View>;
 
+	controller?:ViewController;
 	controllerRegistry?:Registry<Controller>;
 	factory!:ViewFactory; // TS: set on Component constructor
 
@@ -60,6 +62,9 @@ export default class View extends Component {
 		const event = new ViewClickEvent(this, {});
 		this.onClick(event);
 		this.events.click.fire(new ViewClickEvent(this, {}));
+		if(this.controller) {
+			this.controller.click(event);
+		}
 	}
 	addView(view:View) {
 		this.onViewAdd(view);
