@@ -2,13 +2,12 @@ import EngineModel from "@/Engine/models/EngineModel";
 import ComponentFactory from "@/Component/ComponentFactory";
 
 import Log from "@/log";
-import EngineController from "@/Engine/controllers/EngineController";
 import EngineControllerFactory from "@/Engine/controllers/EngineControllerFactory";
 import {Events} from "@/EventEmitter";
-import {Registry} from "mozel";
-import Controller from "@/Controller";
 import ViewFactory from "@/View/ViewFactory";
 import EngineView from "@/Engine/views/EngineView";
+import Component, {component} from "@/Component";
+import {forEach, map} from "lodash";
 
 const log = Log.instance("engine");
 
@@ -24,6 +23,10 @@ export class EngineEvents extends Events {
 }
 
 export default class Engine {
+	static createDefaultControllerFactory() {
+		return new EngineControllerFactory();
+	}
+
 	private _container?:HTMLElement;
 	public get container() { return this._container }
 
@@ -31,8 +34,8 @@ export default class Engine {
 
 	protected started = false;
 	protected running = false;
-	protected readonly controller:EngineController;
-	protected readonly view:EngineView;
+
+	protected readonly rootComponents:Record<string, Component>;
 
 	readonly loading?:Promise<unknown>;
 	private loaded = false;
@@ -41,22 +44,21 @@ export default class Engine {
 	get events() { return this._events };
 
 	constructor(model:EngineModel, viewFactory?:ViewFactory, controllerFactory?:ComponentFactory) {
-		controllerFactory = controllerFactory || this.createDefaultControllerFactory();
-		viewFactory = viewFactory || this.createDefaultViewFactory(controllerFactory.registry);
+		const componentFactories = this.createComponentFactories();
 
-		// Allow access to Engine from Components
-		controllerFactory.dependencies.bind(Engine).toConstantValue(this);
+		this.rootComponents = {};
+		for(let name in componentFactories) {
+			log.info("Generating components: ", name);
+			const factory = componentFactories[name];
 
-		this.controller = controllerFactory.create(model, EngineController);
-		this.controller.setEngine(this);
-		this.controller.resolveReferences(); // split from `create` so engine is available in onResolveReferences
+			// Allow access to Engine from Components
+			factory.dependencies.bind(Engine).toConstantValue(this);
+			const component = factory.createAndResolveReferences(model, Component);
+			this.rootComponents[name] = component;
 
-		this.view = viewFactory.create(model, EngineView);
-		this.view.setEngine(this);
-		this.view.resolveReferences(); // split from `create` so engine is available in onResolveReferences
-
-		log.log("Controllers:", this.controller.toTree());
-		log.log("Views:", this.view.toTree());
+			// Debug
+			log.log(`${name}:`, component.toTree());
+		}
 
 		if(typeof window !== 'undefined') {
 			this._onResize = this.onResize.bind(this);
@@ -70,32 +72,55 @@ export default class Engine {
 
 	init(){ }
 
-	createDefaultControllerFactory():ComponentFactory {
-		return new EngineControllerFactory();
-	}
-
-	createDefaultViewFactory(controllerRegistry:Registry<Controller>):ViewFactory {
-		return new ViewFactory(controllerRegistry);
+	createComponentFactories():Record<string, ComponentFactory> {
+		const controllerFactory = new EngineControllerFactory();
+		return {
+			controller: controllerFactory,
+			view: new ViewFactory(controllerFactory.registry)
+		};
 	}
 
 	get static() {
 		return <typeof Engine>this.constructor;
 	}
 
-	attach(container:HTMLElement) {
-		this._container = container;
-		this.view.attachTo(container);
+	attach(container:HTMLElement|Record<string, HTMLElement>) {
+		if(container instanceof HTMLElement) {
+			// Attach all to same container
+			forEach(this.rootComponents, component => {
+				if(!(component instanceof EngineView)) return;
+				component.attachTo(container);
+			});
+			return;
+		} else {
+			// Attach all to different containers
+			for(let name in container) {
+				const component = this.rootComponents[name];
+				if(!(component instanceof EngineView)) {
+					throw new Error(`RootComponent '${name}' is not an EngineView and cannot be attached to the page.`);
+				}
+				component.attachTo(container[name]);
+			}
+		}
 		this.onResize();
 	}
 
 	detach() {
-		if(!this._container) return;
-		this.view.detach();
-		this._container = undefined;
+		for(let name in this.rootComponents) {
+			const component = this.rootComponents[name];
+			if(!(component instanceof EngineView)) {
+				continue;
+			}
+			component.detach();
+		}
 	}
 
 	render() {
-		this.view.render();
+		forEach(this.rootComponents, component => {
+			if(component instanceof EngineView) {
+				component.render();
+			}
+		});
 	}
 
 	private animate() {
@@ -118,19 +143,14 @@ export default class Engine {
 	}
 
 	onResize() {
-		if(this._container) {
-			let height = this._container.clientHeight;
-			let width = this._container.clientWidth;
-
-			this.view.setSize(width, height);
-		}
+		forEach(this.rootComponents, component => {
+			if(!(component instanceof EngineView)) return;
+			component.resize();
+		});
 	}
 
 	async load() {
-		return Promise.all([
-			this.controller.load(),
-			this.view.load()
-		]);
+		return Promise.all(map(this.rootComponents, component => component.load()));
 	}
 
 	get isLoaded() {
@@ -152,30 +172,26 @@ export default class Engine {
 
 	start() {
 		this.started = true;
-		this.controller.start();
-		this.view.start();
+		forEach(this.rootComponents, component => component.start());
 		this.resume();
 	}
 
 	resume() {
 		this.running = true;
-		this.controller.enable(true);
-		this.view.enable(true);
+		forEach(this.rootComponents, component => component.enable(true));
 		this.animate();
 	}
 
 	pause() {
 		this.running = false;
-		this.controller.enable(false);
-		this.view.enable(false);
+		forEach(this.rootComponents, component => component.enable(false));
 	}
 
 	destroy() {
 		log.info("Destroying Engine...");
 		this.pause();
 
-		this.controller.destroy();
-		this.view.destroy();
+		forEach(this.rootComponents, component => component.destroy);
 		if(typeof window !== 'undefined') {
 			window.removeEventListener('resize', this._onResize);
 		}

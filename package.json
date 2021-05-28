@@ -20,6 +20,8 @@
     "log-control": "0.0.2",
     "mocha": "^8.3.1",
     "mozel": "git+https://github.com/rremigius/mozel.git",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "three": "^0.126.1",
     "three-css3drenderer": "^1.0.1",
     "three-forcegraph": "^1.37.0",
@@ -29,6 +31,8 @@
     "validation-kit": "0.0.6"
   },
   "devDependencies": {
+    "@types/react": "^17.0.8",
+    "@types/react-dom": "^17.0.5",
     "jsdom-global": "^3.0.2",
     "terser-webpack-plugin": "^5.1.1",
     "ts-loader": "^8.1.0",

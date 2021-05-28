@@ -25,7 +25,9 @@ export default class ThreeView extends View {
 
 	onInit() {
 		super.onInit();
-		this._object3D = this.createRootObject3D();
+		this._object3D = this.createObject3D();
+		this._object3D.gid = this.gid;
+		this._object3D.onClick = this.threeClick.bind(this); // To be called by ThreeEngineView
 
 		this.watch(schema(ViewModel).position, position => {
 			this.setPosition(position);
@@ -40,13 +42,6 @@ export default class ThreeView extends View {
 		if(parent) {
 			this.parentObject3D = parent.object3D;
 		}
-	}
-
-	createRootObject3D() {
-		const object3D = this.createObject3D();
-		object3D.gid = this.gid;
-		object3D.onClick = this.threeClick.bind(this); // To be called by ThreeEngineView
-		return object3D;
 	}
 	createObject3D() {
 		// For override

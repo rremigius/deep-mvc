@@ -30,7 +30,7 @@ export default class ARjsEngine extends Engine {
 		return camera;
 	}
 
-	createDefaultViewFactory() {
+	createDefaultViewFactories() {
 		return new ThreeViewFactory();
 	}
 

@@ -13,6 +13,8 @@ import BehaviourController from "@/Engine/controllers/BehaviourController";
 import BehaviourModel from "@/Engine/models/BehaviourModel";
 import ViewController from "@/Controller/ViewController";
 import EventListener from "@/EventListener";
+import Engine from "@/Engine/Engine";
+import ThreeViewFactory from "@/Engine/views/threejs/ThreeViewFactory";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
@@ -71,11 +73,15 @@ const model = models.createAndResolveReferences(EngineModel, {
 		]
 	}
 });
-class MyEngine extends PlainEngine {
-	createDefaultControllerFactory(): ComponentFactory {
-		const factory = super.createDefaultControllerFactory();
-		factory.register(ClickToDisableBehaviourController);
-		return factory;
+class MyEngine extends Engine {
+	createComponentFactories(): Record<string, ComponentFactory> {
+		const controllerFactory = Engine.createDefaultControllerFactory();
+		const viewFactory = new ThreeViewFactory(controllerFactory.registry);
+		viewFactory.register(ClickToDisableBehaviourController)
+		return {
+			controller: controllerFactory,
+			view: viewFactory
+		}
 	}
 }
 const engine = new MyEngine(model);
@@ -83,6 +89,7 @@ const engine = new MyEngine(model);
 const container = document.getElementById('engine');
 if(!container) throw new Error("No element found with id 'engine'.");
 engine.attach(container);
+
 document.addEventListener('keyup', () => {
 	if(!engine.isLoaded) {
 		log.info("Engine not loaded yet. Cannot start.");

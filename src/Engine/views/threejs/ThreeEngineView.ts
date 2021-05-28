@@ -62,6 +62,8 @@ export default class ThreeEngineView extends EngineView {
 	}
 
 	setSize(width: number, height:number) {
+		super.setSize(width, height);
+
 		this.renderer.setSize(width, height);
 		this.css3DRenderer.setSize(width, height);
 		this.copyStylesToCSS3D();
@@ -84,7 +86,7 @@ export default class ThreeEngineView extends EngineView {
 		target.style.marginTop = source.style.marginTop;
 	}
 
-	attachTo(element: HTMLElement): void {
+	onAttachTo(element: HTMLElement): void {
 		element.append(this.renderer.domElement);
 		// element.append(this.css3DRenderer.domElement);
 		this.copyStylesToCSS3D();
