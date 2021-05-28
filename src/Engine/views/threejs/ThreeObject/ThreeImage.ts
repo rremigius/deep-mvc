@@ -3,6 +3,7 @@ import Log from "@/log";
 import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
 import ThreeObject from "../ThreeObject";
 import {schema} from "mozel";
+import {fitInSide} from "@/View/Geometry";
 
 const log = Log.instance("three-image");
 
@@ -41,8 +42,10 @@ export default class ThreeImage extends ThreeObject {
 			log.log("Loading image", url);
 			new TextureLoader().load(url,
 				texture => {
+					const dimensions = fitInSide(texture.image.width, texture.image.height, 1, 1);
+
 					// Create geometry
-					const geometry = new PlaneGeometry( 1, 1, 1 );
+					const geometry = new PlaneGeometry( dimensions.width, dimensions.height, 1 );
 					const material = new MeshBasicMaterial( { color: 0xffffff } );
 					const mesh = new Mesh( geometry, material );
 					mesh.rotation.x = -Math.PI / 2;
@@ -50,11 +53,6 @@ export default class ThreeImage extends ThreeObject {
 					// Set image texture
 					material.map = texture;
 					material.needsUpdate = true;
-
-					// Resize mesh
-					const img = material.map.image;
-					const height = img.height / img.width;
-					mesh.scale.set(1, height, 1);
 
 					this.clear();
 					this.mesh = mesh;

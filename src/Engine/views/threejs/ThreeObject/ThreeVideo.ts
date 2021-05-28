@@ -6,6 +6,7 @@ import {createVideo} from "@/Engine/views/common/Video";
 import {schema} from "mozel";
 import VideoController from "@/Engine/controllers/ObjectController/VideoController";
 import {get} from "lodash";
+import {fitInSide} from "@/View/Geometry";
 
 const log = Log.instance("three-video");
 
@@ -84,9 +85,9 @@ export default class ThreeVideo extends ThreeObject {
 		videoTexture.minFilter = LinearFilter;
 		videoTexture.magFilter = LinearFilter;
 
-		const height = video.videoHeight / video.videoWidth;
+		const dimensions = fitInSide(video.videoWidth, video.videoHeight, 1, 1);
 
-		const geometry = new PlaneGeometry(1, height, 4, 4);
+		const geometry = new PlaneGeometry(dimensions.width, dimensions.height, 4, 4);
 		const material = new MeshBasicMaterial({ map: videoTexture, side: DoubleSide });
 		const mesh = new Mesh(geometry, material);
 		mesh.rotation.x = -Math.PI / 2;
