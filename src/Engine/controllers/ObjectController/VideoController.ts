@@ -27,7 +27,7 @@ export default class VideoController extends ObjectController {
 			if(playing) {
 				this.events.play.fire(new PlayEvent(this));
 			} else {
-				this.events.pause.fire(new PlayEvent(this));
+				this.events.pause.fire(new PauseEvent(this));
 			}
 		}, {immediate});
 	}

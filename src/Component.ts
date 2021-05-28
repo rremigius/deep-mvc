@@ -137,6 +137,8 @@ export default class Component {
 	events = new ComponentEvents();
 	actions = new ComponentActions();
 
+	private lastReportedEnabledState?:boolean;
+
 	private eventListeners:EventListener<EventEmitter<unknown>>[] = [];
 
 	_started:boolean = false;
@@ -379,15 +381,16 @@ export default class Component {
 		this.updateEnabledState();
 	}
 	updateEnabledState() {
-		const wasEnabled = this.enabled;
 		this.parentEnabled = !this.parent ? true : this.parent.enabled;
 
-		if(!wasEnabled && this.enabled) {
+		if(this.enabled && this.lastReportedEnabledState !== true) {
 			log.info(`${this} enabled.`);
+			this.lastReportedEnabledState = true;
 			this.onEnable();
 			this.events.enabled.fire(new ComponentEnabledEvent(this));
-		} else if (wasEnabled && !this.enabled) {
+		} else if (!this.enabled && this.lastReportedEnabledState !== false) {
 			log.info(`${this} disabled.`);
+			this.lastReportedEnabledState = false;
 			this.onDisable();
 			this.events.disabled.fire(new ComponentDisabledEvent(this));
 		}

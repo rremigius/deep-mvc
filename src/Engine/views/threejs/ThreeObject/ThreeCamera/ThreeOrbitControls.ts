@@ -56,6 +56,7 @@ export default class ThreeOrbitControls extends Component {
 
 		this.controls = new OrbitControls(camera.camera, engine.renderer.domElement);
 		this.applySettings(this.controls);
+		this.controls.enabled = false; // should start disabled
 	}
 
 	applySettings(to:OrbitControls) {
