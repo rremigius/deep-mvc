@@ -2,16 +2,16 @@ import Model3DModel, {FileType} from "@/Engine/models/ObjectModel/Model3DModel";
 import {Group, Object3D} from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import {MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
-import ColladaLoader from "three-collada-loader-2";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 import FileModel from "@/Engine/models/FileModel";
 import Log from "@/log";
 import ThreeObject from "../ThreeObject";
 import {ThreeClickEvent} from "@/Engine/views/threejs/ThreeEngineView";
 import {check, instanceOf} from "validation-kit";
-import ObjectModel from "@/Engine/models/ObjectModel";
 import Model3DController from "@/Engine/controllers/ObjectController/Model3DController";
 import {get} from 'lodash';
+import {deep, schema} from "mozel";
+import {ColladaLoader} from "three/examples/jsm/loaders/ColladaLoader";
 
 const log = Log.instance("model-3d");
 
@@ -19,13 +19,21 @@ export default class ThreeModel3D extends ThreeObject {
 	static Model = Model3DModel;
 	model!:Model3DModel;
 
+	model3D?:Object3D;
 	controller!:Model3DController;
 
 	onInit() {
 		super.onInit();
 		this.controller = this.requireController(Model3DController);
+	}
 
-		// TODO: make reactive
+	async onLoad(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			// We start watching and it will fire immediately, starting the first loading
+			this.watchAlways(schema(Model3DModel).files, async () => {
+				resolve(this.loadModel());
+			}, {deep});
+		})
 	}
 
 	onThreeClick(event: ThreeClickEvent) {
@@ -43,20 +51,32 @@ export default class ThreeModel3D extends ThreeObject {
 		}
 	}
 
-	async onLoad(): Promise<void> {
-		const model = this.model;
-		switch(model.determineFileType()) {
-			case FileType.Collada:
-				return this.loadCollada(model);
-			case FileType.Obj:
-				return this.loadObjFiles(model);
-			case FileType.Fbx:
-				return this.loadFbx(model);
-		}
-		return Promise.reject(new Error("Could not determine file type."));
+	clear() {
+		if(!this.model3D) return;
+		this.object3D.remove(this.model3D);
+		this.model3D = undefined;
 	}
 
-	async loadObjFiles(xrModel3D: Model3DModel): Promise<void> {
+	async loadModel() {
+		const model = this.model;
+		let loading;
+		switch(model.determineFileType()) {
+			case FileType.Collada:
+				loading = this.loadCollada(model); break;
+			case FileType.Obj:
+				loading = this.loadObjFiles(model); break;
+			case FileType.Fbx:
+				loading = this.loadFbx(model); break;
+			default:
+				return Promise.reject(new Error("Could not determine file type."));
+		}
+		const model3D = await loading;
+		this.clear();
+		this.object3D.add(model3D);
+		this.model3D = model3D;
+	}
+
+	async loadObjFiles(xrModel3D: Model3DModel): Promise<Object3D> {
 		const loader = new OBJLoader();
 		const files = xrModel3D.files;
 
@@ -68,7 +88,6 @@ export default class ThreeModel3D extends ThreeObject {
 			await materialLoader.load(materialFile.url, materialCreator => {
 				materialCreator.preload();
 				loader.setMaterials(materialCreator as any); // Typings for `setMaterials` seem to be wrong.
-
 			}, progress => {
 			}, error => {
 				let err = new Error("Could not load Obj material.");
@@ -82,10 +101,9 @@ export default class ThreeModel3D extends ThreeObject {
 				reject(new Error("Model3DModel does not have a main file."));
 				return;
 			}
-			loader.load(url, (obj) => {
+			loader.load(url, obj => {
 				log.log("Loaded Obj", url);
-				this.object3D.add(obj);
-				resolve();
+				resolve(obj);
 			}, progress => {
 
 			}, reject);
@@ -93,7 +111,7 @@ export default class ThreeModel3D extends ThreeObject {
 
 	}
 
-	async loadCollada(xrModel3D: Model3DModel): Promise<void> {
+	async loadCollada(xrModel3D: Model3DModel): Promise<Object3D> {
 		let loader = new ColladaLoader();
 		const url = xrModel3D.mainFile && xrModel3D.mainFile.url;
 
@@ -103,17 +121,16 @@ export default class ThreeModel3D extends ThreeObject {
 				reject(new Error("Model3DModel does not have a main file."));
 				return;
 			}
-			loader.load(url, (collada) => {
+			loader.load(url, collada => {
 				log.log("Loaded Collada", url);
-				this.object3D.add(collada.scene);
-				resolve();
+				resolve(collada.scene);
 			},() => {
 				// progress not implemented yet
 			},reject);
 		});
 	}
 
-	async loadFbx(xrModel3D: Model3DModel): Promise<void> {
+	async loadFbx(xrModel3D: Model3DModel): Promise<Object3D> {
 		let loader = new FBXLoader();
 		const url = xrModel3D.mainFile && xrModel3D.mainFile.url;
 
@@ -125,9 +142,7 @@ export default class ThreeModel3D extends ThreeObject {
 			}
 			loader.load(url, (fbx: Group) => {
 				log.log("Loaded Fbx", url);
-				const object3D = fbx as Object3D;
-				this.object3D.add(object3D);
-				resolve();
+				resolve(fbx);
 			},() => {
 				// progress not implemented yet
 			}, reject);

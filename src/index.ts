@@ -7,8 +7,6 @@ import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
 import OrbitControlsModel from "@/Engine/models/ObjectModel/CameraModel/OrbitControlsModel";
 import TweenBehaviourModel from "@/Engine/models/BehaviourModel/TweenBehaviourModel";
 import Log from "@/log";
-import ImageModel from "@/Engine/models/ObjectModel/ImageModel";
-import VideoModel from "@/Engine/models/ObjectModel/VideoModel";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
@@ -30,10 +28,10 @@ const model = models.createAndResolveReferences(EngineModel, {
 					maxPolarAngle: 1.5
 				})]
 			}),
-			models.create(VideoModel, {
-				gid: 'video',
-				file: {url: 'assets/videos/cat01.mp4'},
-				scale: 0.5,
+			models.create(Model3DModel, {
+				gid: 'model3d',
+				files: [{url: 'assets/models/cat/cat.obj'}, {url: 'assets/models/cat/cat.mtl'}],
+				scale: 0.1,
 				position: {z: 0.5},
 				behaviours: [models.create(TweenBehaviourModel, {
 					gid: 'tween',
@@ -62,14 +60,14 @@ document.addEventListener('keyup', () => {
 	}
 	if(!engine.isStarted) {
 		engine.start();
+		setTimeout(() => {
+			const model3d = models.registry.byGid<Model3DModel>('model3d');
+			model3d!.files.get(0)!.url = 'assets/models/vw/model.dae';
+			model3d!.scale = 0.5;
+		},2000);
 	} else if(engine.isRunning) {
 		engine.pause();
 	} else {
 		engine.resume();
 	}
 });
-
-setTimeout(() => {
-	const video = models.registry.byGid<VideoModel>('video');
-	video!.file!.url = 'assets/videos/cat02.mp4';
-},2000);

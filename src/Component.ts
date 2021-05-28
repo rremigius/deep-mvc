@@ -142,6 +142,7 @@ export default class Component {
 
 	private eventListeners:EventListener<EventEmitter<unknown>>[] = [];
 	private watchers:PropertyWatcher[];
+	private permanentWatchers:PropertyWatcher[];
 
 	_started:boolean = false;
 	private parentEnabled:boolean = false;
@@ -169,6 +170,7 @@ export default class Component {
 
 		this.initialized = false;
 		this.watchers = [];
+		this.permanentWatchers = [];
 
 		const name = this.toString();
 		this.loading = new Loader(name);
@@ -222,14 +224,7 @@ export default class Component {
 		// For override
 	}
 
-	/**
-	 * Watches model at the given path, but only when the Component is enabled.
-	 * Will always use `immediate` option, so will check for changes every time the Component gets enabled.
-	 * @param {string|PropertySchema<T>|MozelSchema<T>} path
-	 * @param {PropertyChangeHandler<T>} handler
-	 * @param {PropertyWatcherOptionsArgument} options
-	 */
-	watch<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {
+	createWatcher<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {
 		const finalPath = isString(path) ? path : path.$path;
 		const allOptions = {
 			...options,
@@ -240,7 +235,34 @@ export default class Component {
 			}
 		}
 		const watcher = new PropertyWatcher(this.model, allOptions);
+		return watcher;
+	}
+
+	/**
+	 * Watches model at the given path, but only when the Component is enabled.
+	 * Will always use `immediate` option, so will check for changes every time the Component gets enabled.
+	 * @param {string|PropertySchema<T>|MozelSchema<T>} path
+	 * @param {PropertyChangeHandler<T>} handler
+	 * @param {PropertyWatcherOptionsArgument} options
+	 */
+	watch<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {
+		const watcher = this.createWatcher(path, handler, options);
 		this.watchers.push(watcher);
+		return watcher;
+	}
+
+	/**
+	 * Watches model at the given path, whether the Component is enabled or disabled, until the Component is destroyed.
+	 * Will start watching immediately, and fire first time when this method is called.
+	 * @param {string|PropertySchema<T>|MozelSchema<T>} path
+	 * @param {PropertyChangeHandler<T>} handler
+	 * @param {PropertyWatcherOptionsArgument} options
+	 */
+	watchAlways<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {
+		const watcher = this.createWatcher(path, handler, options);
+		this.permanentWatchers.push(watcher);
+		this.model.$addWatcher(watcher);
+		return watcher;
 	}
 
 	setParent(parent?:Component) {
@@ -387,6 +409,7 @@ export default class Component {
 	}
 	destroy() {
 		this.stopListening();
+		this.stopPermanentWatchers();
 
 		this.onDestroy();
 		this.forEachChild((child:Component) => {
@@ -401,6 +424,9 @@ export default class Component {
 	}
 	stopWatchers() {
 		this.watchers.forEach(watcher => this.model.$removeWatcher(watcher));
+	}
+	stopPermanentWatchers() {
+		this.permanentWatchers.forEach(watcher => this.model.$removeWatcher(watcher));
 	}
 
 	enable(enabled:boolean = true) {

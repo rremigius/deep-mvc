@@ -21,7 +21,6 @@
     "mocha": "^8.3.1",
     "mozel": "git+https://github.com/rremigius/mozel.git",
     "three": "^0.126.1",
-    "three-collada-loader-2": "^1.0.1",
     "three-css3drenderer": "^1.0.1",
     "three-forcegraph": "^1.37.0",
     "threear": "^1.0.0-alpha.5",
