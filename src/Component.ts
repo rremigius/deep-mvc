@@ -447,6 +447,8 @@ export default class Component {
 		this.updateEnabledState();
 	}
 	updateEnabledState() {
+		if(!this.started) return;
+
 		this.parentEnabled = !this.parent ? true : this.parent.enabled;
 
 		if(this.enabled && this.lastReportedEnabledState !== true) {

@@ -15,6 +15,8 @@ import ViewController from "@/Controller/ViewController";
 import EventListener from "@/EventListener";
 import Engine from "@/Engine/Engine";
 import ThreeViewFactory from "@/Engine/views/threejs/ThreeViewFactory";
+import UIFactory from "@/Engine/views/ui/UIFactory";
+import SceneModel from "@/Engine/models/SceneModel";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
@@ -47,6 +49,8 @@ const model = models.createAndResolveReferences(EngineModel, {
 	gid: 'engine',
 	camera: {gid: 'camera'},
 	scene: {
+		gid: 'scene',
+		description: 'foo',
 		marker: 'data-nft/pinball',
 		children: [
 			models.create(LightModel),
@@ -78,9 +82,11 @@ class MyEngine extends Engine {
 		const controllerFactory = Engine.createDefaultControllerFactory();
 		const viewFactory = new ThreeViewFactory(controllerFactory.registry);
 		viewFactory.register(ClickToDisableBehaviourController)
+		const uiFactory = new UIFactory(controllerFactory.registry);
 		return {
 			controller: controllerFactory,
-			view: viewFactory
+			view: viewFactory,
+			ui: uiFactory
 		}
 	}
 }
@@ -97,6 +103,8 @@ document.addEventListener('keyup', () => {
 	}
 	if(!engine.isStarted) {
 		engine.start();
+		const scene = models.registry.byGid<SceneModel>('scene');
+		scene!.description = 'bar';
 	} else if(engine.isRunning) {
 		engine.pause();
 	} else {

@@ -11,10 +11,11 @@ export default class HtmlView extends View {
 		super.onInit();
 		this.domElement = this.createDOMElement();
 		this.domElement.setAttribute("data-gid", this.gid.toString());
+		this.domElement.className = this.static.name;
 	}
 
 	createDOMElement():HTMLElement {
-		return new HTMLDivElement();
+		return document.createElement('div');
 	}
 
 	onViewAdd(view:HtmlView) {
@@ -24,6 +25,8 @@ export default class HtmlView extends View {
 
 	onViewRemove(view: HtmlView) {
 		super.onViewRemove(view);
-		this.domElement.removeChild(view.domElement);
+		if(this.domElement.contains(view.domElement)) {
+			this.domElement.removeChild(view.domElement);
+		}
 	}
 }

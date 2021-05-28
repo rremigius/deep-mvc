@@ -6,7 +6,9 @@ import EngineModel from "@/Engine/models/EngineModel";
 import UISceneView from "./UISceneView";
 
 export default class UIEngineView extends EngineView {
-	@component(schema(EngineModel), UISceneView)
+	static Model = EngineModel;
+
+	@component(schema(EngineModel).scene, UISceneView)
 	scene!:ComponentSlot<UISceneView>;
 
 	onInit() {

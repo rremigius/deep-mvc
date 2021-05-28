@@ -91,7 +91,6 @@ export default class Engine {
 				if(!(component instanceof EngineView)) return;
 				component.attachTo(container);
 			});
-			return;
 		} else {
 			// Attach all to different containers
 			for(let name in container) {
