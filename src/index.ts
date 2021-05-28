@@ -7,11 +7,39 @@ import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";
 import OrbitControlsModel from "@/Engine/models/ObjectModel/CameraModel/OrbitControlsModel";
 import Log from "@/log";
 import {ViewClickEvent} from "@/View";
-import {ComponentEnableAction} from "@/Component";
-import {EngineDestroyAction} from "@/Engine/controllers/EngineController";
+import Component from "@/Component";
+import ComponentFactory from "@/Component/ComponentFactory";
+import BehaviourController from "@/Engine/controllers/BehaviourController";
+import BehaviourModel from "@/Engine/models/BehaviourModel";
+import ViewController from "@/Controller/ViewController";
+import EventListener from "@/EventListener";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
+
+class ClickToDisableBehaviourModel extends BehaviourModel {
+	static get type() { return 'ClickToDisable' }
+}
+class ClickToDisableBehaviourController extends BehaviourController {
+	static Model = ClickToDisableBehaviourModel;
+	model!:ClickToDisableBehaviourModel;
+
+	parentListener?:EventListener<ViewClickEvent>;
+
+	setParent(parent?: Component) {
+		super.setParent(parent);
+		// Stop current listener
+		if(this.parentListener) {
+			this.parentListener.stop();
+		}
+		// Start new listener
+		if(parent instanceof ViewController) {
+			this.parentListener = this.listenTo(parent.events.click, event => {
+				parent.enable(false);
+			});
+		}
+	}
+}
 
 const model = models.createAndResolveReferences(EngineModel, {
 	gid: 'engine',
@@ -32,51 +60,25 @@ const model = models.createAndResolveReferences(EngineModel, {
 				})]
 			}),
 			models.create(Model3DModel, {
-				gid: 'cat',
-				files: [{url: 'assets/models/cat/cat.obj'}, {url: 'assets/models/cat/cat.mtl'}],
-				scale: 0.1,
-				position: {z: 0.5},
-				triggers: [{
-					event: { name: ViewClickEvent.name },
-					action: {
-						name: ComponentEnableAction.name,
-						target: {gid: 'vw'},
-						input: { enable: true }
-					}
-				},{
-					event: { name: ViewClickEvent.name },
-					action: {
-						name: ComponentEnableAction.name,
-						input: { enable: false }
-					}
-				}]
-			}),
-			models.create(Model3DModel, {
 				gid: 'vw',
-				enabled: false,
 				files: [{url: 'assets/models/vw/model.dae'}],
 				scale: 0.5,
 				position: {z: 0.5},
-				triggers: [{
-					event: { name: ViewClickEvent.name },
-					action: {
-						name: ComponentEnableAction.name,
-						target: {gid: 'cat'},
-						input: { enable: true }
-					}
-				},{
-					event: { name: ViewClickEvent.name },
-					action: {
-						target: {gid: 'engine'},
-						name: EngineDestroyAction.name,
-						input: { enable: false }
-					}
-				}]
+				behaviours: [
+					models.create(ClickToDisableBehaviourModel)
+				]
 			})
 		]
 	}
 });
-const engine = new PlainEngine(model);
+class MyEngine extends PlainEngine {
+	createDefaultControllerFactory(): ComponentFactory {
+		const factory = super.createDefaultControllerFactory();
+		factory.register(ClickToDisableBehaviourController);
+		return factory;
+	}
+}
+const engine = new MyEngine(model);
 
 const container = document.getElementById('engine');
 if(!container) throw new Error("No element found with id 'engine'.");

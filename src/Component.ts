@@ -87,7 +87,7 @@ export function components<C extends Component, M extends C['model']>(
 
 @injectable()
 export default class Component {
-	static Model:(typeof ComponentModel) = ComponentModel; // should be set for each extending class
+	static Model = ComponentModel; // should be set for each extending class
 
 	static createFactory() {
 		const factory = new ComponentFactory();
@@ -198,9 +198,9 @@ export default class Component {
 		this.loading = new Loader(name);
 		this.loading.log.setLevel(LogLevel.WARN);
 
-		this.initClassDefinitions();
 		this.onSetupEventsAndActions();
 		this.onBindActions();
+		this.initClassDefinitions();
 		this.onInit();
 
 		this.initialized = true;

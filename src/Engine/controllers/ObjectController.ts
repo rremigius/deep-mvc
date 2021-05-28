@@ -1,5 +1,4 @@
 import {components} from "@/Component";
-import ComponentModel from "@/ComponentModel";
 import ObjectModel from "@/Engine/models/ObjectModel";
 import TriggerController from "@/Engine/controllers/TriggerController";
 import BehaviourController from "@/Engine/controllers/BehaviourController";
