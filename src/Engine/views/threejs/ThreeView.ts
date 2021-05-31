@@ -28,13 +28,6 @@ export default class ThreeView extends View {
 		this._object3D = this.createObject3D();
 		this._object3D.gid = this.gid;
 		this._object3D.onClick = this.threeClick.bind(this); // To be called by ThreeEngineView
-
-		this.watch(schema(ViewModel).position, position => {
-			this.setPosition(position);
-		}, {deep, throttle: 1});
-		this.watch(schema(ViewModel).scale, scale => {
-			this.setScale(scale);
-		}, {deep, throttle: 1});
 	}
 
 	setParent(parent?:ThreeView) {

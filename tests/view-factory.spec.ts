@@ -32,8 +32,8 @@ class FooView extends View {
 
 	component?:FooComponent;
 
-	onInit(model:ViewModel) {
-		super.onInit(model);
+	onInit() {
+		super.onInit();
 		this.component = this.findController(FooComponent);
 	}
 
