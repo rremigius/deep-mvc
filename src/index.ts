@@ -1,6 +1,5 @@
 import EngineModel from "@/Engine/models/EngineModel";
 import CameraModel from "@/Engine/models/ObjectModel/CameraModel";
-import PlainEngine from "@/Engine/PlainEngine";
 import EngineModelFactory from "@/Engine/models/EngineModelFactory";
 import LightModel from "@/Engine/models/ObjectModel/LightModel";
 import Model3DModel from "@/Engine/models/ObjectModel/Model3DModel";

@@ -113,6 +113,7 @@ export default class ComponentFactory {
 		let component;
 		if(container.isBoundNamed(ComponentSymbol, model.static.type)) {
 			component = container.getNamed<Component>(ComponentSymbol, model.static.type);
+			log.info(`Component '${component.static.name}' generated for model '${model.static.type}'.`);
 		} else if(ExpectedClass) {
 			// Try an generic placeholder for the expected class
 			component = container.get(ExpectedClass);

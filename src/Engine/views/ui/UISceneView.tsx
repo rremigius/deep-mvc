@@ -2,20 +2,25 @@ import React, {CSSProperties} from "react";
 import ReactView, {ReactViewComponent} from "./ReactView";
 import SceneModel from "@/Engine/models/SceneModel";
 
-const UI_SCENE_STYLE:CSSProperties = {
+const STYLE:CSSProperties = {
 	position: 'absolute',
 	left: 0,
 	top: 0,
 	right: 0,
 	bottom: 0
 }
-class UISceneViewReact extends ReactViewComponent<{model:SceneModel},{foo:string}> {
-	constructor(props:any) { //TODO: type
+class UISceneViewReact extends ReactViewComponent<{model:SceneModel, childElements:HTMLElement[]},{foo:string}> {
+	constructor(props:any) {
 		super(props);
 		this.state = {foo: 'bar'};
 	}
 	render() {
-		return <div style={UI_SCENE_STYLE}>{this.props.model.gid} - {this.props.model.description}</div>
+		return (
+			<div className="ui-scene-view" style={STYLE}>
+				<div>{this.props.model.gid} - {this.props.model.description}</div>
+				{this.renderChildren()}
+			</div>
+		)
 	}
 }
 
