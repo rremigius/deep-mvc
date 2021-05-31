@@ -44,7 +44,7 @@ export default class View extends Component {
 
 		const component = this.factory.controllerRegistry.byGid(this.model.gid);
 		if(component && !(component instanceof ExpectedClass)) {
-			throw new Error(`View '${this.static.name}' expected component of type '${component.static.name}', found '${component.static.name} instead.`);
+			throw new Error(`View '${this.static.name}' expected component of type '${ExpectedClass.name}', found '${component.static.name}' instead.`);
 		}
 		return component;
 	}

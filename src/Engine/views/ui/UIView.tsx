@@ -7,8 +7,10 @@ class UIViewReact extends ReactViewComponent<ReactViewComponentProps<ViewModel>,
 			<div className="ui-view">
 				<div className="details">
 					<table>
-						<tr><td>Type:</td><td>{this.props.model.static.type}</td></tr>
-						<tr><td>GID:</td><td>{this.props.model.gid}</td></tr>
+						<tbody>
+							<tr><td>Type:</td><td>{this.props.model.static.type}</td></tr>
+							<tr><td>GID:</td><td>{this.props.model.gid}</td></tr>
+						</tbody>
 					</table>
 				</div>
 				{this.renderChildren()}

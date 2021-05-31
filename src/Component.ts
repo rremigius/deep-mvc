@@ -122,6 +122,9 @@ export default class Component {
 		this.classComponentListDefinitions.push({property, modelPath, ExpectedComponentClass});
 	}
 
+	private _componentSlotDefinitions:Record<string, ComponentSlotDefinition> = {};
+	private _componentListDefinitions:Record<string, ComponentListDefinition> = {};
+
 	readonly gid:alphanumeric;
 
 	public readonly model:ComponentModel;
@@ -206,22 +209,35 @@ export default class Component {
 		this.initialized = true;
 	}
 
-	initClassDefinitions() {
-		// To be called for each class on the prototype chain
-		const _defineData = (Class: typeof Component) => {
-			if (Class !== Component) {
-				// Define class properties of parent class
-				_defineData(Object.getPrototypeOf(Class));
+	private collectClassDefinitions() {
+		const _collectClassDefinitions = (Class: typeof Component) => {
+			// First collect parent class definitions
+			if(Class !== Component) {
+				_collectClassDefinitions(Object.getPrototypeOf(Class));
 			}
-			// Define class properties of this class
+			// Then collect this class' definitions (allow override)
 			Class.classComponentSlotDefinitions.forEach(definition => {
-				(this as any)[definition.property] = this.setupSubComponent(definition.modelPath, definition.ExpectedComponentClass);
+				this._componentSlotDefinitions[definition.property] = definition;
 			});
 			Class.classComponentListDefinitions.forEach(definition => {
-				(this as any)[definition.property] = this.setupSubComponents(definition.modelPath, definition.ExpectedComponentClass);
+				this._componentListDefinitions[definition.property] = definition;
 			});
 		};
-		_defineData(this.static);
+		_collectClassDefinitions(this.static);
+
+	}
+	initClassDefinitions() {
+		// First collect all definitions
+		this.collectClassDefinitions();
+
+		for(let property in this._componentSlotDefinitions) {
+			const definition = this._componentSlotDefinitions[property];
+			(this as any)[definition.property] = this.setupSubComponent(definition.modelPath, definition.ExpectedComponentClass);
+		}
+		for(let property in this._componentListDefinitions) {
+			const definition = this._componentListDefinitions[property];
+			(this as any)[definition.property] = this.setupSubComponents(definition.modelPath, definition.ExpectedComponentClass);
+		}
 	}
 
 	onInit() {

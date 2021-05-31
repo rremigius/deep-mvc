@@ -5,6 +5,8 @@ import BehaviourController from "@/Engine/controllers/BehaviourController";
 import ComponentList from "@/Component/ComponentList";
 import {schema} from "mozel";
 import ViewController from "@/Controller/ViewController";
+import Vector3Model from "@/Engine/models/Vector3Model";
+import Vector3 from "@/Engine/views/common/Vector3";
 
 export default class ObjectController extends ViewController {
 	static Model = ObjectModel;
@@ -21,5 +23,9 @@ export default class ObjectController extends ViewController {
 
 		this.triggers.events.added.on(event => event.component.setDefaultController(this));
 		this.triggers.events.removed.on(event => event.component.setDefaultController(undefined));
+	}
+
+	setPosition(position:Vector3) {
+		this.model.position = Vector3Model.create(position);
 	}
 }

@@ -11,7 +11,6 @@ const log = Log.instance("view/three/camera/orbit-controls");
 export default class ThreeOrbitControls extends Component {
 	static Model = OrbitControlsModel;
 	model!:OrbitControlsModel;
-
 	controls?:OrbitControls;
 
 	onInit() {
@@ -57,6 +56,11 @@ export default class ThreeOrbitControls extends Component {
 		this.controls = new OrbitControls(camera.camera, engine.renderer.domElement);
 		this.applySettings(this.controls);
 		this.controls.enabled = false; // should start disabled
+
+		// Update the model together with the change in view
+		this.controls.addEventListener('change', () => {
+			camera.setPosition(camera.camera.position);
+		});
 	}
 
 	applySettings(to:OrbitControls) {
