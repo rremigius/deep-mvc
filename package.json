@@ -11,6 +11,8 @@
   "author": "Remi Alkemade <info@remialkemade.nl> (https://www.remialkemade.nl)",
   "license": "ISC",
   "dependencies": {
+    "@material-ui/core": "^4.11.4",
+    "@material-ui/icons": "^4.11.2",
     "@types/mocha": "^8.2.1",
     "@types/three": "^0.126.0",
     "@types/tinycolor2": "^1.4.2",

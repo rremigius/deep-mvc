@@ -11,7 +11,7 @@ export type ReactViewComponentProps<T extends Model> = {
 	childElements:HTMLElement[]
 }
 
-export class ReactViewComponent<M extends {model: ViewModel, childElements:HTMLElement[]}, S> extends React.Component<M, S> {
+export class ReactViewComponent<M extends ReactViewComponentProps<ViewModel>, S> extends React.Component<M, S> {
 	children = React.createRef<HTMLDivElement>();
 
 	componentDidMount() {
