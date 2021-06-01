@@ -1,10 +1,12 @@
 import ReactView, {ReactViewComponent, ReactViewComponentProps} from "./ReactView";
 import ViewModel from "@/ViewModel";
 
+import "./UIView.css";
+
 class UIViewReact extends ReactViewComponent<ReactViewComponentProps<ViewModel>, object> {
 	render() {
 		return (
-			<div className="ui-view">
+			<div className="component-view ui-view">
 				<div className="details">
 					<table>
 						<tbody>

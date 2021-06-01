@@ -4,7 +4,7 @@ import ObjectModel from "@/Engine/models/ObjectModel";
 class UIObjectViewReact extends ReactViewComponent<ReactViewComponentProps<ObjectModel>, object> {
 	render() {
 		return (
-			<div className="ui-object-view">
+			<div className="component-view ui-object-view">
 				<div className="details">
 					<table>
 						<tbody>
