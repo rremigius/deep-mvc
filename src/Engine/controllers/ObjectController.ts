@@ -26,6 +26,6 @@ export default class ObjectController extends ViewController {
 	}
 
 	setPosition(position:Vector3) {
-		this.model.position = Vector3Model.create(position);
+		this.model.position = this.model.$create(Vector3Model, position);
 	}
 }

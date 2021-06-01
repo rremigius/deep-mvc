@@ -5,7 +5,16 @@ import Loader from "deep-loader";
 import EventListener from "@/EventListener";
 import ComponentList from "@/Component/ComponentList";
 import ComponentSlot from "@/Component/ComponentSlot";
-import {alphanumeric, CollectionSchema, immediate, MozelSchema, PropertySchema, Registry, schema} from "mozel";
+import {
+	alphanumeric,
+	CollectionSchema,
+	immediate,
+	MozelFactory,
+	MozelSchema,
+	PropertySchema,
+	Registry,
+	schema
+} from "mozel";
 import ComponentModel from "@/ComponentModel";
 import EventBus from "@/EventBus";
 import EventEmitter, {callback, Events} from "@/EventEmitter";
