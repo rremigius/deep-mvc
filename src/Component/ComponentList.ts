@@ -24,9 +24,12 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 	ComponentModelClass:Constructor<ComponentModel<C>>;
 	ComponentClass:ComponentConstructor<C>;
 	factory:ComponentFactory;
-	current:C[] = [];
 	currentCollection?:Collection<ComponentModel<C>>;
 	parent:Component;
+
+	get current() {
+		return this._current ? this._current : [];
+	}
 
 	addedListener = (model:unknown) => {
 		const $model = check<ComponentModel<C>>(model, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
@@ -67,7 +70,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 			this.currentCollection.removeRemovedListener(this.removedListener);
 		}
 		this.currentCollection = collection;
-		if(!collection) return [];
+		if(!collection) return []; // because of this, `current` is always defined
 
 		// Add listeners to new collection
 		collection.onAdded(this.addedListener);

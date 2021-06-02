@@ -24,7 +24,7 @@ class UISceneViewReact extends ReactViewComponent<{model:SceneModel, childElemen
 		return (
 			<div className="ui-scene-view" style={STYLE}>
 				<div>{this.props.model.gid} - {this.props.model.description}</div>
-				{this.renderChildren()}
+				{this.renderDefaultChildrenElement()}
 			</div>
 		)
 	}

@@ -14,7 +14,7 @@ class UIObjectViewReact extends ReactViewComponent<ReactViewComponentProps<Objec
 						</tbody>
 					</table>
 				</div>
-				{this.renderChildren()}
+				{this.renderDefaultChildrenElement()}
 			</div>
 		)
 	}

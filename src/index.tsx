@@ -16,6 +16,8 @@ import Engine from "@/Engine/Engine";
 import ThreeViewFactory from "@/Engine/views/threejs/ThreeViewFactory";
 import UIFactory from "@/Engine/views/ui/UIFactory";
 import SceneModel from "@/Engine/models/SceneModel";
+import ReactDOM from 'react-dom';
+import App from "@/Engine/App";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
@@ -93,7 +95,8 @@ const engine = new MyEngine(model);
 
 const container = document.getElementById('engine');
 if(!container) throw new Error("No element found with id 'engine'.");
-engine.attach(container);
+
+ReactDOM.render(<App engine={engine}/>, container);
 
 document.addEventListener('keyup', () => {
 	if(!engine.isLoaded) {

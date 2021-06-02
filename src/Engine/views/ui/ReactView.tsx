@@ -31,7 +31,7 @@ export class ReactViewComponent<M extends ReactViewComponentProps<ViewModel>, S>
 		}
 	}
 
-	renderChildren() {
+	renderDefaultChildrenElement() {
 		return <div ref={this.children}/>
 	}
 }

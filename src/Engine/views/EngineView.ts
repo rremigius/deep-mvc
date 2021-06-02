@@ -30,10 +30,12 @@ export default class EngineView extends View {
 	}
 
 	detach() {
+		if(!this._container) return;
 		this.onDetach();
 	}
 
 	attachTo(container:HTMLElement) {
+		if(container === this._container) return;
 		this._container = container;
 		this.onAttachTo(container);
 	}

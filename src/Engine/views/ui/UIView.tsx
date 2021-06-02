@@ -15,7 +15,7 @@ class UIViewReact extends ReactViewComponent<ReactViewComponentProps<ViewModel>,
 						</tbody>
 					</table>
 				</div>
-				{this.renderChildren()}
+				{this.renderDefaultChildrenElement()}
 			</div>
 		)
 	}

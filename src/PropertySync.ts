@@ -21,7 +21,10 @@ export class PropertySyncEvents<T> extends Events {
  * an event with the new and old constructs.
  */
 export default class PropertySync<P extends PropertyValue,T> {
-	current?:T;
+	protected _current?:T;
+	get current() {
+		return this._current;
+	}
 
 	events = new PropertySyncEvents<T>();
 
@@ -83,7 +86,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 		let output = this.syncValue(value);
 
 		const old = this.current;
-		this.current = output;
+		this._current = output;
 		this.events.changed.fire(new ValueChangeEvent<T>(changePath, this.isReference, output, old));
 	}
 
