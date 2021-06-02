@@ -1,7 +1,17 @@
 import React from 'react';
-import {AppBar, Drawer, IconButton, Toolbar, Typography, withStyles} from "@material-ui/core";
-import MenuIcon from "@material-ui/icons/Menu";
+import {
+	AppBar,
+	createMuiTheme,
+	Drawer,
+	IconButton,
+	Toolbar,
+	Typography,
+	ThemeProvider,
+	withStyles, Box
+} from "@material-ui/core";
+import {ExpandMore, ChevronRight, Menu} from "@material-ui/icons";
 import Engine from "@/Engine/Engine";
+import {TreeItem, TreeView} from "@material-ui/lab";
 
 interface Props {
 	engine: Engine
@@ -14,7 +24,6 @@ interface Classes {
 	appBar:string,
 	engine:string,
 	drawer:string,
-	drawerHeader:string,
 	drawerPaper:string,
 	drawerContainer:string
 }
@@ -34,11 +43,13 @@ class App extends React.Component<PropsWithOptionalStyles<Props, Classes>, State
 	}
 
 	componentDidMount() {
-		this.attachEngine();
+		// Give some time for the UI to get its final size
+		setTimeout(()=>this.attachEngine(),500);
 	}
 
 	componentDidUpdate() {
-		this.attachEngine();
+		// Give some time for the UI to get its final size
+		setTimeout(()=>this.attachEngine(), 500);
 	}
 
 	attachEngine() {
@@ -53,31 +64,59 @@ class App extends React.Component<PropsWithOptionalStyles<Props, Classes>, State
 	render() {
 		// TS: withStyles injects the classes
 		const {classes} = this.props as PropsWithStyles<Props, Classes>;
+		const theme = createMuiTheme({
+			palette: {
+				type: 'dark'
+			},
+		});
+
 		return (
-			<div className={classes.app}>
-				<AppBar className={classes.appBar}>
-					<Toolbar>
-						<IconButton edge="start" color="inherit" aria-label="menu" onClick={this.toggleDrawer.bind(this)}>
-							<MenuIcon />
-						</IconButton>
-						<Typography variant="h6">
-							Engine
-						</Typography>
-					</Toolbar>
-				</AppBar>
-				<Drawer className={classes.drawer}
-						classes={{paper: classes.drawerPaper}}
-						variant="persistent"
-						anchor="left"
-						open={this.state.drawer}>
+			<ThemeProvider theme={theme}>
+				<div className={classes.app}>
+					<AppBar className={classes.appBar}>
+						<Toolbar>
+							<IconButton edge="start" color="inherit" aria-label="menu" onClick={this.toggleDrawer.bind(this)}>
+								<Menu />
+							</IconButton>
+							<Typography variant="h6">
+								Engine
+							</Typography>
+						</Toolbar>
+					</AppBar>
+					<Drawer className={classes.drawer}
+							classes={{paper: classes.drawerPaper}}
+							variant="persistent"
+							anchor="left"
+							open={this.state.drawer}>
+						<Box p={1}>
+							<Toolbar/>
+							<div className={classes.drawerContainer}>
+								<TreeView
+									defaultCollapseIcon={<ExpandMore />}
+									defaultExpandIcon={<ChevronRight />}
+								>
+									<TreeItem nodeId="1" label="Applications">
+										<TreeItem nodeId="2" label="Calendar" />
+										<TreeItem nodeId="3" label="Chrome" />
+										<TreeItem nodeId="4" label="Webstorm" />
+									</TreeItem>
+									<TreeItem nodeId="5" label="Documents">
+										<TreeItem nodeId="10" label="OSS" />
+										<TreeItem nodeId="6" label="Material-UI">
+											<TreeItem nodeId="7" label="src">
+												<TreeItem nodeId="8" label="index.js" />
+												<TreeItem nodeId="9" label="tree-view.js" />
+											</TreeItem>
+										</TreeItem>
+									</TreeItem>
+								</TreeView>
+							</div>
+						</Box>
+					</Drawer>
 					<Toolbar />
-					<div className={classes.drawerContainer}>
-						test
-					</div>
-				</Drawer>
-				<Toolbar />
-				<div className={classes.engine + (this.state.drawer ? " drawer" : "")} ref={this.engineRef}/>
-			</div>
+					<div className={classes.engine + (this.state.drawer ? " drawer" : "")} ref={this.engineRef}/>
+				</div>
+			</ThemeProvider>
 		)
 	}
 }
@@ -100,14 +139,6 @@ export default withStyles(theme => ({
 	},
 	drawer: {
 		width: drawerWidth
-	},
-	drawerHeader: {
-		display: 'flex',
-		alignItems: 'center',
-		padding: theme.spacing(0, 1),
-		// necessary for content to be below app bar
-		...theme.mixins.toolbar,
-		justifyContent: 'flex-end',
 	},
 	drawerPaper: {
 		width: drawerWidth
