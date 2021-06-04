@@ -6,7 +6,7 @@ import EngineControllerFactory from "@/Engine/controllers/EngineControllerFactor
 import {Events} from "@/EventEmitter";
 import ViewFactory from "@/View/ViewFactory";
 import EngineView from "@/Engine/views/EngineView";
-import Component, {component} from "@/Component";
+import Component from "@/Component";
 import {forEach, map} from "lodash";
 
 const log = Log.instance("engine");
@@ -112,6 +112,10 @@ export default class Engine {
 			}
 			component.detach();
 		}
+	}
+
+	getRootComponent(name:string) {
+		return this.rootComponents[name];
 	}
 
 	render() {

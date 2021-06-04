@@ -18,6 +18,7 @@ import UIFactory from "@/Engine/views/ui/UIFactory";
 import SceneModel from "@/Engine/models/SceneModel";
 import ReactDOM from 'react-dom';
 import App from "@/Engine/App";
+import ObjectModel from "@/Engine/models/ObjectModel";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
@@ -73,7 +74,8 @@ const model = models.createAndResolveReferences(EngineModel, {
 				position: {z: 0.5},
 				behaviours: [
 					models.create(ClickToDisableBehaviourModel)
-				]
+				],
+				children: [models.create(ObjectModel, {gid: 'empty'})]
 			})
 		]
 	}

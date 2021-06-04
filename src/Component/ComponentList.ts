@@ -135,6 +135,14 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 		this.current.forEach(callback);
 	}
 
+	map<T>(callback:(component:C)=>T):T[] {
+		return this.current.map(callback);
+	}
+
+	filter(callback:(component:C)=>boolean):C[] {
+		return this.current.filter(callback);
+	}
+
 	find(predicate:((value:C)=>boolean)|Record<string,unknown>) {
 		const check = isFunction(predicate)
 			? predicate

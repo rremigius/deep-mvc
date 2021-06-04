@@ -9,7 +9,7 @@ export default class UIFactory extends ViewFactory {
 	initDependencies() {
 		super.initDependencies();
 		this.register([
-			UIEngineView, UISceneView, UIObjectView
+			UIEngineView
 		]);
 		this.registerDefault(View, UIView);
 	}

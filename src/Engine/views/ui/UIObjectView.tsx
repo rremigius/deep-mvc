@@ -1,20 +1,37 @@
 import ReactView, {ReactViewComponent, ReactViewComponentProps} from "./ReactView";
 import ObjectModel from "@/Engine/models/ObjectModel";
+import {Collapse, createStyles, List, ListItem, ListItemText, Theme, withStyles, WithStyles} from "@material-ui/core";
+import React from "react";
 
-class UIObjectViewReact extends ReactViewComponent<ReactViewComponentProps<ObjectModel>, object> {
+const styles = (theme: Theme) => createStyles({
+	uiView: { /* ... */ },
+	children: {
+		paddingLeft: theme.spacing(4)
+	},
+	button: { /* ... */ },
+});
+
+type Props = ReactViewComponentProps<UIObjectView> & WithStyles<typeof styles>;
+type State = {expanded:boolean};
+class UIObjectViewReact extends ReactViewComponent<Props,State> {
+	constructor(props:Props) {
+		super(props);
+		this.state = {expanded:true};
+	}
 	render() {
+		const classes = this.props.classes;
 		return (
-			<div className="component-view ui-object-view">
-				<div className="details">
-					<table>
-						<tbody>
-							<tr><td>Type:</td><td>{this.props.model.static.type}</td></tr>
-							<tr><td>GID:</td><td>{this.props.model.gid}</td></tr>
-							<tr><td>Position:</td><td>{this.props.model.position.x},{this.props.model.position.y},{this.props.model.position.z}</td></tr>
-						</tbody>
-					</table>
-				</div>
-				{this.renderDefaultChildrenElement()}
+			<div className={classes.uiView}>
+				<ListItem>
+					<ListItemText>
+						{this.model.static.name} ({this.model.gid})
+					</ListItemText>
+				</ListItem>
+				<Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
+					<List component="div" disablePadding className={classes.children}>
+						{this.renderChildren()}
+					</List>
+				</Collapse>
 			</div>
 		)
 	}
@@ -25,6 +42,6 @@ export default class UIObjectView extends ReactView {
 	model!: ObjectModel;
 
 	getReactComponent() {
-		return UIObjectViewReact;
+		return withStyles(styles)(UIObjectViewReact) as typeof UIObjectViewReact;
 	}
 }

@@ -1,9 +1,24 @@
+import EngineModel from "@/Engine/models/EngineModel";
+import {ReactViewComponentProps} from "@/Engine/views/ui/ReactView";
+import {List} from "@material-ui/core";
 import EngineView from "@/Engine/views/EngineView";
+import UISceneView from "@/Engine/views/ui/UISceneView";
+import ReactDOM from "react-dom";
+import {schema} from "mozel";
 import {component} from "@/Component";
 import ComponentSlot from "@/Component/ComponentSlot";
-import {schema} from "mozel";
-import EngineModel from "@/Engine/models/EngineModel";
-import UISceneView from "./UISceneView";
+import React from 'react';
+
+class UIEngineReactViewComponent extends React.Component<ReactViewComponentProps<UIEngineView>, {}> {
+	render() {
+		const scene = this.props.view.scene.current;
+		return (
+			<List>
+				{ scene ? scene.render(): undefined }
+			</List>
+		)
+	}
+}
 
 export default class UIEngineView extends EngineView {
 	static Model = EngineModel;
@@ -19,15 +34,6 @@ export default class UIEngineView extends EngineView {
 		this.domElement.className = 'ui-engine-view-container';
 
 		super.onInit();
-
-		this.scene.init(scene => {
-			if(!this.container || !scene) return;
-			this.container.append(scene.domElement);
-		});
-		this.scene.deinit(scene => {
-			if(!this.container || !scene) return;
-			this.container.removeChild(scene.domElement);
-		});
 	}
 
 	setSize(width: number, height: number) {
@@ -35,14 +41,14 @@ export default class UIEngineView extends EngineView {
 	}
 	onAttachTo(container: HTMLElement) {
 		super.onAttachTo(container);
-		const scene = this.scene.current;
-		if(!scene) return;
-		container.append(scene.domElement);
+		ReactDOM.render(this.render(), container);
 	}
 	detach() {
 		super.detach();
-		const scene = this.scene.current;
-		if(!scene) return;
-		scene.domElement.remove();
+		if(!this.container) return;
+		ReactDOM.unmountComponentAtNode(this.container);
+	}
+	render() {
+		return <UIEngineReactViewComponent view={this}/>;
 	}
 }

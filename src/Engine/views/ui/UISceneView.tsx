@@ -1,30 +1,31 @@
-import React, {CSSProperties} from "react";
-import ReactView, {ReactViewComponent} from "./ReactView";
+import React from "react";
+import ReactView, {ReactViewComponent, ReactViewComponentProps} from "./ReactView";
 import SceneModel from "@/Engine/models/SceneModel";
+import {Collapse, List, ListItem, ListItemText} from "@material-ui/core";
 import {schema} from "mozel";
+import {components} from "@/Component";
 import UIObjectView from "@/Engine/views/ui/UIObjectView";
 import ComponentList from "@/Component/ComponentList";
-import {components} from "@/Component";
 import View from "@/View";
 
-const STYLE:CSSProperties = {
-	pointerEvents: 'none',
-	position: 'absolute',
-	left: 0,
-	top: 0,
-	right: 0,
-	bottom: 0
-}
-class UISceneViewReact extends ReactViewComponent<{model:SceneModel, childElements:HTMLElement[]},{foo:string}> {
-	constructor(props:any) {
+export class UISceneViewReact extends ReactViewComponent<ReactViewComponentProps<UISceneView>,{expanded:boolean}> {
+	constructor(props:ReactViewComponentProps<UISceneView>) {
 		super(props);
-		this.state = {foo: 'bar'};
+		this.state = {expanded: true};
 	}
 	render() {
 		return (
-			<div className="ui-scene-view" style={STYLE}>
-				<div>{this.props.model.gid} - {this.props.model.description}</div>
-				{this.renderDefaultChildrenElement()}
+			<div>
+				<ListItem>
+					<ListItemText>
+						{this.model.static.name} ({this.model.gid})
+					</ListItemText>
+				</ListItem>
+				<Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
+					<List component="div" disablePadding>
+						{this.renderChildren()}
+					</List>
+				</Collapse>
 			</div>
 		)
 	}

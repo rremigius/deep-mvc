@@ -1,41 +1,31 @@
 import React from 'react';
 import {
 	AppBar,
-	createMuiTheme,
+	Box,
+	createMuiTheme, createStyles,
 	Drawer,
-	IconButton,
-	Toolbar,
-	Typography,
+	IconButton, List, Theme,
 	ThemeProvider,
-	withStyles, Box
+	Toolbar,
+	Typography, WithStyles,
+	withStyles
 } from "@material-ui/core";
-import {ExpandMore, ChevronRight, Menu} from "@material-ui/icons";
+import {Menu} from "@material-ui/icons";
 import Engine from "@/Engine/Engine";
-import {TreeItem, TreeView} from "@material-ui/lab";
+import Component from "@/Component";
+import UIEngineView from "@/Engine/views/ui/UIEngineView";
 
-interface Props {
+type Props = WithStyles<typeof styles> & {
 	engine: Engine
 }
-interface State {
+type State = {
 	drawer:boolean;
 }
-interface Classes {
-	app:string,
-	appBar:string,
-	engine:string,
-	drawer:string,
-	drawerPaper:string,
-	drawerContainer:string
-}
-
-export type PropsWithStyles<P,S> = P & {classes: S};
-export type PropsWithOptionalStyles<P,S> = P & {classes?: S};
-
-class App extends React.Component<PropsWithOptionalStyles<Props, Classes>, State> {
+class App extends React.Component<Props, State> {
 	engine:Engine;
 	engineRef = React.createRef<HTMLDivElement>();
 
-	constructor(props:PropsWithOptionalStyles<Props,Classes>) {
+	constructor(props:Props) {
 		super(props);
 		this.state = {drawer: true};
 
@@ -53,8 +43,13 @@ class App extends React.Component<PropsWithOptionalStyles<Props, Classes>, State
 	}
 
 	attachEngine() {
-		if(!this.engineRef.current) return;
-		this.engine.attach(this.engineRef.current);
+		const containers:Record<string, HTMLElement> = {};
+		if(this.engineRef.current) {
+			containers.view = this.engineRef.current;
+		}
+		// We attach UI by React
+
+		this.engine.attach(containers);
 	}
 
 	toggleDrawer() {
@@ -62,13 +57,17 @@ class App extends React.Component<PropsWithOptionalStyles<Props, Classes>, State
 	}
 
 	render() {
-		// TS: withStyles injects the classes
-		const {classes} = this.props as PropsWithStyles<Props, Classes>;
+		const {classes} = this.props;
 		const theme = createMuiTheme({
 			palette: {
 				type: 'dark'
 			},
 		});
+
+		let ui:Component|null = this.engine.getRootComponent('ui');
+		if(!(ui instanceof UIEngineView)) {
+			ui = null;
+		}
 
 		return (
 			<ThemeProvider theme={theme}>
@@ -90,30 +89,13 @@ class App extends React.Component<PropsWithOptionalStyles<Props, Classes>, State
 							open={this.state.drawer}>
 						<Box p={1}>
 							<Toolbar/>
-							<div className={classes.drawerContainer}>
-								<TreeView
-									defaultCollapseIcon={<ExpandMore />}
-									defaultExpandIcon={<ChevronRight />}
-								>
-									<TreeItem nodeId="1" label="Applications">
-										<TreeItem nodeId="2" label="Calendar" />
-										<TreeItem nodeId="3" label="Chrome" />
-										<TreeItem nodeId="4" label="Webstorm" />
-									</TreeItem>
-									<TreeItem nodeId="5" label="Documents">
-										<TreeItem nodeId="10" label="OSS" />
-										<TreeItem nodeId="6" label="Material-UI">
-											<TreeItem nodeId="7" label="src">
-												<TreeItem nodeId="8" label="index.js" />
-												<TreeItem nodeId="9" label="tree-view.js" />
-											</TreeItem>
-										</TreeItem>
-									</TreeItem>
-								</TreeView>
-							</div>
+
+							{ui ? ui.render() : undefined}
+
 						</Box>
 					</Drawer>
 					<Toolbar />
+
 					<div className={classes.engine + (this.state.drawer ? " drawer" : "")} ref={this.engineRef}/>
 				</div>
 			</ThemeProvider>
@@ -121,7 +103,7 @@ class App extends React.Component<PropsWithOptionalStyles<Props, Classes>, State
 	}
 }
 const drawerWidth = 240;
-export default withStyles(theme => ({
+const styles = (theme: Theme) => createStyles({
 	app: {
 		display: 'flex',
 		flexDirection: 'column',
@@ -146,4 +128,5 @@ export default withStyles(theme => ({
 	drawerContainer: {
 		overflow: 'auto'
 	}
-}))(App) as typeof App // TS: withStyles changes the component signature so we cannot use it with ReactDOM.render
+});
+export default withStyles(styles)(App) as typeof App // TS: withStyles changes the component signature so we cannot use it with ReactDOM.render

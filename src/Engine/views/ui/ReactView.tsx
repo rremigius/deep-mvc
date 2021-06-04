@@ -1,87 +1,41 @@
-import HtmlView from "./HtmlView";
 import React from "react";
-import ReactDOM from "react-dom";
-import ViewModel from "@/ViewModel";
+import View from "@/View";
+import {alphanumeric} from "mozel";
 
-import {remove, throttle} from "lodash";
-import Model from "mozel";
+export type ReactViewComponentProps<T extends View> = {
+	view:T;
+};
 
-export type ReactViewComponentProps<T extends Model> = {
-	model:T,
-	childElements:HTMLElement[]
-}
-
-export class ReactViewComponent<M extends ReactViewComponentProps<ViewModel>, S> extends React.Component<M, S> {
-	children = React.createRef<HTMLDivElement>();
-
+export class ReactViewComponent<P extends ReactViewComponentProps<ReactView>, S> extends React.Component<P, S> {
+	get view():P['view'] {
+		return this.props.view;
+	}
+	get model():P['view']['model'] {
+		return this.props.view.model;
+	}
+	renderChildren() {
+		return this.view.renderChildren();
+	}
 	componentDidMount() {
-		this.appendChildren();
-	}
-
-	componentDidUpdate() {
-		this.appendChildren();
-	}
-
-	appendChildren() {
-		const children = this.children.current;
-		if(children) {
-			for(let element of this.props.childElements) {
-				children.append(element);
-			}
-		}
-	}
-
-	renderDefaultChildrenElement() {
-		return <div ref={this.children}/>
+		this.props.view.model.$watch('*', () => {
+			this.forceUpdate();
+		});
 	}
 }
 
-export default abstract class ReactView extends HtmlView {
-	abstract getReactComponent():typeof ReactViewComponent
-
-	container?:HTMLElement;
-	childElements!:HTMLElement[]
-	render!:()=>void;
-
-	onInit() {
-		this.childElements = [];
-		this.render = throttle(this._render.bind(this), 1);
-
-		super.onInit();
-
-		// Shallow, first-level watching
-		this.watch('*', () => {
-			this.render();
-		})
+export default class ReactView extends View {
+	getReactComponent():typeof ReactViewComponent {
+		throw new Error(`${this.static.name} does not have getReactComponent implemented.`);
 	}
 
-	createDOMElement() {
-		this.container = super.createDOMElement();
-		this.render();
-		return this.container;
+	render(key?:alphanumeric) {
+		const Component = this.getReactComponent();
+		return <Component view={this} key={key}/>
 	}
 
-	_render() {
-		if(!this.container) return;
-		const ReactComponent = this.getReactComponent();
-		ReactDOM.render(<ReactComponent model={this.model} childElements={this.childElements}/>, this.container);
-		return this.container;
-	}
-
-	onDestroy() {
-		super.onDestroy();
-		if(this.container) ReactDOM.unmountComponentAtNode(this.container);
-	}
-
-	onViewAdd(view: HtmlView) {
-		// We don't call super because we don't want the element to be child element to be added to the dom element directly
-		this.childElements.push(view.domElement);
-		this.render();
-	}
-
-	onViewRemove(view: HtmlView) {
-		// We don't call super because we don't want the element to be child element to be removed from the dom element directly
-		remove(this.childElements, element => element === view.domElement);
-		this.render();
+	renderChildren() {
+		return this.children
+			.filter(view => view instanceof ReactView)
+			.map((view, key) => (view as ReactView).render(key));
 	}
 }
