@@ -1,37 +1,31 @@
 import React from "react";
-import ReactView, {ReactViewComponent, ReactViewComponentProps} from "./ReactView";
 import SceneModel from "@/Engine/models/SceneModel";
-import {Collapse, List, ListItem, ListItemText} from "@material-ui/core";
 import {schema} from "mozel";
 import {components} from "@/Component";
 import UIObjectView from "@/Engine/views/ui/UIObjectView";
 import ComponentList from "@/Component/ComponentList";
 import View from "@/View";
+import UIView, {ReactViewComponentPropsWithStyles, UIViewReact} from "@/Engine/views/ui/UIView";
+import {createStyles, Theme, withStyles} from "@material-ui/core";
+import {ReactViewComponent} from "@/Engine/views/ui/ReactView";
+import {Category} from "@material-ui/icons";
 
-export class UISceneViewReact extends ReactViewComponent<ReactViewComponentProps<UISceneView>,{expanded:boolean}> {
-	constructor(props:ReactViewComponentProps<UISceneView>) {
-		super(props);
-		this.state = {expanded: true};
+type Props = ReactViewComponentPropsWithStyles<UISceneView, typeof styles>
+type State = {};
+export const UISceneViewReact = withStyles(styles())(
+	class UISceneViewReact extends ReactViewComponent<Props, State> {
+		render() {
+			return <UIViewReact view={this.view} icon={<Category/>}/>;
+		}
 	}
-	render() {
-		return (
-			<div>
-				<ListItem>
-					<ListItemText>
-						{this.model.static.name} ({this.model.gid})
-					</ListItemText>
-				</ListItem>
-				<Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
-					<List component="div" disablePadding>
-						{this.renderChildren()}
-					</List>
-				</Collapse>
-			</div>
-		)
-	}
+);
+function styles() {
+	return (theme:Theme) => createStyles({
+
+	});
 }
 
-export default class UISceneView extends ReactView {
+export default class UISceneView extends UIView {
 	static Model = SceneModel;
 	model!:SceneModel;
 
@@ -39,7 +33,7 @@ export default class UISceneView extends ReactView {
 	@components(schema(SceneModel).children, UIObjectView)
 	children!:ComponentList<View>;
 
-	getReactComponent() {
-		return UISceneViewReact;
+	getReactComponent(): typeof React.Component {
+		return UISceneViewReact as typeof React.Component;
 	}
 }

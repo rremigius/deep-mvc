@@ -102,7 +102,7 @@ class App extends React.Component<Props, State> {
 		)
 	}
 }
-const drawerWidth = 240;
+const drawerWidth = 300;
 const styles = (theme: Theme) => createStyles({
 	app: {
 		display: 'flex',
@@ -129,4 +129,4 @@ const styles = (theme: Theme) => createStyles({
 		overflow: 'auto'
 	}
 });
-export default withStyles(styles)(App) as typeof App // TS: withStyles changes the component signature so we cannot use it with ReactDOM.render
+export default withStyles(styles)(App);

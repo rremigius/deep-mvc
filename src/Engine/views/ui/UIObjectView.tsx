@@ -1,47 +1,38 @@
-import ReactView, {ReactViewComponent, ReactViewComponentProps} from "./ReactView";
 import ObjectModel from "@/Engine/models/ObjectModel";
-import {Collapse, createStyles, List, ListItem, ListItemText, Theme, withStyles, WithStyles} from "@material-ui/core";
 import React from "react";
+import UIView, {ReactViewComponentPropsWithStyles, UIViewReact} from "@/Engine/views/ui/UIView";
+import {components} from "@/Component";
+import {schema} from "mozel";
+import SceneModel from "@/Engine/models/SceneModel";
+import ComponentList from "@/Component/ComponentList";
+import View from "@/View";
+import {Theme, withStyles} from "@material-ui/core";
+import {ReactViewComponent} from "@/Engine/views/ui/ReactView";
 
-const styles = (theme: Theme) => createStyles({
-	uiView: { /* ... */ },
-	children: {
-		paddingLeft: theme.spacing(4)
-	},
-	button: { /* ... */ },
-});
+type Props = ReactViewComponentPropsWithStyles<UIObjectView, typeof styles>
+type State = {};
+export const UIObjectViewReact = withStyles(styles())(
+	class UIObjectViewReact extends ReactViewComponent<Props, State> {
+		render() {
+			return <UIViewReact view={this.view}/>;
+		}
+	}
+)
+function styles() {
+	return (theme:Theme) => ({
 
-type Props = ReactViewComponentProps<UIObjectView> & WithStyles<typeof styles>;
-type State = {expanded:boolean};
-class UIObjectViewReact extends ReactViewComponent<Props,State> {
-	constructor(props:Props) {
-		super(props);
-		this.state = {expanded:true};
-	}
-	render() {
-		const classes = this.props.classes;
-		return (
-			<div className={classes.uiView}>
-				<ListItem>
-					<ListItemText>
-						{this.model.static.name} ({this.model.gid})
-					</ListItemText>
-				</ListItem>
-				<Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
-					<List component="div" disablePadding className={classes.children}>
-						{this.renderChildren()}
-					</List>
-				</Collapse>
-			</div>
-		)
-	}
+	});
 }
 
-export default class UIObjectView extends ReactView {
+export default class UIObjectView extends UIView {
 	static Model = ObjectModel;
 	model!: ObjectModel;
 
-	getReactComponent() {
-		return withStyles(styles)(UIObjectViewReact) as typeof UIObjectViewReact;
+	// We use UIObjectView as factory type and runtime check, but cannot override parent type because of events
+	@components(schema(SceneModel).children, UIObjectView)
+	children!:ComponentList<View>;
+
+	getReactComponent(): typeof React.Component {
+		return UIObjectViewReact as typeof React.Component;
 	}
 }

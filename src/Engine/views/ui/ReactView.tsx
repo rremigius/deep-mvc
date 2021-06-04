@@ -24,7 +24,7 @@ export class ReactViewComponent<P extends ReactViewComponentProps<ReactView>, S>
 }
 
 export default class ReactView extends View {
-	getReactComponent():typeof ReactViewComponent {
+	getReactComponent():typeof React.Component{
 		throw new Error(`${this.static.name} does not have getReactComponent implemented.`);
 	}
 
