@@ -52,25 +52,6 @@ export default class ThreeView extends View {
 		this.object3D.remove(view.object3D);
 	}
 
-	onSetPosition(position: Vector3 | SparseVector3) {
-		super.onSetPosition(position);
-		if(position instanceof Vector3) {
-			this.object3D.position.set(position.x, position.y, position.z);
-		} else {
-			applySparseVector(this.object3D.position, position);
-		}
-	}
-
-	onSetScale(scale:number) {
-		super.onSetScale(scale);
-		this.object3D.scale.set(scale, scale, scale);
-	}
-
-	onSetVisible(visible: boolean) {
-		super.onSetVisible(visible);
-		this.object3D.visible = visible;
-	}
-
 	onEnable() {
 		super.onEnable();
 		if(this.parentObject3D) {
@@ -87,17 +68,5 @@ export default class ThreeView extends View {
 
 	onThreeClick(event:ThreeClickEvent) {
 		// For override
-	}
-}
-
-function applySparseVector(target:Vector3, source:SparseVector3) {
-	if(source.x !== undefined) {
-		target.x = source.x;
-	}
-	if(source.y !== undefined) {
-		target.y = source.y;
-	}
-	if(source.z !== undefined) {
-		target.z = source.z;
 	}
 }

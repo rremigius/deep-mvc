@@ -1,7 +1,6 @@
 import Component, {ComponentConstructor, ComponentEvent, ComponentEvents, components} from "./Component";
 import {Registry, schema} from "mozel";
 import ViewFactory from "./View/ViewFactory";
-import Vector3, {SparseVector3} from "@/Engine/views/common/Vector3";
 import Controller from "@/Controller";
 import ViewModel from "@/ViewModel";
 import ComponentList from "@/Component/ComponentList";
@@ -72,16 +71,6 @@ export default class View extends Component {
 	removeView(view:View) {
 		this.onViewRemove(view);
 	}
-	setPosition(position:Vector3|SparseVector3) {
-		this.onSetPosition(position);
-	}
-	setScale(scale:number) {
-		this.onSetScale(scale);
-	}
-	setVisible(visible:boolean) {
-		this.onSetVisible(visible);
-	}
-
 	onClick(event:ViewClickEvent) {
 		// For override
 	}
@@ -89,15 +78,6 @@ export default class View extends Component {
 		// For override
 	}
 	onViewRemove(view:View) {
-		// For override
-	}
-	onSetPosition(position:Vector3|SparseVector3) {
-		// For override
-	}
-	onSetScale(scale:number) {
-		// For override
-	}
-	onSetVisible(visible:boolean) {
 		// For override
 	}
 }

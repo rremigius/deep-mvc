@@ -19,3 +19,15 @@ export default class Vector3 {
 		this.z = z;
 	}
 }
+
+export function applySparseVector(target:Vector3, source:SparseVector3) {
+	if(source.x !== undefined) {
+		target.x = source.x;
+	}
+	if(source.y !== undefined) {
+		target.y = source.y;
+	}
+	if(source.z !== undefined) {
+		target.z = source.z;
+	}
+}

@@ -22,7 +22,8 @@ export type ReactViewComponentPropsWithStyles<T extends View, S extends ()=>stri
 
 type Props = ReactViewComponentPropsWithStyles<UIView, typeof styles> & {
 	onClick?:()=>void,
-	icon?: JSX.Element
+	icon?: JSX.Element,
+	properties?: JSX.Element
 };
 type State = {expanded:boolean};
 
@@ -30,7 +31,7 @@ export const UIViewReact = withStyles(styles())(
 	class UIViewReact extends ReactViewComponent<Props, State> {
 		constructor(props:Props) {
 			super(props);
-			this.state = {expanded: true};
+			this.state = {expanded: false};
 		}
 		handleClick() {
 			if(this.props.onClick) {
@@ -43,9 +44,6 @@ export const UIViewReact = withStyles(styles())(
 		collapse() {
 			this.setState({expanded: false});
 		}
-		isExpandable() {
-			return this.view.children.count() > 0;
-		}
 		render() {
 			const classes = this.props.classes;
 			return (
@@ -56,14 +54,13 @@ export const UIViewReact = withStyles(styles())(
 						</ListItemIcon>
 						<ListItemText primary={`${this.model.static.type} (${this.model.gid})`}/>
 						{
-							this.isExpandable()
-							? this.state.expanded
+							this.state.expanded
 								? <ExpandLess onClick={()=>this.collapse()}/>
 								: <ExpandMore onClick={()=>this.expand()}/>
-							: null
 						}
 					</ListItem>
 					<Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
+						{ this.props.properties ? this.props.properties : null }
 						<List component="div" disablePadding className={classes.children}>
 							{this.renderChildren()}
 						</List>

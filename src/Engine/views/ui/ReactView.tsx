@@ -17,6 +17,9 @@ export class ReactViewComponent<P extends ReactViewComponentProps<ReactView>, S>
 		return this.view.renderChildren();
 	}
 	componentDidMount() {
+		this.onInitWatchers();
+	}
+	onInitWatchers() {
 		this.props.view.model.$watch('*', () => {
 			this.forceUpdate();
 		});
