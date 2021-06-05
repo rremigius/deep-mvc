@@ -21,6 +21,7 @@ export type ReactViewComponentPropsWithStyles<T extends View, S extends ()=>stri
 	ReactViewComponentProps<T> & WithStyles<ReturnType<S>>;
 
 type Props = ReactViewComponentPropsWithStyles<UIView, typeof styles> & {
+	onClick?:()=>void,
 	icon?: JSX.Element
 };
 type State = {expanded:boolean};
@@ -32,8 +33,15 @@ export const UIViewReact = withStyles(styles())(
 			this.state = {expanded: true};
 		}
 		handleClick() {
-			if(!this.isExpandable()) return;
-			this.setState({expanded: !this.state.expanded});
+			if(this.props.onClick) {
+				this.props.onClick();
+			}
+		}
+		expand() {
+			this.setState({expanded: true});
+		}
+		collapse() {
+			this.setState({expanded: false});
 		}
 		isExpandable() {
 			return this.view.children.count() > 0;
@@ -49,7 +57,9 @@ export const UIViewReact = withStyles(styles())(
 						<ListItemText primary={`${this.model.static.type} (${this.model.gid})`}/>
 						{
 							this.isExpandable()
-							? this.state.expanded ? <ExpandLess/> : <ExpandMore/>
+							? this.state.expanded
+								? <ExpandLess onClick={()=>this.collapse()}/>
+								: <ExpandMore onClick={()=>this.expand()}/>
 							: null
 						}
 					</ListItem>

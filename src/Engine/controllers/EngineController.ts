@@ -7,6 +7,7 @@ import ComponentSlot from "@/Component/ComponentSlot";
 import ObjectController from "@/Engine/controllers/ObjectController";
 import ComponentList from "@/Component/ComponentList";
 import ViewController, {DeselectEvent, SelectEvent, ViewControllerEvents} from "@/Controller/ViewController";
+import {includes} from "lodash";
 import Log from "@/log";
 
 const log = Log.instance("engine-controller");
@@ -77,7 +78,9 @@ export default class EngineController extends ViewController {
 	setSelection(objects:ObjectController[]) {
 		const oldSelection = this.selection.current;
 		// Deselect others
-		this.selection.each(object => object.select(false));
+		this.selection
+			.filter(object => !includes(objects, object)) // only if they are not in the new selection
+			.forEach(object => object.select(false));
 
 		// Select new
 		for(let object of objects) {

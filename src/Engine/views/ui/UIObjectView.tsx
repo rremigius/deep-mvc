@@ -8,13 +8,19 @@ import ComponentList from "@/Component/ComponentList";
 import View from "@/View";
 import {Theme, withStyles} from "@material-ui/core";
 import {ReactViewComponent} from "@/Engine/views/ui/ReactView";
+import ObjectController from "@/Engine/controllers/ObjectController";
 
 type Props = ReactViewComponentPropsWithStyles<UIObjectView, typeof styles>
 type State = {};
 export const UIObjectViewReact = withStyles(styles())(
 	class UIObjectViewReact extends ReactViewComponent<Props, State> {
+		handleClick() {
+			if(this.view.controller) {
+				this.view.controller.select();
+			}
+		}
 		render() {
-			return <UIViewReact view={this.view}/>;
+			return <UIViewReact view={this.view} onClick={this.handleClick.bind(this)}/>;
 		}
 	}
 )
@@ -32,7 +38,14 @@ export default class UIObjectView extends UIView {
 	@components(schema(SceneModel).children, UIObjectView)
 	children!:ComponentList<View>;
 
+	controller?:ObjectController;
+
 	getReactComponent(): typeof React.Component {
 		return UIObjectViewReact as typeof React.Component;
+	}
+
+	onInit() {
+		super.onInit();
+		this.controller = this.findController(ObjectController);
 	}
 }

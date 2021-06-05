@@ -42,8 +42,8 @@ export default class ThreeEngineView extends EngineView {
 
 		this.copyStylesToCSS3D();
 
-		window.addEventListener('mousemove', this.handleMouseMove.bind(this) );
-		window.addEventListener('click', this.handleClick.bind(this) );
+		this.renderer.domElement.addEventListener('mousemove', this.handleMouseMove.bind(this) );
+		this.renderer.domElement.addEventListener('click', this.handleClick.bind(this) );
 		window.addEventListener('keyup', this.handleKeyUp.bind(this) );
 	}
 
