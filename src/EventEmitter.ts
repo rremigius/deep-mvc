@@ -117,12 +117,18 @@ export class Events {
 	/**
 	 * Listen to event based on a runtime-defined string.
 	 * If `allowDynamicEvents` is `true`, the event can be listened to even if it does not exist yet.
-	 * @param {string} event
+	 * @param {string} EventClass
 	 * @param {callback} callback
 	 */
-	$on(event:string|Class, callback:callback<unknown>) {
-		const Ievent = this.$get(event);
-		Ievent.on(callback);
+	$on<T>(EventClass:Constructor<T>, callback:callback<T>) {
+		const eventEmitter = this.$get(EventClass);
+		eventEmitter.on(event => {
+			if(!(event instanceof EventClass)) {
+				log.error(`Expected '${EventClass.name}', but got:`, event);
+				throw new Error(`Expected '${EventClass.name}'.`);
+			}
+			callback(event);
+		});
 	}
 
 	/**

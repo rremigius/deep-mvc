@@ -42,7 +42,7 @@ export const UIViewReact = withStyles(styles())(
 			const classes = this.props.classes;
 			return (
 				<div className={classes.uiView}>
-					<ListItem button onClick={this.handleClick.bind(this)}>
+					<ListItem button onClick={this.handleClick.bind(this)} selected={this.model.selected}>
 						<ListItemIcon>
 							{this.props.icon ? this.props.icon : <CropFree/>}
 						</ListItemIcon>

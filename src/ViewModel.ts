@@ -7,4 +7,7 @@ export default class ViewModel extends ComponentModel {
 
 	@collection(ViewModel)
 	children!:Collection<ViewModel>;
+
+	@property(Boolean)
+	selected?:boolean;
 }
