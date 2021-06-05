@@ -64,7 +64,7 @@ export default class ViewController extends Controller {
 	}
 	onDeselected() {
 		log.info(`${this} deselected.`);
-		this.events.select.fire(new DeselectEvent(this));
-		this.eventBus.$fire(new SelectEvent(this));
+		this.events.deselect.fire(new DeselectEvent(this));
+		this.eventBus.$fire(new DeselectEvent(this));
 	}
 }

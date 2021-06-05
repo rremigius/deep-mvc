@@ -7,6 +7,7 @@ import {Color, Intersection, Object3D, Raycaster, Renderer, Vector2, WebGLRender
 import ThreeView, {ThreeViewRoot} from "./ThreeView";
 import Log from "@/log";
 import ThreeCamera from "./ThreeObject/ThreeCamera";
+import EngineController from "@/Engine/controllers/EngineController";
 
 const log = Log.instance("view/three/engine");
 
@@ -27,6 +28,7 @@ export default class ThreeEngineView extends EngineView {
 
 	renderer!:Renderer;
 	css3DRenderer!:Renderer; // TODO: make CSS3DRenderer
+	controller?:EngineController;
 
 	protected mouse = new Vector2();
 	protected raycaster = new Raycaster();
@@ -35,6 +37,8 @@ export default class ThreeEngineView extends EngineView {
 		super.onInit();
 		this.renderer = this.createRenderer();
 		this.css3DRenderer = this.createCSS3DRenderer();
+
+		this.controller = this.findController(EngineController);
 
 		this.copyStylesToCSS3D();
 
@@ -133,11 +137,15 @@ export default class ThreeEngineView extends EngineView {
 		// calculate objects intersecting the picking ray
 		const intersects = this.raycaster.intersectObjects( scene.children, true);
 		if (!intersects.length) {
+			// Deselect all
+			if(this.controller) this.controller.setSelection([]);
 			return;
 		}
 
 		const root = findRoot(intersects[0].object);
 		if (!root) {
+			// Deselect all
+			if(this.controller) this.controller.setSelection([]);
 			return;
 		}
 		root.onClick(new ThreeClickEvent(intersects));
