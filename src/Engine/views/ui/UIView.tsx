@@ -15,7 +15,7 @@ import React from "react";
 import ReactView, {ReactViewComponent, ReactViewComponentProps} from "@/Engine/views/ui/ReactView";
 import View from "@/View";
 import {Styles} from "@material-ui/core/styles/withStyles";
-import {CropFree} from "@material-ui/icons";
+import {CropFree, ExpandLess, ExpandMore} from "@material-ui/icons";
 
 export type ReactViewComponentPropsWithStyles<T extends View, S extends ()=>string|Styles<any,any,any>> =
 	ReactViewComponentProps<T> & WithStyles<ReturnType<S>>;
@@ -31,17 +31,27 @@ export const UIViewReact = withStyles(styles())(
 			super(props);
 			this.state = {expanded: true};
 		}
+		handleClick() {
+			if(!this.isExpandable()) return;
+			this.setState({expanded: !this.state.expanded});
+		}
+		isExpandable() {
+			return this.view.children.count() > 0;
+		}
 		render() {
 			const classes = this.props.classes;
 			return (
 				<div className={classes.uiView}>
-					<ListItem button>
+					<ListItem button onClick={this.handleClick.bind(this)}>
 						<ListItemIcon>
 							{this.props.icon ? this.props.icon : <CropFree/>}
 						</ListItemIcon>
-						<ListItemText>
-							{this.model.static.type} ({this.model.gid})
-						</ListItemText>
+						<ListItemText primary={`${this.model.static.type} (${this.model.gid})`}/>
+						{
+							this.isExpandable()
+							? this.state.expanded ? <ExpandLess/> : <ExpandMore/>
+							: null
+						}
 					</ListItem>
 					<Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
 						<List component="div" disablePadding className={classes.children}>
