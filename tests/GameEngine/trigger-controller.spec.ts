@@ -1,19 +1,19 @@
 import {assert} from 'chai';
 import {describe} from 'mocha';
 import {MozelFactory} from "mozel";
-import TriggerComponent from "@examples/GameEngine/controllers/TriggerController";
+import TriggerComponent from "@examples/game-engine/controllers/TriggerController";
 import ComponentFactory from "@/Component/ComponentFactory";
 import {Container} from "inversify";
-import SceneModel from "@examples/GameEngine/models/SceneModel";
-import ObjectModel from "@examples/GameEngine/models/ObjectModel";
-import SceneComponent from "@examples/GameEngine/controllers/SceneController";
-import ActionModel from "@examples/GameEngine/models/ActionModel";
-import TriggerModel from "@examples/GameEngine/models/TriggerModel";
-import BehaviourModel from "@examples/GameEngine/models/BehaviourModel";
-import BehaviourComponent from "@examples/GameEngine/controllers/BehaviourController";
+import SceneModel from "@examples/game-engine/models/SceneModel";
+import ObjectModel from "@examples/game-engine/models/ObjectModel";
+import SceneComponent from "@examples/game-engine/controllers/SceneController";
+import ActionModel from "@examples/game-engine/models/ActionModel";
+import TriggerModel from "@examples/game-engine/models/TriggerModel";
+import BehaviourModel from "@examples/game-engine/models/BehaviourModel";
+import BehaviourComponent from "@examples/game-engine/controllers/BehaviourController";
 import {ComponentAction, ComponentEvent} from "@/Component";
-import ConditionEqualsModel from "@examples/GameEngine/models/ConditionModel/ConditionEqualsModel";
-import EngineControllerFactory from "@examples/GameEngine/controllers/EngineControllerFactory";
+import ConditionEqualsModel from "@examples/game-engine/models/ConditionModel/ConditionEqualsModel";
+import EngineControllerFactory from "@examples/game-engine/controllers/EngineControllerFactory";
 
 class Factory {
 	model:MozelFactory;

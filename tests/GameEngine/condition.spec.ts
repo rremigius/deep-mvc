@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {MozelFactory} from "mozel";
-import ConditionEqualsModel from "@examples/GameEngine/models/ConditionModel/ConditionEqualsModel";
+import ConditionEqualsModel from "@examples/game-engine/models/ConditionModel/ConditionEqualsModel";
 import {ComponentEvent} from "../src/Component";
 
 describe("ConditionEqualsModel", () => {

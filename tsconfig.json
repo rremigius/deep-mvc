@@ -25,7 +25,7 @@
 	"ts-node": {
 		"files": true
 	},
-	"files": ["src/index.tsx"],
+	"files": ["src/index.ts"],
 	"exclude": ["node_modules"],
 	"include": ["@types"]
 }

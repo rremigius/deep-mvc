@@ -3,7 +3,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = {
-	entry: './src/index.tsx',
+	entry: './examples/game-engine/index.tsx',
 	devtool: 'inline-source-map',
 	module: {
 		rules: [
@@ -27,7 +27,7 @@ module.exports = {
 	},
 	output: {
 		filename: 'bundle.js',
-		path: path.resolve(__dirname, 'dist'),
+		path: path.resolve(__dirname, 'examples/game-engine/dist'),
 	},
 	optimization: {
 		minimizer: [
