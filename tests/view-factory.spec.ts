@@ -5,7 +5,7 @@ import ViewFactory from "../src/View/ViewFactory";
 import Component, {component} from "../src/Component";
 import ComponentSlot from "../src/Component/ComponentSlot";
 import View from "../src/View";
-import ViewModel from "../src/ViewModel";
+import ViewModel from "../src/View/ViewModel";
 
 class FooModel extends ViewModel {
 	static get type() { return 'FooModel' }

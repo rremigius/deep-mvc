@@ -20,7 +20,8 @@ module.exports = {
 	},
 	resolve: {
 		alias: {
-			"@": path.resolve(__dirname, "src")
+			"@": path.resolve(__dirname, "src"),
+			"@examples": path.resolve(__dirname, "examples")
 		},
 		extensions: ['.tsx', '.ts', '.js'],
 	},

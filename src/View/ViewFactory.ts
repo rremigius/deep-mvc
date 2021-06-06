@@ -1,4 +1,4 @@
-import ComponentFactory from "../Component/ComponentFactory";
+import ComponentFactory from "@/Component/ComponentFactory";
 import {Container} from "inversify";
 import {Events} from "@/EventEmitter";
 import {Registry} from "mozel";

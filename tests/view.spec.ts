@@ -1,9 +1,9 @@
 import {assert} from "chai";
 
 import View from "../src/View";
-import ViewModel from "../src/ViewModel";
 import {alphanumeric} from "mozel";
 import { remove } from 'lodash';
+import ViewModel from "../src/View/ViewModel";
 
 describe("View", () => {
 	describe("onViewAdd/onViewRemove", () => {

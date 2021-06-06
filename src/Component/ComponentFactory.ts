@@ -1,8 +1,7 @@
 import {Container, injectable} from "inversify";
 import {isSubClass} from "validation-kit";
 import Component, {ComponentConstructor} from "@/Component";
-import ComponentModel from "@/ComponentModel";
-import {Registry} from "mozel";
+import Mozel, {Registry} from "mozel";
 import Log from "@/log";
 import EventBus from "@/EventBus";
 import {Events} from "@/EventEmitter";
@@ -66,7 +65,7 @@ export default class ComponentFactory {
 	 * @param ModelClass		The Model class for which to instantiate the Component. If omitted, will use the
 	 * 							ModelClass defined in the Component.
 	 */
-	register(ComponentClass:(typeof Component)|(typeof Component)[], ModelClass?:typeof ComponentModel) {
+	register(ComponentClass:(typeof Component)|(typeof Component)[], ModelClass?:typeof Mozel) {
 		if(isArray(ComponentClass)) {
 			for(let Class of ComponentClass) {
 				this.register(Class);
@@ -94,7 +93,7 @@ export default class ComponentFactory {
 	 * @param {boolean}	root		Set to true if the call is outside hierarchical intialisation (i.e. init method).
 	 *								Will call the hierarchyUpdated lifecycle event.
 	 */
-	create<T extends Component>(model:ComponentModel, ExpectedClass?:ComponentConstructor<T>):T {
+	create<T extends Component>(model:Mozel, ExpectedClass?:ComponentConstructor<T>):T {
 		function isT(model:any) : model is T {
 			return !ExpectedClass || model instanceof ExpectedClass;
 		}
@@ -105,9 +104,9 @@ export default class ComponentFactory {
 			throw new Error(message);
 		}
 
-		// Component needs a ComponentModel in the constructor so we inject it through the container.
+		// Component needs a Mozel in the constructor so we inject it through the container.
 		let container = this.extendDependencies();
-		container.bind(ComponentModel).toConstantValue(model);
+		container.bind(Mozel).toConstantValue(model);
 		container.bind(Container).toConstantValue(this.dependencies);
 
 		let component;
@@ -133,13 +132,13 @@ export default class ComponentFactory {
 		return component;
 	}
 
-	createAndResolveReferences<T extends Component>(model:ComponentModel, ExpectedClass?:ComponentConstructor<T>):T {
+	createAndResolveReferences<T extends Component>(model:Mozel, ExpectedClass?:ComponentConstructor<T>):T {
 		const component = this.create<T>(model, ExpectedClass);
 		component.resolveReferences();
 		return component;
 	}
 
-	resolve<T extends Component>(model:ComponentModel, ExpectedComponentClass:ComponentConstructor<T>, createNonExisting:boolean) {
+	resolve<T extends Component>(model:Mozel, ExpectedComponentClass:ComponentConstructor<T>, createNonExisting:boolean) {
 		let component = this.registry.byGid(model.gid);
 
 		// Create the component if it doesn't exist (unless suppressed).

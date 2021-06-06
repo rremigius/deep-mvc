@@ -2,7 +2,7 @@ import Controller from "@/Controller";
 import {ViewClickEvent} from "@/View";
 import {ComponentEvent, ComponentEvents} from "@/Component";
 import Log from "@/log";
-import ViewModel from "@/ViewModel";
+import ViewModel from "@/View/ViewModel";
 import {schema} from "mozel";
 
 const log = Log.instance("view-controller");

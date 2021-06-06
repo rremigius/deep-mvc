@@ -2,7 +2,7 @@ import Component, {ComponentConstructor, ComponentEvent, ComponentEvents, compon
 import {Registry, schema} from "mozel";
 import ViewFactory from "./View/ViewFactory";
 import Controller from "@/Controller";
-import ViewModel from "@/ViewModel";
+import ViewModel from "@/View/ViewModel";
 import ComponentList from "@/Component/ComponentList";
 import Log from "@/log";
 import ViewController from "@/Controller/ViewController";

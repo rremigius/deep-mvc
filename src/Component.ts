@@ -5,17 +5,7 @@ import Loader from "deep-loader";
 import EventListener from "@/EventListener";
 import ComponentList from "@/Component/ComponentList";
 import ComponentSlot from "@/Component/ComponentSlot";
-import {
-	alphanumeric,
-	CollectionSchema,
-	immediate,
-	MozelFactory,
-	MozelSchema,
-	PropertySchema,
-	Registry,
-	schema
-} from "mozel";
-import ComponentModel from "@/ComponentModel";
+import Mozel, {alphanumeric, CollectionSchema, immediate, MozelSchema, PropertySchema, Registry, schema} from "mozel";
 import EventBus from "@/EventBus";
 import EventEmitter, {callback, Events} from "@/EventEmitter";
 import {isString} from 'lodash';
@@ -28,7 +18,7 @@ const log = Log.instance("component");
 
 export type ComponentConstructor<T extends Component> = {
 	new (...args: any[]): T;
-	Model:(typeof ComponentModel);
+	Model:(typeof Mozel);
 };
 
 export type ComponentActionData<E> = E extends ComponentAction<infer D> ? D : object;
@@ -96,7 +86,15 @@ export function components<C extends Component, M extends C['model']>(
 
 @injectable()
 export default class Component {
-	static Model = ComponentModel; // should be set for each extending class
+	static Model = Mozel; // should be set for each extending class
+
+	static get enabledProperty() {
+		return 'enabled';
+	}
+
+	static hasEnabledPropertyInModel() {
+		return this.enabledProperty in schema(this.Model);
+	}
 
 	static createFactory() {
 		const factory = new ComponentFactory();
@@ -136,7 +134,7 @@ export default class Component {
 
 	readonly gid:alphanumeric;
 
-	public readonly model:ComponentModel;
+	public readonly model:Mozel;
 	readonly factory:ComponentFactory;
 	readonly registry:Registry<Component>;
 	readonly eventBus:EventBus;
@@ -158,8 +156,9 @@ export default class Component {
 	private watchers:PropertyWatcher[];
 	private permanentWatchers:PropertyWatcher[];
 
+	_enabled:boolean = true;
 	_started:boolean = false;
-	private parentEnabled:boolean = false;
+	private parentEnabled:boolean = true;
 
 	protected initialized:boolean;
 
@@ -168,7 +167,11 @@ export default class Component {
 	}
 
 	get enabled() {
-		return this.started && this.model.enabled && this.parentEnabled;
+		// If model has 'enabled' property, we use that. Otherwise, we use the Component's own `_enabled` property.
+		const thisEnabled = this.static.hasEnabledPropertyInModel()
+			? this.model.$get(this.static.enabledProperty) !== false
+			: this._enabled;
+		return this.started && thisEnabled && this.parentEnabled;
 	}
 
 	get started() {
@@ -185,7 +188,7 @@ export default class Component {
 
 	constructor(
 		// using LazyServiceIdentifier to prevent circular dependency problem
-		@inject(new LazyServiceIdentifer(()=>ComponentModel)) model:ComponentModel,
+		@inject(new LazyServiceIdentifer(()=>Mozel)) model:Mozel,
 		// using LazyServiceIdentifier to prevent circular dependency problem
 		@inject(new LazyServiceIdentifer(()=>ComponentFactory)) componentFactory:ComponentFactory,
 		@inject(Registry) registry:Registry<Component>,
@@ -340,7 +343,7 @@ export default class Component {
 		return sync;
 	}
 
-	setupSubComponents<P extends ComponentModel, T extends Component>(
+	setupSubComponents<P extends Mozel, T extends Component>(
 		modelPath:string|Property,
 		ComponentClass:ComponentConstructor<T>
 	) {
@@ -441,7 +444,12 @@ export default class Component {
 			child.start();
 		});
 
-		this.model.$watch(schema(ComponentModel).enabled, this.updateEnabledState.bind(this), {immediate});
+		if(this.static.hasEnabledPropertyInModel()) {
+			log.info(`Watching '${this.static.enabledProperty}' property for enabled/disabled state.`);
+			this.watch(this.static.enabledProperty, this.updateEnabledState.bind(this), {immediate});
+		} else {
+			this.updateEnabledState();
+		}
 		log.info(`${this} started.`);
 	}
 	destroy() {
@@ -468,7 +476,11 @@ export default class Component {
 	}
 
 	enable(enabled:boolean = true) {
-		this.model.enabled = enabled;
+		if(this.static.hasEnabledPropertyInModel()) {
+			this.model.$set(this.static.enabledProperty, enabled);
+		} else {
+			this._enabled = enabled;
+		}
 		this.updateEnabledState();
 	}
 	updateEnabledState() {

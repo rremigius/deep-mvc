@@ -1,6 +1,5 @@
 import ComponentList from "@/Component/ComponentList";
-import ComponentModel from "@/ComponentModel";
-import {Collection, collection} from "mozel";
+import Mozel, {Collection, collection} from "mozel";
 import ComponentFactory from "@/Component/ComponentFactory";
 import Component from "../src/Component";
 import {assert} from "chai";
@@ -9,7 +8,7 @@ describe("ComponentList", () => {
 	it("cleans up listeners from collection after collection was removed", () => {
 		const factory = new ComponentFactory();
 
-		class FooModel extends ComponentModel {
+		class FooModel extends Mozel {
 			@collection(FooModel)
 			foos!:Collection<FooModel>;
 		}

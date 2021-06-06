@@ -11,7 +11,8 @@
 		"experimentalDecorators": true,
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"@examples/*":  ["./examples/*"]
 		},
 		"lib": [
 			"esnext",

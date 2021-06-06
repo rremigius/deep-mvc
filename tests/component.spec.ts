@@ -1,16 +1,12 @@
 import {assert} from 'chai';
 import Component, {component, components} from "../src/Component";
-import BehaviourModel from "@/Engine/models/BehaviourModel";
-import Mozel, {collection, Collection, MozelFactory, property, reference, Registry, required, schema} from "mozel";
+import Mozel, {collection, Collection, MozelFactory, property, reference, required, schema} from "mozel";
 import ComponentFactory from "@/Component/ComponentFactory";
 import {isNil} from 'lodash';
-import ComponentModel from "@/ComponentModel";
 import ComponentSlot from "@/Component/ComponentSlot";
 import ComponentList from "@/Component/ComponentList";
-import {Container, injectable} from "inversify";
-import EventBus from "../src/EventBus";
 
-class FooModel extends BehaviourModel {
+class FooModel extends Mozel {
 	static get type() { return 'FooModel'; }
 
 	@property(FooModel, {reference})
@@ -77,7 +73,7 @@ describe('Component', () => {
 			// Create instances
 			const modelFactory = new TestModelFactory();
 
-			class BarModel extends BehaviourModel {
+			class BarModel extends Mozel {
 				static get type() { return 'BarModel'; }
 
 				@property(BarModel)
@@ -153,7 +149,7 @@ describe('Component', () => {
 	});
 	describe("@component and @componentList", () => {
 		it("create a ComponentSlot and ComponentList, respectively", () => {
-			class FooModel extends ComponentModel {
+			class FooModel extends Mozel {
 				@property(String, {required})
 				name!:string;
 				@property(FooModel)
@@ -187,8 +183,8 @@ describe('Component', () => {
 		});
 	});
 	describe("enable", () => {
-		it("with can disable all children, and re-enable only those that were not disabled before", () => {
-			class FooModel extends ComponentModel {
+		it("can disable all children, and re-enable only those that were not disabled before", () => {
+			class FooModel extends Mozel {
 				@property(FooModel)
 				left?:FooModel;
 				@property(FooModel)
