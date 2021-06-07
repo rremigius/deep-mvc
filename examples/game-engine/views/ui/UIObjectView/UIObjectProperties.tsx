@@ -1,5 +1,5 @@
 import {ReactViewComponentPropsWithStyles} from "../UIView";
-import {ReactViewComponent} from "../ReactView";
+import {ReactViewComponent} from "@/View/ReactView";
 import UIObjectView from "../UIObjectView";
 import {createStyles, ListItem, TextField, Theme, withStyles} from "@material-ui/core";
 import React from 'react';

@@ -7,7 +7,7 @@ import ComponentList from "@/Component/ComponentList";
 import View from "@/View";
 import UIView, {ReactViewComponentPropsWithStyles, UIViewReact} from "@examples/game-engine/views/ui/UIView";
 import {createStyles, Theme, withStyles} from "@material-ui/core";
-import ReactView, {ReactViewComponent} from "@examples/game-engine/views/ui/ReactView";
+import ReactView, {ReactViewComponent} from "@/View/ReactView";
 import {Category} from "@material-ui/icons";
 
 type Props = ReactViewComponentPropsWithStyles<UISceneView, typeof styles>

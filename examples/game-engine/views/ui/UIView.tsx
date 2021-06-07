@@ -11,7 +11,7 @@ import {
 	withStyles
 } from "@material-ui/core";
 import React from "react";
-import ReactView, {ReactViewComponent, ReactViewComponentProps} from "@examples/game-engine/views/ui/ReactView";
+import ReactView, {ReactViewComponent, ReactViewComponentProps} from "@/View/ReactView";
 import View from "@/View";
 import {Styles} from "@material-ui/core/styles/withStyles";
 import {CropFree, ExpandLess, ExpandMore} from "@material-ui/icons";

@@ -7,7 +7,7 @@ import SceneModel from "@examples/game-engine/models/SceneModel";
 import ComponentList from "@/Component/ComponentList";
 import View from "@/View";
 import {createStyles, Theme, withStyles} from "@material-ui/core";
-import ReactView, {ReactViewComponent} from "@examples/game-engine/views/ui/ReactView";
+import ReactView, {ReactViewComponent} from "@/View/ReactView";
 import ObjectController from "@examples/game-engine/controllers/ObjectController";
 import UIObjectProperties from "@examples/game-engine/views/ui/UIObjectView/UIObjectProperties";
 

@@ -1,5 +1,5 @@
 import EngineModel from "@examples/game-engine/models/EngineModel";
-import {ReactViewComponent, ReactViewComponentProps} from "@examples/game-engine/views/ui/ReactView";
+import {ReactViewComponent, ReactViewComponentProps} from "@/View/ReactView";
 import UISceneView from "@examples/game-engine/views/ui/UISceneView";
 import {schema} from "mozel";
 import {component} from "@/Component";
