@@ -1,9 +1,7 @@
 import ViewFactory from "@/View/ViewFactory";
 import UIEngineView from "./UIEngineView";
-import UISceneView from "./UISceneView";
 import UIView from "@examples/game-engine/views/ui/UIView";
 import View from "@/View";
-import UIObjectView from "@examples/game-engine/views/ui/UIObjectView";
 
 export default class UIFactory extends ViewFactory {
 	initDependencies() {

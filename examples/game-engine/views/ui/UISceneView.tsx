@@ -15,7 +15,11 @@ type State = {};
 export const UISceneViewReact = withStyles(styles())(
 	class UISceneViewReact extends ReactViewComponent<Props, State> {
 		render() {
-			return <UIViewReact view={this.view} icon={<Category/>} children={this.view.renderChildren()}/>;
+			return <UIViewReact
+				view={this.view}
+				icon={<Category/>}
+				children={this.view.renderChildren()}
+			/>;
 		}
 	}
 );

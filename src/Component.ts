@@ -274,8 +274,7 @@ export default class Component {
 				immediate: true
 			}
 		}
-		const watcher = new PropertyWatcher(this.model, allOptions);
-		return watcher;
+		return new PropertyWatcher(this.model, allOptions);
 	}
 
 	/**

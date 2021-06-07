@@ -1,4 +1,3 @@
-import EngineView from "../EngineView";
 import EngineModel from "@examples/game-engine/models/EngineModel";
 import {component} from "@/Component";
 import {schema} from "mozel";
@@ -8,6 +7,8 @@ import ThreeView, {ThreeViewRoot} from "./ThreeView";
 import Log from "@/log";
 import ThreeCamera from "./ThreeObject/ThreeCamera";
 import EngineController from "@examples/game-engine/controllers/EngineController";
+import View from "@/View";
+import Engine from "../../Engine";
 
 const log = Log.instance("view/three/engine");
 
@@ -15,20 +16,20 @@ export class ThreeClickEvent {
 	constructor(public intersects:Intersection[]) {}
 }
 
-const engineSchema = schema(EngineModel);
-export default class ThreeEngineView extends EngineView {
+export default class ThreeEngineView extends View {
 	static Model = EngineModel;
 	model!:EngineModel;
 
-	@component(engineSchema.camera, ThreeCamera)
+	@component(schema(ThreeEngineView.Model).camera, ThreeCamera)
 	camera!:ComponentSlot<ThreeCamera>;
 
-	@component(engineSchema.scene, ThreeView)
+	@component(schema(ThreeEngineView.Model).scene, ThreeView)
 	scene!:ComponentSlot<ThreeView>;
 
 	renderer!:Renderer;
 	css3DRenderer!:Renderer; // TODO: make CSS3DRenderer
 	controller?:EngineController;
+	engine!:Engine;
 
 	protected mouse = new Vector2();
 	protected raycaster = new Raycaster();
@@ -39,6 +40,9 @@ export default class ThreeEngineView extends EngineView {
 		this.css3DRenderer = this.createCSS3DRenderer();
 
 		this.controller = this.findController(EngineController);
+		this.engine = this.dependencies.get(Engine);
+
+		this.listenTo(this.engine.events.frame, this.render.bind(this));
 
 		this.copyStylesToCSS3D();
 
@@ -96,7 +100,7 @@ export default class ThreeEngineView extends EngineView {
 		this.copyStylesToCSS3D();
 	}
 
-	dismount(): void {
+	onDismount(): void {
 		this.renderer.domElement.remove();
 		// this.css3DRenderer.domElement.remove();
 	}

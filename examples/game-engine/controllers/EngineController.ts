@@ -1,6 +1,6 @@
 import EngineModel from "@examples/game-engine/models/EngineModel";
 import {component, ComponentAction, ComponentActions, ComponentEvent, components} from "@/Component";
-import Engine from "@examples/game-engine/Engine";
+import Engine, {KeyboardEvent} from "@examples/game-engine/Engine";
 import {schema} from "mozel";
 import SceneController from "@examples/game-engine/controllers/SceneController";
 import ComponentSlot from "@/Component/ComponentSlot";
@@ -18,6 +18,7 @@ export class SelectionEvent extends ComponentEvent<{selection:ObjectController[]
 
 export class EngineEvents extends ViewControllerEvents {
 	selection = this.$event(SelectionEvent);
+	keyUp = this.$event(KeyboardEvent);
 }
 export class EngineActions extends ComponentActions {
 	pause = this.$action(EnginePauseAction);
@@ -91,9 +92,5 @@ export default class EngineController extends ViewController {
 		const selection = this.selection.current;
 		log.info(`Current selection: `, selection);
 		this.events.selection.fire(new SelectionEvent(this, {selection, oldSelection}))
-	}
-
-	setEngine(engine:Engine) {
-		this._engine = engine;
 	}
 }

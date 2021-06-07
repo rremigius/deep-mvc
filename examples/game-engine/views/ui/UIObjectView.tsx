@@ -22,9 +22,9 @@ export const UIObjectViewReact = withStyles(styles())(
 		}
 		onInitWatchers() {
 			super.onInitWatchers();
-			this.view.watch('position.*', () => {
+			this.watch('position.*', () => {
 				this.forceUpdate();
-			})
+			});
 		}
 
 		render() {
