@@ -1,9 +1,8 @@
-import Component, {ComponentConstructor, ComponentEvent, ComponentEvents, components} from "./Component";
-import {Registry, schema} from "mozel";
+import Component, {ComponentConstructor, ComponentEvent, ComponentEvents} from "./Component";
+import {Registry} from "mozel";
 import ViewFactory from "./View/ViewFactory";
 import Controller from "@/Controller";
 import ViewModel from "@/View/ViewModel";
-import ComponentList from "@/Component/ComponentList";
 import Log from "@/log";
 import ViewController from "@/Controller/ViewController";
 
@@ -18,25 +17,16 @@ export default class View extends Component {
 	static Model = ViewModel;
 	model!:ViewModel;
 
-	@components(schema(ViewModel).children, View)
-	children!:ComponentList<View>;
+	_container?:HTMLElement;
+	get container() {
+		return this._container;
+	}
+
+	events = new ViewEvents();
 
 	controller?:ViewController;
 	controllerRegistry?:Registry<Controller>;
 	factory!:ViewFactory; // TS: set on Component constructor
-
-	events = new ViewEvents();
-
-	onInit() {
-		super.onInit();
-
-		this.children.events.added.on(event => {
-			this.addView(event.component);
-		});
-		this.children.events.removed.on(event => {
-			this.removeView(event.component);
-		})
-	}
 
 	findController<C extends Component>(ExpectedClass:ComponentConstructor<C>) {
 		if(!this.factory.controllerRegistry) return;
@@ -65,19 +55,28 @@ export default class View extends Component {
 			this.controller.click(event);
 		}
 	}
-	addView(view:View) {
-		this.onViewAdd(view);
+
+	resize() {
+		if(!this.container) return;
+		this.onResize(this.container.clientWidth, this.container.clientHeight);
 	}
-	removeView(view:View) {
-		this.onViewRemove(view);
+
+	dismount() {
+		if(!this._container) return;
+		this.onDismount();
 	}
-	onClick(event:ViewClickEvent) {
-		// For override
+
+	mount(container:HTMLElement) {
+		if(container === this._container) return;
+		this._container = container;
+		this.onMount(container);
 	}
-	onViewAdd(view:View) {
-		// For override
-	}
-	onViewRemove(view:View) {
-		// For override
-	}
+
+	/* For override */
+	onMount(container:HTMLElement):void {}
+	onDismount():void {}
+	onResize(width:number, height:number):void {}
+	onClick(event:ViewClickEvent):void {}
+	onViewAdd(view:View):void {}
+	onViewRemove(view:View):void {}
 }

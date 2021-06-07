@@ -13,7 +13,7 @@ export default class BehaviourController extends Component {
 
 	onInit() {
 		super.onInit();
-		this.triggers.events.added.on(event => event.component.setDefaultController(this));
-		this.triggers.events.removed.on(event => event.component.setDefaultController(undefined));
+		this.triggers.events.add.on(event => event.component.setDefaultController(this));
+		this.triggers.events.remove.on(event => event.component.setDefaultController(undefined));
 	}
 }

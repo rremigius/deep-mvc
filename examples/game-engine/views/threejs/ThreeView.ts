@@ -1,8 +1,6 @@
 import View from "@/View";
 import {Object3D} from "three";
-import Vector3, {SparseVector3} from "@examples/game-engine/views/common/Vector3";
-import {alphanumeric, deep, schema} from "mozel";
-import ViewModel from "@/View/ViewModel";
+import {alphanumeric} from "mozel";
 import {ThreeClickEvent} from "@examples/game-engine/views/threejs/ThreeEngineView";
 
 export interface ThreeViewRoot {
@@ -32,6 +30,12 @@ export default class ThreeView extends View {
 
 	setParent(parent?:ThreeView) {
 		super.setParent(parent);
+
+		// Remove from current parent
+		if(this.parentObject3D) {
+			this.parentObject3D.remove(this.object3D);
+		}
+		// Add to new parent
 		if(parent) {
 			this.parentObject3D = parent.object3D;
 		}
@@ -46,11 +50,6 @@ export default class ThreeView extends View {
 	}
 
 	// Note: adding the object3D is done by the child view, onEnable
-
-	onViewRemove(view: ThreeView) {
-		super.onViewRemove(view);
-		this.object3D.remove(view.object3D);
-	}
 
 	onEnable() {
 		super.onEnable();

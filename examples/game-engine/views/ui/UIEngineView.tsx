@@ -36,15 +36,15 @@ export default class UIEngineView extends EngineView {
 		super.onInit();
 	}
 
-	setSize(width: number, height: number) {
-		super.setSize(width, height);
+	onResize(width: number, height: number) {
+		super.onResize(width, height);
 	}
-	onAttachTo(container: HTMLElement) {
-		super.onAttachTo(container);
+	onMount(container: HTMLElement) {
+		super.onMount(container);
 		ReactDOM.render(this.render(), container);
 	}
-	detach() {
-		super.detach();
+	dismount() {
+		super.dismount();
 		if(!this.container) return;
 		ReactDOM.unmountComponentAtNode(this.container);
 	}

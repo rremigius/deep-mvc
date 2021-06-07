@@ -13,7 +13,7 @@ export class ValueChangeEvent<T> {
 }
 
 export class PropertySyncEvents<T> extends Events {
-	changed = this.$event<ValueChangeEvent<T>>(ValueChangeEvent);
+	change = this.$event<ValueChangeEvent<T>>(ValueChangeEvent);
 }
 
 /**
@@ -87,7 +87,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 
 		const old = this.current;
 		this._current = output;
-		this.events.changed.fire(new ValueChangeEvent<T>(changePath, this.isReference, output, old));
+		this.events.change.fire(new ValueChangeEvent<T>(changePath, this.isReference, output, old));
 	}
 
 	/**
@@ -95,7 +95,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 	 * @param callback
 	 */
 	init(callback:callback<T|undefined>) {
-		this.events.changed.on(event => {
+		this.events.change.on(event => {
 			callback(event.current);
 		});
 		return this;
@@ -106,7 +106,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 	 * @param callback
 	 */
 	deinit(callback:callback<T|undefined>) {
-		this.events.changed.on(event => {
+		this.events.change.on(event => {
 			callback(event.old);
 		});
 		return this;

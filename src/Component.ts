@@ -308,6 +308,7 @@ export default class Component {
 	setParent(parent?:Component) {
 		this._parent = parent;
 		this.updateEnabledState();
+		this.onSetParent(parent);
 	}
 
 	findParent(criteria:(component:Component) => boolean):Component|undefined {
@@ -560,12 +561,17 @@ export default class Component {
 	onDestroy() {}
 
 	/**
-	 * Called whenever the Component is enabled
+	 * Called when the Component is enabled.
 	 */
 	onEnable() { }
 
 	/**
-	 * Called whenever the Component is disabled
+	 * Called when the Component is disabled.
 	 */
 	onDisable() {	}
+
+	/**
+	 * Called when the parent of the component is set or changed.
+	 */
+	onSetParent(parent?:Component) { }
 }

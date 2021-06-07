@@ -65,8 +65,8 @@ export default class ThreeEngineView extends EngineView {
 		return renderer;
 	}
 
-	setSize(width: number, height:number) {
-		super.setSize(width, height);
+	onResize(width: number, height:number) {
+		super.onResize(width, height);
 
 		this.renderer.setSize(width, height);
 		this.css3DRenderer.setSize(width, height);
@@ -90,13 +90,13 @@ export default class ThreeEngineView extends EngineView {
 		target.style.marginTop = source.style.marginTop;
 	}
 
-	onAttachTo(element: HTMLElement): void {
+	onMount(element: HTMLElement): void {
 		element.append(this.renderer.domElement);
 		// element.append(this.css3DRenderer.domElement);
 		this.copyStylesToCSS3D();
 	}
 
-	detach(): void {
+	dismount(): void {
 		this.renderer.domElement.remove();
 		// this.css3DRenderer.domElement.remove();
 	}

@@ -8,6 +8,7 @@ import ViewFactory from "@/View/ViewFactory";
 import EngineView from "@examples/game-engine/views/EngineView";
 import Component from "@/Component";
 import {forEach, map} from "lodash";
+import View from "../../src/View";
 
 const log = Log.instance("engine");
 
@@ -88,17 +89,17 @@ export default class Engine {
 		if(container instanceof HTMLElement) {
 			// Attach all to same container
 			forEach(this.rootComponents, component => {
-				if(!(component instanceof EngineView)) return;
-				component.attachTo(container);
+				if(!(component instanceof View)) return;
+				component.mount(container);
 			});
 		} else {
 			// Attach all to different containers
 			for(let name in container) {
 				const component = this.rootComponents[name];
-				if(!(component instanceof EngineView)) {
+				if(!(component instanceof View)) {
 					throw new Error(`RootComponent '${name}' is not an EngineView and cannot be attached to the page.`);
 				}
-				component.attachTo(container[name]);
+				component.mount(container[name]);
 			}
 		}
 		this.onResize();
@@ -107,10 +108,10 @@ export default class Engine {
 	detach() {
 		for(let name in this.rootComponents) {
 			const component = this.rootComponents[name];
-			if(!(component instanceof EngineView)) {
+			if(!(component instanceof View)) {
 				continue;
 			}
-			component.detach();
+			component.dismount();
 		}
 	}
 

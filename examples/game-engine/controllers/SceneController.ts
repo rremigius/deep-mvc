@@ -10,16 +10,16 @@ export default class SceneController extends ViewController {
 	static Model = SceneModel;
 	model!:SceneModel;
 
-	@components(schema(SceneModel).children, ObjectController)
-	children!:ComponentList<ViewController>; // more generic because we cannot override the type
+	@components(schema(SceneController.Model).objects, ObjectController)
+	objects!:ComponentList<ViewController>; // more generic because we cannot override the type
 
-	@components(schema(SceneModel).triggers, TriggerController)
+	@components(schema(SceneController.Model).triggers, TriggerController)
 	triggers!:ComponentList<TriggerController>;
 
 	onInit() {
 		super.onInit();
 
-		this.triggers.events.added.on(event => event.component.setDefaultController(this));
-		this.triggers.events.removed.on(event => event.component.setDefaultController(undefined));
+		this.triggers.events.add.on(event => event.component.setDefaultController(this));
+		this.triggers.events.remove.on(event => event.component.setDefaultController(undefined));
 	}
 }

@@ -7,7 +7,7 @@ import SceneModel from "@examples/game-engine/models/SceneModel";
 import ComponentList from "@/Component/ComponentList";
 import View from "@/View";
 import {createStyles, Theme, withStyles} from "@material-ui/core";
-import {ReactViewComponent} from "@examples/game-engine/views/ui/ReactView";
+import ReactView, {ReactViewComponent} from "@examples/game-engine/views/ui/ReactView";
 import ObjectController from "@examples/game-engine/controllers/ObjectController";
 import UIObjectProperties from "@examples/game-engine/views/ui/UIObjectView/UIObjectProperties";
 
@@ -32,7 +32,10 @@ export const UIObjectViewReact = withStyles(styles())(
 				<UIViewReact
 					view={this.view}
 					properties={<UIObjectProperties view={this.view}/>}
-					onClick={this.handleClick.bind(this)}/>
+					selected={this.model.selected}
+					onClick={this.handleClick.bind(this)}
+					children={this.view.renderChildren()}
+				/>
 			</div>;
 		}
 	}
@@ -48,8 +51,8 @@ export default class UIObjectView extends UIView {
 	model!: ObjectModel;
 
 	// We use UIObjectView as factory type and runtime check, but cannot override parent type because of events
-	@components(schema(SceneModel).children, UIObjectView)
-	children!:ComponentList<View>;
+	@components(schema(SceneModel).objects, UIObjectView)
+	objects!:ComponentList<View>;
 
 	controller?:ObjectController;
 
@@ -60,5 +63,11 @@ export default class UIObjectView extends UIView {
 	onInit() {
 		super.onInit();
 		this.controller = this.findController(ObjectController);
+	}
+
+	renderChildren() {
+		return this.objects
+			.filter(view => view instanceof ReactView)
+			.map((view, key) => (view as ReactView).render(key));
 	}
 }

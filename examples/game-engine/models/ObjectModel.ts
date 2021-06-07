@@ -13,9 +13,15 @@ export default class ObjectModel extends ViewModel {
 	@property(Vector3Model, {required})
 	position!:Vector3Model;
 
+	@collection(ObjectModel)
+	objects!:Collection<ObjectModel>;
+
 	@collection(BehaviourModel)
 	behaviours!:Collection<BehaviourModel>;
 
 	@collection(TriggerModel)
 	triggers!:Collection<UnknownTriggerModel>;
+
+	@property(Boolean)
+	selected?:boolean;
 }

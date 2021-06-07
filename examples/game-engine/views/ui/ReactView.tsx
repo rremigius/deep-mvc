@@ -13,9 +13,6 @@ export class ReactViewComponent<P extends ReactViewComponentProps<ReactView>, S>
 	get model():P['view']['model'] {
 		return this.props.view.model;
 	}
-	renderChildren() {
-		return this.view.renderChildren();
-	}
 	componentDidMount() {
 		this.onInitWatchers();
 	}
@@ -34,11 +31,5 @@ export default class ReactView extends View {
 	render(key?:alphanumeric) {
 		const Component = this.getReactComponent();
 		return <Component view={this} key={key}/>
-	}
-
-	renderChildren() {
-		return this.children
-			.filter(view => view instanceof ReactView)
-			.map((view, key) => (view as ReactView).render(key));
 	}
 }

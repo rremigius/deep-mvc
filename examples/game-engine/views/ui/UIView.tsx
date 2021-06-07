@@ -1,4 +1,3 @@
-import "./UIView.css";
 import ViewModel from "@/View/ViewModel";
 import {
 	Collapse,
@@ -22,8 +21,10 @@ export type ReactViewComponentPropsWithStyles<T extends View, S extends ()=>stri
 
 type Props = ReactViewComponentPropsWithStyles<UIView, typeof styles> & {
 	onClick?:()=>void,
+	selected?:boolean,
 	icon?: JSX.Element,
-	properties?: JSX.Element
+	properties?: JSX.Element,
+	children?: JSX.Element[]
 };
 type State = {expanded:boolean};
 
@@ -48,7 +49,7 @@ export const UIViewReact = withStyles(styles())(
 			const classes = this.props.classes;
 			return (
 				<div className={classes.uiView}>
-					<ListItem button onClick={this.handleClick.bind(this)} selected={this.model.selected}>
+					<ListItem button onClick={this.handleClick.bind(this)} selected={this.props.selected}>
 						<ListItemIcon>
 							{this.props.icon ? this.props.icon : <CropFree/>}
 						</ListItemIcon>
@@ -62,7 +63,7 @@ export const UIViewReact = withStyles(styles())(
 					<Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
 						{ this.props.properties ? this.props.properties : null }
 						<List component="div" disablePadding className={classes.children}>
-							{this.renderChildren()}
+							{this.props.children}
 						</List>
 					</Collapse>
 				</div>

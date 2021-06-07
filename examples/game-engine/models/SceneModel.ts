@@ -19,9 +19,6 @@ export default class SceneModel extends ViewModel {
 	@collection(TriggerModel)
 	triggers!:Collection<UnknownTriggerModel>;
 
-	/**
-	 * @override
-	 */
 	@collection(ObjectModel)
-	children!:Collection<ObjectModel>;
+	objects!:Collection<ObjectModel>;
 }

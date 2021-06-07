@@ -54,7 +54,7 @@ const model = models.createAndResolveReferences(EngineModel, {
 		gid: 'scene',
 		description: 'foo',
 		marker: 'data-nft/pinball',
-		children: [
+		objects: [
 			models.create(LightModel),
 			models.create(CameraModel, {
 				gid: 'camera',
@@ -75,7 +75,7 @@ const model = models.createAndResolveReferences(EngineModel, {
 				behaviours: [
 					models.create(ClickToDisableBehaviourModel)
 				],
-				children: [models.create(ObjectModel, {gid: 'empty'})]
+				objects: [models.create(ObjectModel, {gid: 'empty'})]
 			})
 		]
 	}

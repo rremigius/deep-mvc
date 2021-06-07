@@ -15,8 +15,8 @@ export class ComponentRemovedEvent<T extends Component> {
 
 class ComponentListEvents<C extends Component> extends PropertySyncEvents<C[]> {
 	// Using $register for generic type definition on EventEmitter
-	added = this.$register(new EventEmitter<ComponentAddedEvent<C>>(ComponentAddedEvent), ComponentAddedEvent.name);
-	removed = this.$register(new EventEmitter<ComponentRemovedEvent<C>>(ComponentRemovedEvent), ComponentRemovedEvent.name);
+	add = this.$register(new EventEmitter<ComponentAddedEvent<C>>(ComponentAddedEvent), ComponentAddedEvent.name);
+	remove = this.$register(new EventEmitter<ComponentRemovedEvent<C>>(ComponentRemovedEvent), ComponentRemovedEvent.name);
 }
 type ComponentModel<C extends Component> = C['model'];
 
@@ -92,7 +92,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 			const item = this.current[i];
 			if(!this.isReference) item.setParent(undefined);
 			this.current.splice(i, 1);
-			this.events.removed.fire(new ComponentRemovedEvent(item));
+			this.events.remove.fire(new ComponentRemovedEvent(item));
 		}
 	}
 
@@ -103,7 +103,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 		}
 		if(!this.isReference) component.setParent(this.parent);
 		this.current.push(component);
-		this.events.added.fire(new ComponentAddedEvent(component));
+		this.events.add.fire(new ComponentAddedEvent(component));
 	}
 
 	has(component:C) {
@@ -125,7 +125,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 			if(!this.isReference) item.setParent(undefined);
 			if(check(item)) {
 				this.current.splice(i, 1);
-				this.events.removed.fire(new ComponentRemovedEvent(item));
+				this.events.remove.fire(new ComponentRemovedEvent(item));
 			}
 		}
 		return count;
