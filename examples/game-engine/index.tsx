@@ -19,6 +19,7 @@ import SceneModel from "@examples/game-engine/models/SceneModel";
 import ReactDOM from 'react-dom';
 import App from "@examples/game-engine/App";
 import ObjectModel from "@examples/game-engine/models/ObjectModel";
+import SphereModel from "./models/ObjectModel/SphereModel";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
@@ -55,12 +56,12 @@ const model = models.createAndResolveReferences(EngineModel, {
 		description: 'foo',
 		marker: 'data-nft/pinball',
 		objects: [
-			models.create(LightModel),
+			models.create(LightModel, {gid: 'light'}),
 			models.create(CameraModel, {
 				gid: 'camera',
-				position: {z: 2},
+				position: {z: 5},
 				behaviours: [models.create(OrbitControlsModel, {
-					maxDistance: 4,
+					maxDistance: 10,
 					minDistance: 2,
 					enableZoom: true,
 					rotateSpeed: 0.5,
@@ -71,11 +72,15 @@ const model = models.createAndResolveReferences(EngineModel, {
 				gid: 'vw',
 				files: [{url: 'assets/models/vw/model.dae'}],
 				scale: 0.5,
-				position: {z: 0.5},
+				position: {z: 0.5, x: 2},
 				behaviours: [
 					models.create(ClickToDisableBehaviourModel)
 				],
-				objects: [models.create(ObjectModel, {gid: 'empty'})]
+				objects: []
+			}),
+			models.create(SphereModel, {
+				gid: 'sphere',
+				radius: 0.2
 			})
 		]
 	}
@@ -107,8 +112,15 @@ document.addEventListener('keyup', () => {
 	}
 	if(!engine.isStarted) {
 		engine.start();
-		const scene = models.registry.byGid<SceneModel>('scene');
-		scene!.description = 'bar';
+		setTimeout(()=>{
+			const sphere = models.registry.byGid<SphereModel>('sphere');
+			const vw = models.registry.byGid<LightModel>('vw');
+
+			vw!.objects.add(sphere as SphereModel);
+			console.log(model);
+			console.log(engine.getRootComponent('view').toTree());
+			console.log(engine.getRootComponent('ui').toTree());
+		},2000);
 	} else if(engine.isRunning) {
 		engine.pause();
 	} else {

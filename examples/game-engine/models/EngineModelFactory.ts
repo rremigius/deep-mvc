@@ -14,6 +14,7 @@ import SoundBehaviourModel from "./BehaviourModel/SoundBehaviourModel";
 import Model3DModel from "./ObjectModel/Model3DModel";
 import LightModel from "@examples/game-engine/models/ObjectModel/LightModel";
 import OrbitControlsModel from "@examples/game-engine/models/ObjectModel/CameraModel/OrbitControlsModel";
+import SphereModel from "./ObjectModel/SphereModel";
 
 export default class EngineModelFactory extends MozelFactory {
 	initDependencies() {
@@ -21,7 +22,7 @@ export default class EngineModelFactory extends MozelFactory {
 		this.register([
 			EngineModel, ViewModel, SceneModel, CameraModel, Model3DModel, ImageModel, GraphModel, VideoModel,
 			BehaviourModel, TweenBehaviourModel, SoundBehaviourModel, TriggerModel, ObjectModel, LightModel,
-			OrbitControlsModel, GenericMozel
+			OrbitControlsModel, GenericMozel, SphereModel
 		]);
 	}
 }

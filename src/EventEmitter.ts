@@ -30,6 +30,7 @@ export default class EventEmitter<T> {
 
 	on(listener:callback<T>) {
 		this.listeners.push(listener);
+		return listener;
 	}
 
 	off(listener:callback<T>) {

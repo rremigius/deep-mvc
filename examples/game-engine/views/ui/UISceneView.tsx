@@ -14,6 +14,12 @@ type Props = ReactViewComponentPropsWithStyles<UISceneView, typeof styles>
 type State = {};
 export const UISceneViewReact = withStyles(styles())(
 	class UISceneViewReact extends ReactViewComponent<Props, State> {
+		onInitWatchers() {
+			super.onInitWatchers();
+			this.watchEvent(this.view.objects.events.add, ()=>this.forceUpdate());
+			this.watchEvent(this.view.objects.events.remove, ()=>this.forceUpdate());
+		}
+
 		render() {
 			return <UIViewReact
 				view={this.view}

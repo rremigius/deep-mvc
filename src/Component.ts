@@ -444,13 +444,14 @@ export default class Component {
 			child.start();
 		});
 
+		log.info(`${this} started.`);
+
 		if(this.static.hasEnabledPropertyInModel()) {
 			log.info(`Watching '${this.static.enabledProperty}' property for enabled/disabled state.`);
 			this.watch(this.static.enabledProperty, this.updateEnabledState.bind(this), {immediate});
 		} else {
 			this.updateEnabledState();
 		}
-		log.info(`${this} started.`);
 	}
 	destroy() {
 		this.stopListening();

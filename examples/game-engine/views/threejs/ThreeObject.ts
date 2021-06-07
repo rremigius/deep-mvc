@@ -15,6 +15,9 @@ export default class ThreeObject extends ThreeView {
 	@components(schema(ObjectModel).behaviours, Component)
 	behaviours!:ComponentList<Component>;
 
+	@components(schema(ThreeObject.Model).objects, ThreeObject)
+	objects!:ComponentList<ThreeObject>;
+
 	setPosition(position:Vector3) {
 		if(!this.controller) return;
 		this.controller.setPosition(position);

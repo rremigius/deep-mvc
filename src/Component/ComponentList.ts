@@ -122,8 +122,8 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 		let count = 0;
 		for(let i = this.current.length-1; i >= 0; i--) {
 			let item = this.current[i];
-			if(!this.isReference) item.setParent(undefined);
 			if(check(item)) {
+				if(!this.isReference) item.setParent(undefined);
 				this.current.splice(i, 1);
 				this.events.remove.fire(new ComponentRemovedEvent(item));
 			}

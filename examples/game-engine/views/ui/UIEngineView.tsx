@@ -9,12 +9,17 @@ import UIView, {UIViewReact} from "./UIView";
 import {Memory} from "@material-ui/icons";
 
 class UIEngineReactViewComponent extends ReactViewComponent<ReactViewComponentProps<UIEngineView>, {}> {
+	onInitWatchers() {
+		super.onInitWatchers();
+		this.watchEvent(this.view.scene.events.change, ()=>this.forceUpdate());
+	}
+
 	render() {
 		const scene = this.view.scene.current;
 		return <UIViewReact
 			view={this.view}
 			icon={<Memory/>}
-			children={scene ? [scene.render()] : undefined}
+			children={scene ? [scene.render(0)] : undefined}
 		/>
 	}
 }

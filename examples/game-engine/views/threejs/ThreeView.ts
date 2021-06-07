@@ -2,13 +2,14 @@ import View from "@/View";
 import {Object3D} from "three";
 import {alphanumeric} from "mozel";
 import {ThreeClickEvent} from "@examples/game-engine/views/threejs/ThreeEngineView";
+import {Constructor} from "validation-kit";
 
 export interface ThreeViewRoot {
 	gid: alphanumeric;
 	onClick(event:ThreeClickEvent):void;
 }
 
-export function root(Class:typeof Object3D) {
+export function root<T extends Constructor<Object3D>>(Class:T) {
 	return class extends Class {
 		public gid: alphanumeric = 0;
 		onClick(event:ThreeClickEvent){};
@@ -38,6 +39,7 @@ export default class ThreeView extends View {
 		// Add to new parent
 		if(parent) {
 			this.parentObject3D = parent.object3D;
+			if(this.parentObject3D) this.parentObject3D.add(this.object3D); // might not be initialized yet
 		}
 	}
 	createObject3D() {
@@ -49,13 +51,9 @@ export default class ThreeView extends View {
 		this.click();
 	}
 
-	// Note: adding the object3D is done by the child view, onEnable
-
 	onEnable() {
 		super.onEnable();
-		if(this.parentObject3D) {
-			this.parentObject3D.add(this.object3D);
-		}
+		if(this.parentObject3D) this.parentObject3D.add(this.object3D);
 	}
 
 	onDisable() {

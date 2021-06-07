@@ -22,9 +22,9 @@ export const UIObjectViewReact = withStyles(styles())(
 		}
 		onInitWatchers() {
 			super.onInitWatchers();
-			this.watch('position.*', () => {
-				this.forceUpdate();
-			});
+			this.watch('position.*', () => this.forceUpdate());
+			this.watchEvent(this.view.objects.events.add, ()=>this.forceUpdate());
+			this.watchEvent(this.view.objects.events.remove, ()=>this.forceUpdate());
 		}
 
 		render() {
