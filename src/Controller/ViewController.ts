@@ -20,15 +20,11 @@ export default class ViewController extends Controller {
 	static Model = ViewModel;
 	model!:ViewModel;
 
+	static Events = ViewControllerEvents;
 	events!:ViewControllerEvents;
 
 	/* State */
 	protected selectable:boolean = true;
-
-	onSetupEventsAndActions() {
-		super.onSetupEventsAndActions();
-		this.events = new ViewControllerEvents();
-	}
 
 	click(event:ViewClickEvent) {
 		log.info(`${this} clicked.`);

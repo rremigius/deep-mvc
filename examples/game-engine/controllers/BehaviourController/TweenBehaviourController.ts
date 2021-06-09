@@ -22,17 +22,13 @@ export default class TweenBehaviourController extends BehaviourController {
 	static Model = TweenBehaviourModel;
 	model!:TweenBehaviourModel;
 
+	static Events = TweenBehaviourControllerEvents;
 	events!:TweenBehaviourControllerEvents;
 
 	timeline!:TimelineMax;
 
 	get tweenBehaviour() {
 		return <TweenBehaviourModel>this.model;
-	}
-
-	onSetupEventsAndActions() {
-		super.onSetupEventsAndActions();
-		this.events = new TweenBehaviourControllerEvents();
 	}
 
 	onInit() {

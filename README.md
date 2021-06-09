@@ -171,27 +171,54 @@ const controllerFactory = new ComponentFactory();
 const viewFactory = new ViewFactory();
 
 // Add the 'controllerRegistry' dependency and bind it to the registry of the controller factory
-viewFactory.dependencies.bind("controllerRegistry").toConstantValue(controllerFactory.registry);
+viewFactory.dependencies.bind("ControllerRegistry").toConstantValue(controllerFactory.registry);
 
 class View extends Component {
 	controller!:Component;
 	onInit() {
 		super.onInit();
 		// Use the dependencies to get the controller registry
-		const controllerRegistry = this.dependencies.get("controllerRegistry");
+		const controllerRegistry = this.dependencies.get("ControllerRegistry");
 		// Then find the controller matching the view. Since they are based on the same model, they should have the same `gid`.
 		this.controller = controllerRegistry.byGid(this.gid);
     }
 }
-// TODO: implement View.ts like the above
 ```
+
+## Component lifecycle
+
+Components have a lifecycle, each with their corresponding 'hooks', or methods available for override. 
+Below are the lifecycle stages:
+
+### Constructor
+
+The Component constructor includes a few stages:
+
+#### Setup Actions and Events (`onSetupEventsAndActions`)
+
+Setup or override `events` and `actions` properties. Each subclass has the opportunity to override `events` or `actions` 
+with a more specific version, adding possible events and actions. In later stages, these should not be overridden 
+anymore, as it would remove existing listeners and bindings.
+
+#### Bind Actions (`onBindActions`)
+
+Bind methods to actions, e.g.:
+
+```typescript
+this.actions.kill.on(this.onKillAction.bind(this));
+```
+
+#### Initialize child components
+
+Child components setup with `@component` or `@components` are setup in this stage.
+
+#### Initialize component itself (`onInit`)
+
+Called from Component constructor,
 
 ## Enable/disable components
 
-(include watchers)
 
-
-## Component lifecycle
 
 
 ## Events

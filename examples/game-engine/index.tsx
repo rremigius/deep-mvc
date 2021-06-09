@@ -88,9 +88,14 @@ const model = models.createAndResolveReferences(EngineModel, {
 class MyEngine extends Engine {
 	createComponentFactories(): Record<string, ComponentFactory> {
 		const controllerFactory = Engine.createDefaultControllerFactory();
-		const viewFactory = new ThreeViewFactory(controllerFactory.registry);
+
+		const viewFactory = new ThreeViewFactory();
 		viewFactory.register(ClickToDisableBehaviourController)
-		const uiFactory = new UIFactory(controllerFactory.registry);
+		viewFactory.setControllerRegistry(controllerFactory.registry);
+
+		const uiFactory = new UIFactory();
+		uiFactory.setControllerRegistry(controllerFactory.registry);
+
 		return {
 			controller: controllerFactory,
 			view: viewFactory,

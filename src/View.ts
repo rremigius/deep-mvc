@@ -12,6 +12,7 @@ export class ViewClickEvent extends ComponentEvent<{}>{}
 export class ViewEvents extends ComponentEvents {
 	click = this.$event(ViewClickEvent);
 }
+export const ControllerRegistrySymbol = Symbol.for("ControllerRegistrySymbol");
 
 export default class View extends Component {
 	static Model = ViewModel;
@@ -28,10 +29,17 @@ export default class View extends Component {
 	controllerRegistry?:Registry<Controller>;
 	factory!:ViewFactory; // TS: set on Component constructor
 
-	findController<C extends Component>(ExpectedClass:ComponentConstructor<C>) {
-		if(!this.factory.controllerRegistry) return;
+	onInit() {
+		if(this.dependencies.isBound(ControllerRegistrySymbol)) {
+			this.controllerRegistry = this.dependencies.get(ControllerRegistrySymbol);
+		}
+		super.onInit();
+	}
 
-		const component = this.factory.controllerRegistry.byGid(this.model.gid);
+	findController<C extends Component>(ExpectedClass:ComponentConstructor<C>) {
+		if(!this.controllerRegistry) return;
+
+		const component = this.controllerRegistry.byGid(this.model.gid);
 		if(component && !(component instanceof ExpectedClass)) {
 			throw new Error(`View '${this.static.name}' expected component of type '${ExpectedClass.name}', found '${component.static.name}' instead.`);
 		}

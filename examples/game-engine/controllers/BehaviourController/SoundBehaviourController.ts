@@ -11,16 +11,13 @@ export class PlayActions extends ComponentActions {
 
 export default class SoundBehaviourController extends BehaviourController {
 	static Model = SoundBehaviourModel;
+	model!:SoundBehaviourModel;
 
+	static Actions = PlayActions;
 	actions!:PlayActions;
 
-	onSetupEventsAndActions() {
-		super.onSetupEventsAndActions();
-		this.actions = new PlayActions();
-	}
-
-	onBindActions() {
-		super.onBindActions();
+	onInit() {
+		super.onInit();
 		this.actions.play.on(this.play.bind(this));
 	}
 

@@ -87,6 +87,8 @@ export function components<C extends Component, M extends C['model']>(
 @injectable()
 export default class Component {
 	static Model = Mozel; // should be set for each extending class
+	static Events = ComponentEvents;
+	static Actions = ComponentActions;
 
 	static get enabledProperty() {
 		return 'enabled';
@@ -213,8 +215,7 @@ export default class Component {
 		this.loading = new Loader(name);
 		this.loading.log.setLevel(LogLevel.WARN);
 
-		this.onSetupEventsAndActions();
-		this.onBindActions();
+		this.setupActionsAndEvents();
 		this.initClassDefinitions();
 		this.onInit();
 
@@ -253,15 +254,12 @@ export default class Component {
 	}
 
 	onInit() {
-		// For override
+		this.actions.enable.on(action => this.enable(action.data.enable));
 	}
 
-	onSetupEventsAndActions() {
-		this.events = new ComponentEvents();
-		this.actions = new ComponentActions();
-	}
-	onBindActions() {
-		this.actions.enable.on(action => this.enable(action.data.enable));
+	setupActionsAndEvents() {
+		this.events = new this.static.Events();
+		this.actions = new this.static.Actions();
 	}
 
 	createWatcher<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {

@@ -74,9 +74,11 @@ export default class Engine {
 
 	createComponentFactories():Record<string, ComponentFactory> {
 		const controllerFactory = new EngineControllerFactory();
+		const viewFactory = new ViewFactory();
+		viewFactory.setControllerRegistry(controllerFactory.registry);
 		return {
 			controller: controllerFactory,
-			view: new ViewFactory(controllerFactory.registry)
+			view: viewFactory
 		};
 	}
 

@@ -29,6 +29,12 @@ export default class EngineController extends ViewController {
 	static Model = EngineModel;
 	model!:EngineModel;
 
+	static Events = EngineEvents;
+	events!:EngineEvents;
+
+	static Actions = EngineActions;
+	actions!:EngineActions;
+
 	@component(schema(EngineModel).scene, SceneController)
 	sceneController!:ComponentSlot<SceneController>;
 
@@ -38,27 +44,6 @@ export default class EngineController extends ViewController {
 	_engine?:Engine;
 	get engine() {
 		return this._engine;
-	}
-
-	events!:EngineEvents;
-	actions!:EngineActions;
-
-	onSetupEventsAndActions() {
-		super.onSetupEventsAndActions();
-		this.events = new EngineEvents();
-		this.actions = new EngineActions();
-	}
-
-	onBindActions() {
-		super.onBindActions();
-		this.actions.pause.on(() => {
-			if(!this.engine) return;
-			this.engine.pause();
-		});
-		this.actions.destroy.on(() => {
-			if(!this.engine) return;
-			this.engine.destroy();
-		});
 	}
 
 	onInit() {
@@ -73,6 +58,14 @@ export default class EngineController extends ViewController {
 			if(event.origin instanceof ObjectController) {
 				this.selection.remove(event.origin);
 			}
+		});
+		this.actions.pause.on(() => {
+			if(!this.engine) return;
+			this.engine.pause();
+		});
+		this.actions.destroy.on(() => {
+			if(!this.engine) return;
+			this.engine.destroy();
 		});
 	}
 
