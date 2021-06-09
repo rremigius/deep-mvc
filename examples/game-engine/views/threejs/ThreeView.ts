@@ -29,8 +29,8 @@ export default class ThreeView extends View {
 		this._object3D.onClick = this.threeClick.bind(this); // To be called by ThreeEngineView
 	}
 
-	setParent(parent?:ThreeView) {
-		super.setParent(parent);
+	onSetParent(parent?:ThreeView) {
+		super.onSetParent(parent);
 
 		// Remove from current parent
 		if(this.parentObject3D) {

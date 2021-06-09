@@ -108,7 +108,7 @@ export default class ARjsEngine extends Engine {
 	}
 
 	createARMarkerControls() {
-		const scene = this.controller.scene.get();
+		const scene = this.controller.scene.current;
 		if(!scene) throw new Error("No Scene in Engine");
 
 		this.arMarkerControls = new THREEx.ArMarkerControls(this.arContext, this.scene, {

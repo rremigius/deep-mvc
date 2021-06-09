@@ -77,6 +77,4 @@ export default class View extends Component {
 	onDismount():void {}
 	onResize(width:number, height:number):void {}
 	onClick(event:ViewClickEvent):void {}
-	onViewAdd(view:View):void {}
-	onViewRemove(view:View):void {}
 }

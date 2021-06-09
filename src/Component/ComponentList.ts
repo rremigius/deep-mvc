@@ -110,7 +110,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 		return !!this.current.find(item => item === component);
 	}
 
-	getIndex(index:number) {
+	get(index:number) {
 		return this.current[index];
 	}
 

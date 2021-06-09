@@ -24,8 +24,8 @@ export default class ThreeOrbitControls extends Component {
 		this.watch(s.enableZoom, zoom => this.setZoomEnabled(zoom), {immediate});
 	}
 
-	setParent(parent?:Component) {
-		super.setParent(parent);
+	onSetParent(parent?:Component) {
+		super.onSetParent(parent);
 		if(!parent) {
 			if(this.controls) this.controls.enabled = false;
 			return;

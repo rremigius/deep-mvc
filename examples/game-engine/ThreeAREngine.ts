@@ -33,7 +33,7 @@ export default class ThreeAREngine extends Engine {
 	// 	m.elements[10] = -(far + near) / (far - near);
 	// 	m.elements[14] = -(2 * far * near) / (far - near);
 	//
-	// 	const scene = this.controller.scene.get();
+	// 	const scene = this.controller.scene.current;
 	// 	if(!scene) throw new Error("No Scene in Engine.");
 	//
 	// 	const root = this.controller.root;

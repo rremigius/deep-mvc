@@ -395,7 +395,7 @@ export default class Component {
 			if(!includeReferences && child.isReference) continue;
 
 			if(child instanceof ComponentSlot) {
-				const component = child.get();
+				const component = child.current;
 				if(!component) continue;
 				callback(component);
 			} else if (child instanceof ComponentList) {
@@ -526,7 +526,7 @@ export default class Component {
 		for(let path in this.allChildren) {
 			const child = this.allChildren[path];
 			if(child instanceof ComponentSlot) {
-				const component = child.get();
+				const component = child.current
 				tree[path] = component ? component.toTree(child.isReference) : undefined;
 			} else if (child instanceof ComponentList) {
 				const list:object[] = [];

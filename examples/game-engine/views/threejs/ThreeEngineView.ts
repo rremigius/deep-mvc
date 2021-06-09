@@ -76,7 +76,7 @@ export default class ThreeEngineView extends View {
 		this.css3DRenderer.setSize(width, height);
 		this.copyStylesToCSS3D();
 
-		const camera = this.camera.get();
+		const camera = this.camera.current;
 		if(camera) {
 			camera.setAspectRatio(width / height);
 		}
@@ -106,8 +106,8 @@ export default class ThreeEngineView extends View {
 	}
 
 	render(): void {
-		const scene = this.scene.get();
-		const camera = this.camera.get();
+		const scene = this.scene.current;
+		const camera = this.camera.current;
 		if(!scene) {
 			log.error("No scene set. Cannot render.");
 			return;
@@ -129,8 +129,8 @@ export default class ThreeEngineView extends View {
 
 	protected handleClick(event: MouseEvent) {
 		if(!this.enabled) return;
-		const cameraView = this.camera.get();
-		const sceneView = this.scene.get();
+		const cameraView = this.camera.current;
+		const sceneView = this.scene.current;
 		if(!cameraView || !sceneView) return;
 
 		const camera = cameraView.camera;

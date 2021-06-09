@@ -66,10 +66,10 @@ export default class TriggerController extends Component {
 		return this.triggerModel.event.name;
 	}
 	getSource() {
-		return this.source.get() || this.defaultController;
+		return this.source.current || this.defaultController;
 	}
 	getTarget() {
-		return this.target.get() || this.defaultController;
+		return this.target.current || this.defaultController;
 	}
 	getAction() {
 		return this.triggerModel.action.name;

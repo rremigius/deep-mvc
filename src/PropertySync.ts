@@ -115,8 +115,4 @@ export default class PropertySync<P extends PropertyValue,T> {
 	protected syncValue(value:P|undefined):T|undefined {
 		throw new Error("Not Implemented");
 	}
-
-	get() {
-		return this.current;
-	}
 }

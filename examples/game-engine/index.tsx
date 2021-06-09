@@ -33,8 +33,8 @@ class ClickToDisableBehaviourController extends BehaviourController {
 
 	parentListener?:EventListener<ViewClickEvent>;
 
-	setParent(parent?: Component) {
-		super.setParent(parent);
+	onSetParent(parent?: Component) {
+		super.onSetParent(parent);
 		// Stop current listener
 		if(this.parentListener) {
 			this.parentListener.stop();

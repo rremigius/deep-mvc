@@ -179,7 +179,7 @@ describe('Component', () => {
 			const fooComponent = componentFactory.createAndResolveReferences(fooModel, FooComponent);
 
 			assert.equal(fooComponent.foo.get()!.model, fooModel.foo, "ComponentSlot synchronized");
-			assert.equal(fooComponent.foos.getIndex(0).model, fooModel.foos.get(0), "ComponentList synchronized");
+			assert.equal(fooComponent.foos.get(0).model, fooModel.foos.get(0), "ComponentList synchronized");
 		});
 	});
 	describe("enable", () => {
