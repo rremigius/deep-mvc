@@ -1,9 +1,7 @@
 import Component, {ComponentConstructor, ComponentEvent, ComponentEvents} from "./Component";
 import {Registry} from "mozel";
 import ViewFactory from "./View/ViewFactory";
-import Controller from "@/Controller";
 import Log from "@/log";
-import ViewController from "@/Controller/ViewController";
 
 const log = Log.instance("view");
 
@@ -21,8 +19,8 @@ export default class View extends Component {
 
 	events = new ViewEvents();
 
-	controller?:ViewController;
-	controllerRegistry?:Registry<Controller>;
+	controller?:Component;
+	controllerRegistry?:Registry<Component>;
 	factory!:ViewFactory; // TS: set on Component constructor
 
 	onInit() {
@@ -54,10 +52,7 @@ export default class View extends Component {
 		log.info(`${this} clicked.`);
 		const event = new ViewClickEvent(this, {});
 		this.onClick(event);
-		this.events.click.fire(new ViewClickEvent(this, {}));
-		if(this.controller) {
-			this.controller.click(event);
-		}
+		this.events.click.fire(new ViewClickEvent(this));
 	}
 
 	resize() {

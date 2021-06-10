@@ -88,8 +88,11 @@ describe('Component', () => {
 				static Model = BarModel;
 				model!:BarModel; // TS: initialized in super constructor
 
-				childBar = this.setupSubComponent(this.model.$('childBar'), BarComponent)
-				otherBar = this.setupSubComponent(this.model.$('otherBar'), BarComponent)
+				@component(schema(BarComponent.Model).childBar, BarComponent)
+				childBar!:ComponentSlot<BarComponent>;
+
+				@component(schema(BarComponent.Model).otherBar, BarComponent)
+				otherBar!:ComponentSlot<BarComponent>;
 			}
 
 			const barModel = modelFactory.create(BarModel, {

@@ -1,5 +1,4 @@
 import EngineController from "./EngineController";
-import ControllerFactory from "@/Controller/ControllerFactory";
 import SceneController from "./SceneController";
 import Model3DController from "./ObjectController/Model3DController";
 import ImageController from "./ObjectController/ImageController";
@@ -10,8 +9,9 @@ import SoundBehaviourController from "./BehaviourController/SoundBehaviourContro
 import BehaviourController from "./BehaviourController";
 import TriggerController from "./TriggerController";
 import ObjectController from "./ObjectController";
+import ComponentFactory from "@/Component/ComponentFactory";
 
-export default class EngineControllerFactory extends ControllerFactory {
+export default class EngineControllerFactory extends ComponentFactory {
 	initDependencies() {
 		super.initDependencies();
 		this.register([

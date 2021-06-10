@@ -17,6 +17,11 @@ export default class ComponentSlot<C extends Component> extends PropertySync<Com
 		this.parent = parent;
 	}
 
+	/**
+	 * Syncs the current model to a Component output value.
+	 * @param {Mozel} model
+	 * @protected
+	 */
 	protected syncValue(model:ComponentModel<C>) {
 		if(this.current && !this.isReference) {
 			this.current.setParent(undefined);

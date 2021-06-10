@@ -1,13 +1,12 @@
-import ObjectController from "@examples/game-engine/controllers/ObjectController";
+import ObjectController, {ObjectControllerEvents} from "@examples/game-engine/controllers/ObjectController";
 import Model3DModel from "@examples/game-engine/models/ObjectModel/Model3DModel";
 import {ComponentEvent} from "@/Component";
-import {ViewControllerEvents} from "@/Controller/ViewController";
 import Log from "@/log";
 
 const log = Log.instance("model3d-controller");
 
 export class MeshClickEvent extends ComponentEvent<{mesh:string}> {}
-export class Model3DControllerEvents extends ViewControllerEvents {
+export class Model3DControllerEvents extends ObjectControllerEvents {
 	meshClick = this.$event(MeshClickEvent);
 }
 

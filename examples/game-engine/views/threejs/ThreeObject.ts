@@ -5,6 +5,7 @@ import {deep, schema} from "mozel";
 import ComponentList from "@/Component/ComponentList";
 import ObjectController from "@examples/game-engine/controllers/ObjectController";
 import Vector3, {applySparseVector, SparseVector3} from "@examples/game-engine/views/common/Vector3";
+import {ViewClickEvent} from "../../../../src/View";
 
 export default class ThreeObject extends ThreeView {
 	static Model = ObjectModel;
@@ -46,5 +47,10 @@ export default class ThreeObject extends ThreeView {
 
 	applyScale(scale:number) {
 		this.object3D.scale.set(scale, scale, scale);
+	}
+
+	onClick(event: ViewClickEvent) {
+		super.onClick(event);
+		if(this.controller) this.controller.click();
 	}
 }

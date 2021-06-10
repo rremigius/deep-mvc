@@ -10,7 +10,6 @@ import Component from "@/Component";
 import ComponentFactory from "@/Component/ComponentFactory";
 import BehaviourController from "@examples/game-engine/controllers/BehaviourController";
 import BehaviourModel from "@examples/game-engine/models/BehaviourModel";
-import ViewController from "@/Controller/ViewController";
 import EventListener from "@/EventListener";
 import Engine from "@examples/game-engine/Engine";
 import ThreeViewFactory from "@examples/game-engine/views/threejs/ThreeViewFactory";
@@ -18,6 +17,7 @@ import UIFactory from "@examples/game-engine/views/ui/UIFactory";
 import ReactDOM from 'react-dom';
 import App from "@examples/game-engine/App";
 import SphereModel from "./models/ObjectModel/SphereModel";
+import ObjectController from "./controllers/ObjectController";
 
 const log = Log.instance("index");
 const models = new EngineModelFactory();
@@ -38,7 +38,7 @@ class ClickToDisableBehaviourController extends BehaviourController {
 			this.parentListener.stop();
 		}
 		// Start new listener
-		if(parent instanceof ViewController) {
+		if(parent instanceof ObjectController) {
 			this.parentListener = this.listenTo(parent.events.click, event => {
 				parent.enable(false);
 			});

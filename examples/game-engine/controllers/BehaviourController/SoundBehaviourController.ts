@@ -4,7 +4,7 @@ import Log from "@/log";
 // import {Howl } from 'howler';
 import SoundBehaviourModel from "@examples/game-engine/models/BehaviourModel/SoundBehaviourModel";
 
-export class PlayAction extends ComponentAction<void> {}
+export class PlayAction extends ComponentAction<{}> {}
 export class PlayActions extends ComponentActions {
 	play = this.$action(PlayAction);
 }

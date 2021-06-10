@@ -1,12 +1,11 @@
 import EngineModel from "@examples/game-engine/models/EngineModel";
-import {component, ComponentAction, ComponentActions, ComponentEvent, components} from "@/Component";
+import Component, {component, ComponentAction, ComponentActions, ComponentEvent, ComponentEvents, components} from "@/Component";
 import Engine, {KeyboardEvent} from "@examples/game-engine/Engine";
 import {schema} from "mozel";
 import SceneController from "@examples/game-engine/controllers/SceneController";
 import ComponentSlot from "@/Component/ComponentSlot";
-import ObjectController from "@examples/game-engine/controllers/ObjectController";
+import ObjectController, {DeselectEvent, SelectEvent} from "@examples/game-engine/controllers/ObjectController";
 import ComponentList from "@/Component/ComponentList";
-import ViewController, {DeselectEvent, SelectEvent, ViewControllerEvents} from "@/Controller/ViewController";
 import {includes} from "lodash";
 import Log from "@/log";
 
@@ -16,7 +15,7 @@ export class EnginePauseAction extends ComponentAction<{}> {}
 export class EngineDestroyAction extends ComponentAction<{}> {}
 export class SelectionEvent extends ComponentEvent<{selection:ObjectController[], oldSelection:ObjectController[]}> {}
 
-export class EngineEvents extends ViewControllerEvents {
+export class EngineEvents extends ComponentEvents {
 	selection = this.$event(SelectionEvent);
 	keyUp = this.$event(KeyboardEvent);
 }
@@ -25,7 +24,7 @@ export class EngineActions extends ComponentActions {
 	destroy = this.$action(EngineDestroyAction);
 }
 
-export default class EngineController extends ViewController {
+export default class EngineController extends Component {
 	static Model = EngineModel;
 	model!:EngineModel;
 

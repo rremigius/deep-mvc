@@ -1,7 +1,6 @@
-import ObjectController from "@examples/game-engine/controllers/ObjectController";
+import ObjectController, {ObjectControllerEvents} from "@examples/game-engine/controllers/ObjectController";
 import VideoModel from "@examples/game-engine/models/ObjectModel/VideoModel";
 import Log from "@/log";
-import {ViewControllerEvents} from "@/Controller/ViewController";
 import {ComponentEvent} from "@/Component";
 import {immediate, schema} from "mozel";
 
@@ -9,7 +8,7 @@ const log = Log.instance("video-controller");
 
 export class PlayEvent extends ComponentEvent<{}> {}
 export class PauseEvent extends ComponentEvent<{}> {}
-export class VideoControllerEvents extends ViewControllerEvents {
+export class VideoControllerEvents extends ObjectControllerEvents {
 	play = this.$event(PlayEvent);
 	pause = this.$event(PauseEvent);
 }

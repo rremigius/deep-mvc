@@ -43,7 +43,7 @@ export default class TriggerController extends Component {
 	 * Start listening to a new source.
 	 */
 	restartListening() {
-		if (this._started) {
+		if (this.started) {
 			this.stopListening();
 			this.startListening();
 		}

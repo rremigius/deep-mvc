@@ -36,7 +36,7 @@ export default class ThreeOrbitControls extends Component {
 		}
 		(async () => {
 			// We need to wait for the parent to initialize; setParent is called first time before initialization of parent
-			await parent.loading.wait();
+			await parent.loading;
 			if(!(parent === this.parent)) {
 				log.info("Parent changed before OrbitControls were setup.");
 				return;

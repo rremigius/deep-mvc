@@ -22,18 +22,35 @@ export type ComponentConstructor<T extends Component> = {
 };
 
 export type ComponentActionData<E> = E extends ComponentAction<infer D> ? D : object;
-export class ComponentAction<T> {
+
+/**
+ * Base class for Component Actions.
+ */
+export class ComponentAction<T extends object> {
 	data:T;
+
+	/**
+	 * Payload of the event.
+	 * @param {T} data
+	 */
 	constructor(data:T) {
 		this.data = data;
 	}
 }
 
+/**
+ * Base class for Component Events
+ */
 export class ComponentEvent<T extends object> {
 	origin?:Component;
 	data:T;
-	// TS: don't understand why {} would not be assignable to type T
-	constructor(origin:Component|undefined, data:T = {} as any) {
+
+	/**
+	 *
+	 * @param {Component} origin	The Component from which this event originates.
+	 * @param {T} data				The event payload.
+	 */
+	constructor(origin:Component|undefined, data:T = {} as T) {
 		this.origin = origin;
 		this.data = data;
 	}
@@ -42,8 +59,16 @@ export type ComponentEventData<E> = E extends ComponentEvent<infer D> ? D : obje
 export type ComponentSlotDefinition = {property:string, modelPath:string, ExpectedComponentClass:ComponentConstructor<any>};
 export type ComponentListDefinition = {property:string, modelPath:string, ExpectedComponentClass:ComponentConstructor<any>};
 
+/**
+ * Fires when the Component gets enabled.
+ */
 export class ComponentEnabledEvent extends ComponentEvent<object> { }
+
+/**
+ * Fires when the Component gets disabled.
+ */
 export class ComponentDisabledEvent extends ComponentEvent<object> { }
+
 export class ComponentEvents extends Events {
 	enabled = this.$event(ComponentEnabledEvent)
 	disabled = this.$event(ComponentDisabledEvent)
@@ -53,7 +78,11 @@ export class ComponentEvents extends Events {
 	}
 }
 
+/**
+ * Action to enable/disable the Component.
+ */
 export class ComponentEnableAction extends ComponentAction<{enable:boolean}> { }
+
 export class ComponentActions extends Events {
 	$action<T>(ActionClass:Constructor<T>) {
 		return this.$event(ActionClass);
@@ -64,6 +93,13 @@ export class ComponentActions extends Events {
 
 // DECORATORS
 
+/**
+ * Defines a ComponentSlot for the current Component class, to instantiate or find the child component corresponding
+ * to the model at the given path.
+ * @param modelPath					Path of the model based on which the child component should be resolved.
+ * 									Can be a string, or a Schema provided by `schema(Model)`.
+ * @param ExpectedComponentClass	Component class that is expected to be instantiated (runtime verification).
+ */
 export function component<C extends Component, M extends C['model']>(
 	modelPath:string|MozelSchema<M>,
 	ExpectedComponentClass:ComponentConstructor<C>
@@ -74,6 +110,13 @@ export function component<C extends Component, M extends C['model']>(
 	};
 }
 
+/**
+ * Defines a ComponentList for the current Component class, to instantiate or find the child components corresponding
+ * to the model at the given path.
+ * @param modelPath					Path of the model based on which the child components should be resolved.
+ * 									Can be a string, or a Schema provided by `schema(Model)`.
+ * @param ExpectedComponentClass	Component class that is expected to be instantiated (runtime verification).
+ */
 export function components<C extends Component, M extends C['model']>(
 	modelPath:string|CollectionSchema<M>,
 	ExpectedComponentClass:ComponentConstructor<C>
@@ -84,12 +127,18 @@ export function components<C extends Component, M extends C['model']>(
 	}
 }
 
+/**
+ * Base Component class. Designed to be a functional counterpart of a data model.
+ */
 @injectable()
 export default class Component {
 	static Model = Mozel; // should be set for each extending class
 	static Events = ComponentEvents;
 	static Actions = ComponentActions;
 
+	/**
+	 * Creates a ComponentFactory, with the current Component class already registered.
+	 */
 	static createFactory() {
 		const factory = new ComponentFactory();
 		if(this !== Component) factory.register(this);
@@ -99,6 +148,9 @@ export default class Component {
 	private static _classComponentSlotDefinitions: ComponentSlotDefinition[] = [];
 	private static _classComponentListDefinitions: ComponentListDefinition[] = [];
 
+	/**
+	 * Gets the definitions for ComponentSlots for this class.
+	 */
 	public static get classComponentSlotDefinitions() {
 		// Override _classPropertyDefinitions so this class has its own set and it will not add its properties to its parent
 		if (!this.hasOwnProperty('_classComponentSlotDefinitions')) {
@@ -107,6 +159,9 @@ export default class Component {
 		return this._classComponentSlotDefinitions;
 	}
 
+	/**
+	 * Gets the definitions for ComponentLists for this class.
+	 */
 	public static get classComponentListDefinitions() {
 		// Override _classPropertyDefinitions so this class has its own set and it will not add its properties to its parent
 		if (!this.hasOwnProperty('_classComponentListDefinitions')) {
@@ -115,56 +170,72 @@ export default class Component {
 		return this._classComponentListDefinitions;
 	}
 
+	/**
+	 * Defines a ComponentSlot for the current Component class, to instantiate or find the child component corresponding
+	 * to the model at the given path.
+	 * @param {string} property			Name of the property by which the ComponentSlot can be accessed.
+	 * @param modelPath					Path of the model based on which the child component should be resolved..
+	 * 									Can be a string, or a Schema provided by `schema(Model)`.
+	 * @param ExpectedComponentClass	Component class that is expected to be instantiated (runtime verification).
+	 */
 	static defineComponentSlot(property:string, modelPath:string, ExpectedComponentClass:ComponentConstructor<any>) {
 		this.classComponentSlotDefinitions.push({property, modelPath, ExpectedComponentClass});
 	}
 
+	/**
+	 * Defines a ComponentList for the current Component class, to instantiate or find the child components corresponding
+	 * to the model at the given path.
+	 * @param {string} property			Name of the property by which the ComponentList can be accessed.
+	 * @param modelPath					Path of the model based on which the child components should be resolved.
+	 * 									Can be a string, or a Schema provided by `schema(Model)`.
+	 * @param ExpectedComponentClass	Component class that is expected to be instantiated (runtime verification).
+	 */
 	static defineComponentList(property:string, modelPath:string, ExpectedComponentClass:ComponentConstructor<any>) {
 		this.classComponentListDefinitions.push({property, modelPath, ExpectedComponentClass});
 	}
 
-	private _componentSlotDefinitions:Record<string, ComponentSlotDefinition> = {};
-	private _componentListDefinitions:Record<string, ComponentListDefinition> = {};
-
+	/** Unique identifier shared only between model and all its components */
 	readonly gid:alphanumeric;
 
+	/** The model on which this Component is based */
 	public readonly model:Mozel;
+	/** The factory that created this Component, and is used to create child Components */
 	readonly factory:ComponentFactory;
+	/** The registry in which this Component is registered, and which can be used to find other Components */
 	readonly registry:Registry<Component>;
+	/** The eventBus to which all Components created by the same factory are connected and can send and receive events to/from */
 	readonly eventBus:EventBus;
+	/** The Inversify dependency Container to which all Component classes, factory, registry, eventBus and other common services are bound */
 	readonly dependencies:Container;
 
-	_parent?:Component;
+	private _parent?:Component;
+	/** The parent Component to which this Component is a direct child */
 	get parent() { return this._parent }
 
-	allChildren:Record<string, ComponentSlot<Component>|ComponentList<Component>> = {};
-
-	loading:Loader;
-
+	/** Contains all events that can be fired and subscribed to on this Component. */
 	events!:ComponentEvents;
+	/** Contains all actions that can be called on this Component. */
 	actions!:ComponentActions;
 
+	private componentSlotDefinitions:Record<string, ComponentSlotDefinition> = {};
+	private componentListDefinitions:Record<string, ComponentListDefinition> = {};
+	private allChildren:Record<string, ComponentSlot<Component>|ComponentList<Component>> = {};
+	private loader:Loader;
 	private lastReportedEnabledState?:boolean;
-
 	private eventListeners:EventListener<EventEmitter<unknown>>[] = [];
 	private watchers:PropertyWatcher[];
 	private permanentWatchers:PropertyWatcher[];
-
-	_enabled:boolean = true;
-	_started:boolean = false;
+	private initialized:boolean;
 	private parentEnabled:boolean = true;
-	private enabledProperty;
 
-	protected initialized:boolean;
+	/** Property name of the model that represents the enabled state of the Component */
+	protected enabledProperty;
 
 	get static() {
 		return <typeof Component>this.constructor;
 	}
 
-	hasEnabledPropertyInModel() {
-		return this.model.$has(this.enabledProperty);
-	}
-
+	private _enabled:boolean = true;
 	get enabled() {
 		// If model has 'enabled' property, we use that. Otherwise, we use the Component's own `_enabled` property.
 		const thisEnabled = this.hasEnabledPropertyInModel()
@@ -173,16 +244,25 @@ export default class Component {
 		return this.started && thisEnabled && this.parentEnabled;
 	}
 
+	private _started:boolean = false;
+	/** Whether or not the Component has been started (with the start() method)*/
 	get started() {
 		return this._started;
 	}
 
+	/** Component class name */
 	get name() {
 		return this.static.name;
 	}
 
+	/** Model name */
 	get modelName() {
 		return this.model.static.name;
+	}
+
+	/** Returns the promise for initial loading */
+	get loading() {
+		return this.loader.wait();
 	}
 
 	constructor(
@@ -210,14 +290,22 @@ export default class Component {
 		this.permanentWatchers = [];
 
 		const name = this.toString();
-		this.loading = new Loader(name);
-		this.loading.log.setLevel(LogLevel.WARN);
+		this.loader = new Loader(name);
+		this.loader.log.setLevel(LogLevel.WARN);
 
 		this.setupActionsAndEvents();
 		this.initClassDefinitions();
 		this.onInit();
 
 		this.initialized = true;
+	}
+
+	/**
+	 * Tells whether or not the model has the property that represents the enabled state of the Component.
+	 * @return {boolean} True if the property exists on the model.
+	 */
+	hasEnabledPropertyInModel() {
+		return this.model.$has(this.enabledProperty);
 	}
 
 	private collectClassDefinitions() {
@@ -228,38 +316,50 @@ export default class Component {
 			}
 			// Then collect this class' definitions (allow override)
 			Class.classComponentSlotDefinitions.forEach(definition => {
-				this._componentSlotDefinitions[definition.property] = definition;
+				this.componentSlotDefinitions[definition.property] = definition;
 			});
 			Class.classComponentListDefinitions.forEach(definition => {
-				this._componentListDefinitions[definition.property] = definition;
+				this.componentListDefinitions[definition.property] = definition;
 			});
 		};
 		_collectClassDefinitions(this.static);
 
 	}
-	initClassDefinitions() {
+	private initClassDefinitions() {
 		// First collect all definitions
 		this.collectClassDefinitions();
 
-		for(let property in this._componentSlotDefinitions) {
-			const definition = this._componentSlotDefinitions[property];
+		for(let property in this.componentSlotDefinitions) {
+			const definition = this.componentSlotDefinitions[property];
 			(this as any)[definition.property] = this.setupSubComponent(definition.modelPath, definition.ExpectedComponentClass);
 		}
-		for(let property in this._componentListDefinitions) {
-			const definition = this._componentListDefinitions[property];
+		for(let property in this.componentListDefinitions) {
+			const definition = this.componentListDefinitions[property];
 			(this as any)[definition.property] = this.setupSubComponents(definition.modelPath, definition.ExpectedComponentClass);
 		}
 	}
 
-	onInit() {
+	/**
+	 * Initializes the Component. Called from the constructor.
+	 * @protected
+	 */
+	protected onInit() {
 		this.actions.enable.on(action => this.enable(action.data.enable));
 	}
 
-	setupActionsAndEvents() {
+	/**
+	 * Sets up the actions and events as defined by the static properties `Actions` and `Events`.
+	 */
+	protected setupActionsAndEvents() {
 		this.events = new this.static.Events();
 		this.actions = new this.static.Actions();
 	}
 
+	/**
+	 * Calls an action on the Component by its name. Will throw an error if the action does not exist.
+	 * @param {string} name		The name of the action (usually the Action class name).
+	 * @param payload			The payload required by the specified action.
+	 */
 	callAction(name:string, payload:any) {
 		let action;
 		try {
@@ -274,7 +374,18 @@ export default class Component {
 		this.actions.$fire(name, new ActionClass(payload));
 	}
 
-	createWatcher<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {
+	/**
+	 * Creates a model watcher at the given path, without starting adding it to the Model or starting it.
+	 * Will fire immediately once added to the Model.
+	 * @param {string|PropertySchema<T>|MozelSchema<T>} path		Path or schema of the property to watch.
+	 * @param {PropertyChangeHandler<T>} handler					To be called when the property changes.
+	 * @param {PropertyWatcherOptionsArgument} 	options
+	 * @param {boolean} 						options.deep		Fire when any child value of the property changes.
+	 * @param {number}							options.throttle	Number of ms during which the handler will be called
+	 * 																only once, even if any matching values changed
+	 * 																multiple times.
+	 */
+	public createWatcher<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {
 		const finalPath = isString(path) ? path : path.$path;
 		const allOptions = {
 			...options,
@@ -288,11 +399,15 @@ export default class Component {
 	}
 
 	/**
-	 * Watches model at the given path, but only when the Component is enabled.
+	 * Watches model at the given path (only when the Component is enabled).
 	 * Will always use `immediate` option, so will check for changes every time the Component gets enabled.
-	 * @param {string|PropertySchema<T>|MozelSchema<T>} path
-	 * @param {PropertyChangeHandler<T>} handler
-	 * @param {PropertyWatcherOptionsArgument} options
+	 * @param {string|PropertySchema<T>|MozelSchema<T>} path		Path or schema of the property to watch.
+	 * @param {PropertyChangeHandler<T>} handler					To be called when the property changes.
+	 * @param {PropertyWatcherOptionsArgument} 	options
+	 * @param {boolean} 						options.deep		Fire when any child value of the property changes.
+	 * @param {number}							options.throttle	Number of ms during which the handler will be called
+	 * 																only once, even if any matching values changed
+	 * 																multiple times.
 	 */
 	watch<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {
 		const watcher = this.createWatcher(path, handler, options);
@@ -303,9 +418,13 @@ export default class Component {
 	/**
 	 * Watches model at the given path, whether the Component is enabled or disabled, until the Component is destroyed.
 	 * Will start watching immediately, and fire first time when this method is called.
-	 * @param {string|PropertySchema<T>|MozelSchema<T>} path
-	 * @param {PropertyChangeHandler<T>} handler
-	 * @param {PropertyWatcherOptionsArgument} options
+	 * @param {string|PropertySchema<T>|MozelSchema<T>} path		Path or schema of the property to watch.
+	 * @param {PropertyChangeHandler<T>} handler					To be called when the property changes.
+	 * @param {PropertyWatcherOptionsArgument} 	options
+	 * @param {boolean} 						options.deep		Fire when any child value of the property changes.
+	 * @param {number}							options.throttle	Number of ms during which the handler will be called
+	 * 																only once, even if any matching values changed
+	 * 																multiple times.
 	 */
 	watchAlways<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {
 		const watcher = this.createWatcher(path, handler, options);
@@ -314,12 +433,20 @@ export default class Component {
 		return watcher;
 	}
 
+	/**
+	 * Sets the parentof this Component.
+	 * @param {Component} parent
+	 */
 	setParent(parent?:Component) {
 		this._parent = parent;
 		this.updateEnabledState();
 		this.onSetParent(parent);
 	}
 
+	/**
+	 * Finds the first parent up the hierarchy that matches the given conditions.
+	 * @param {(component:Component)=>boolean}	criteria	Function to evaluated whether a component matches the conditions.
+	 */
 	findParent(criteria:(component:Component) => boolean):Component|undefined {
 		if(criteria(this)) {
 			return this;
@@ -328,17 +455,25 @@ export default class Component {
 		return this._parent.findParent(criteria);
 	}
 
+	/**
+	 * Gets the root Component of the hierarchy.
+	 */
 	getRootComponent():Component {
 		if(!this._parent) return this;
 		return this._parent.getRootComponent();
 	}
 
+	/**
+	 * Generates and log an Error.
+	 * @param args	Any number of arguments can be logged; only the first argument will be used as the Error message.
+	 * @protected
+	 */
 	protected error(...args:unknown[]) {
 		log.error(...args);
 		return new Error(""+args[0]);
 	}
 
-	setupSubComponent<T extends Component>(
+	private setupSubComponent<T extends Component>(
 		modelPath:string|Property,
 		ComponentClass:ComponentConstructor<T>
 	) {
@@ -353,7 +488,7 @@ export default class Component {
 		return sync;
 	}
 
-	setupSubComponents<P extends Mozel, T extends Component>(
+	private setupSubComponents<P extends Mozel, T extends Component>(
 		modelPath:string|Property,
 		ComponentClass:ComponentConstructor<T>
 	) {
@@ -369,7 +504,7 @@ export default class Component {
 	}
 
 	/**
-	 * Listent to an event from the given source by its event name.
+	 * Listens to an event from the given source by its event name.
 	 * @param {Component} source
 	 * @param {string} eventName
 	 * @param {callback} callback
@@ -382,8 +517,8 @@ export default class Component {
 	/**
 	 * Starts listening to an event of the target EventEmitterr, storing the callback locally to be destroyed and
 	 * unsubscribed when the Component is destroyed.
-	 * @param event
-	 * @param callback
+	 * @param {EventEmitter<T>>} event
+	 * @param {callback<T>} callback
 	 */
 	listenTo<T>(event:EventEmitter<T>, callback:callback<T>) {
 		const eventListener = new EventListener(event, callback);
@@ -394,9 +529,10 @@ export default class Component {
 	}
 
 	/**
-	 * Runs the given callback on all children.
-	 * @param callback
-	 * @param [includeReferences]
+	 * Runs the given callback on all children, whether in ComponentSlots or ComponentLists.
+	 * @param {Function} callback	Callback that takes the Component.
+	 * @param [includeReferences]	If set to `true`, will also run the callback on Components that are references.
+	 * 								Defaults to `false`.
 	 */
 	forEachChild(callback:(child:Component)=>void, includeReferences = false) {
 		for(let path in this.allChildren) {
@@ -414,6 +550,9 @@ export default class Component {
 		}
 	}
 
+	/**
+	 * Resolves all references of defined ComponentSlots and ComponentLists.
+	 */
 	resolveReferences() {
 		for(let path in this.allChildren) {
 			const sync = this.allChildren[path];
@@ -423,20 +562,23 @@ export default class Component {
 		this.forEachChild(component => component.resolveReferences());
 	}
 
+	/**
+	 * Performs initial asynchronous loading of the Component.
+	 */
 	async load() {
 		const start = Date.now();
 		log.info(`${this} loading...`);
 
 		let promise = this.onLoad();
-		this.loading.start('main', undefined, promise);
+		this.loader.start('main', undefined, promise);
 
 		let i = 0;
 		this.forEachChild((child:Component) => {
 			let promise = child.load();
-			this.loading.start('child-'+(i++), undefined, promise);
+			this.loader.start('child-'+(i++), undefined, promise);
 		});
 		try {
-			await this.loading.wait(undefined, 10000);
+			await this.loader.wait(undefined, 10000);
 			const end = Date.now();
 			log.info(`${this} loaded (${end-start} ms).`);
 		} catch(e) {
@@ -444,6 +586,10 @@ export default class Component {
 			throw e;
 		}
 	}
+
+	/**
+	 * Starts the Component. Unless the Component is disabled, it will be active directly afterwards.
+	 */
 	start() {
 		log.info(`${this} starting...`);
 		this._started = true;
@@ -462,9 +608,13 @@ export default class Component {
 			this.updateEnabledState();
 		}
 	}
+
+	/**
+	 * Destroys the Component and cleans up registered callbacks and other memory-sensitive data.
+	 */
 	destroy() {
 		this.stopListening();
-		this.stopPermanentWatchers();
+		this.permanentWatchers.forEach(watcher => this.model.$removeWatcher(watcher));
 
 		this.onDestroy();
 		this.forEachChild((child:Component) => {
@@ -472,19 +622,42 @@ export default class Component {
 		});
 		log.info(`${this} destroyed.`);
 	}
+
+	/**
+	 * Starts listening to all events, as defined with `listenTo` and `listenToEventName`.
+	 */
+	startListening() {
+		this.eventListeners.forEach(listener => listener.start());
+	}
+	/**
+	 * Stops listening to all events, as defined with `listenTo` and `listenToEventName`.
+	 */
 	stopListening() {
 		this.eventListeners.forEach(listener => listener.stop());
 	}
+
+	/**
+	 * Starts all model watchers, as defined with `watch`.
+	 */
 	startWatchers() {
 		this.watchers.forEach(watcher => this.model.$addWatcher(watcher));
 	}
+
+	/**
+	 * Stops all model watchers, as defined with `watch`
+	 */
 	stopWatchers() {
 		this.watchers.forEach(watcher => this.model.$removeWatcher(watcher));
 	}
-	stopPermanentWatchers() {
-		this.permanentWatchers.forEach(watcher => this.model.$removeWatcher(watcher));
-	}
 
+	/**
+	 * Enables/disables the Component. If the property representing the enable state exists on the model, it will be
+	 * set to the new state. Otherwise, the enabled state will be kept internally.
+	 *
+	 * For the Component to become active, all of its ancestors need to be enabled as well.
+	 *
+	 * @param {boolean} enabled		The new enabled state.
+	 */
 	enable(enabled:boolean = true) {
 		if(this.hasEnabledPropertyInModel()) {
 			this.model.$set(this.enabledProperty, enabled);
@@ -493,7 +666,14 @@ export default class Component {
 		}
 		this.updateEnabledState();
 	}
-	updateEnabledState() {
+
+	/**
+	 * Updates the final enabled state of the Component, based on its own enabled state and that of its ancestors.
+	 * Will call `onEnabled` if the enabled state changes to `true`, and `onDisabled` if the enabled state changes to
+	 * `false`.
+	 * @protected
+	 */
+	protected updateEnabledState() {
 		if(!this.started) return;
 
 		this.parentEnabled = !this.parent ? true : this.parent.enabled;
@@ -515,6 +695,9 @@ export default class Component {
 		this.forEachChild(child => child.updateEnabledState());
 	}
 
+	/**
+	 * Concatenates the name of the Component with its GID between brackets, e.g.: "MyComponent (314)"
+	 */
 	toString() {
 		const name = `${this.name} (${this.gid})`;
 		if(!this.parent) {
@@ -523,6 +706,11 @@ export default class Component {
 		return this.parent + '/' + name;
 	}
 
+	/**
+	 * Generates an object tree that can be conveniently logged for debugging.
+	 * @param {boolean} asReference		If set to `true`, will only log the component, gid and `_reference: true`.
+	 * 									This is to prevent infinite recursion.
+	 */
 	toTree(asReference = false) {
 		const tree:Record<string, any> = {
 			_this: this,

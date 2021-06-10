@@ -1,19 +1,31 @@
-import {components} from "@/Component";
+import Component, {ComponentEvent, ComponentEvents, components} from "@/Component";
 import ObjectModel from "@examples/game-engine/models/ObjectModel";
 import TriggerController from "@examples/game-engine/controllers/TriggerController";
 import BehaviourController from "@examples/game-engine/controllers/BehaviourController";
 import ComponentList from "@/Component/ComponentList";
 import {schema} from "mozel";
-import ViewController, {DeselectEvent, SelectEvent, ViewClickEvent} from "@/Controller/ViewController";
 import Vector3Model from "@examples/game-engine/models/Vector3Model";
 import Vector3 from "@examples/game-engine/views/common/Vector3";
 import Log from "@/log";
+import {ViewClickEvent} from "../../../src/View";
 
 const log = Log.instance("object-controller");
 
-export default class ObjectController extends ViewController {
+export class ClickEvent extends ComponentEvent<{}>{}
+export class SelectEvent extends ComponentEvent<{}>{}
+export class DeselectEvent extends ComponentEvent<{}>{}
+export class ObjectControllerEvents extends ComponentEvents {
+	click = this.$event(ClickEvent);
+	select = this.$event(SelectEvent);
+	deselect = this.$event(DeselectEvent);
+}
+
+export default class ObjectController extends Component {
 	static Model = ObjectModel;
 	model!:ObjectModel;
+
+	static Events = ObjectControllerEvents;
+	events!:ObjectControllerEvents;
 
 	@components(schema(ObjectController.Model).behaviours, BehaviourController)
 	behaviours!:ComponentList<BehaviourController>;
@@ -40,11 +52,10 @@ export default class ObjectController extends ViewController {
 		this.model.selected = state;
 	}
 
-	onClick(event: ViewClickEvent) {
-		super.onClick(event);
-		if(this.selectable) {
-			this.select();
-		}
+	click() {
+		log.info(`${this} clicked.`);
+		this.select();
+		this.events.click.fire(new ClickEvent(this));
 	}
 
 	onSelected() {

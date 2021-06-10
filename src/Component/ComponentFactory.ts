@@ -14,12 +14,23 @@ const ComponentSymbol = Symbol.for("Component");
 @injectable()
 export default class ComponentFactory {
 
-	// If not set in constructor params, will be set in constructor. And readonly, so will always have value.
+	/**
+	 * Infersify dependency container from which all registered dependencies can be retrieved. If provided in the constructor, this
+	 * will be the provided container. New dependencies should not be added to this container, at the risk of polluting
+	 * the external dependency container.
+	 */
 	dependencies:Container;
+
+	/** Local Infersify dependency Container to which any internal classes and services can be registered. */
 	readonly localDependencies:Container;
-	public eventBus:Events;
+	/** EventBus that is provided to all created Components to communicate between each other. */
+	public readonly eventBus:Events;
+	/** Registry to which all created Components are registed. */
 	public readonly registry:Registry<Component>;
 
+	/**
+	 * Creates a dependency container that can be used for the ComponentFactory.
+	 */
 	static createDependencyContainer() {
 		return new Container({autoBindInjectable: true});
 	}
@@ -51,8 +62,12 @@ export default class ComponentFactory {
 	}
 
 	// For override
-	initDependencies() { }
+	protected initDependencies() { }
 
+	/**
+	 * Creates a new dependency container, extending from the existing one.
+	 * Dependencies can be added to the new container without polluting the existing one.
+	 */
 	extendDependencies() {
 		const newDependencies = new Container({autoBindInjectable: true});
 		newDependencies.parent = this.dependencies;
@@ -78,20 +93,21 @@ export default class ComponentFactory {
 		this.localDependencies.bind<Component>(ComponentSymbol).to(ComponentClass).whenTargetNamed(ModelClass.type);
 	}
 
-
+	/**
+	 * Registers a default Component class when a parent class is required.
+	 * @param {typeof Component} Base
+	 * @param {typeof Component} Implementation
+	 */
 	registerDefault(Base:typeof Component, Implementation:typeof Component) {
 		this.localDependencies.bind(Base).to(Implementation);
 	}
 
 	/**
-	 * Creates an Component.
+	 * Creates a Component based on a Model.
 	 * If <T> matches ExpectedClass, is guaranteed to provide the correct class (or throw).
 	 *
-	 * Note: Factory has no knowledge of subclasses of Component (among other reasons to prevent circular dependencies).
+	 * @param {Mozel} model
 	 * @param {typeof Component} ExpectedClass
-	 * @param {model} model
-	 * @param {boolean}	root		Set to true if the call is outside hierarchical intialisation (i.e. init method).
-	 *								Will call the hierarchyUpdated lifecycle event.
 	 */
 	create<T extends Component>(model:Mozel, ExpectedClass?:ComponentConstructor<T>):T {
 		function isT(model:any) : model is T {
@@ -132,12 +148,25 @@ export default class ComponentFactory {
 		return component;
 	}
 
+	/**
+	 * Creates a Component based on a model, and resolves all references in the hierarchy right afterwards.
+	 * @param {Mozel} model
+	 * @param {typeof Component} ExpectedClass
+	 */
 	createAndResolveReferences<T extends Component>(model:Mozel, ExpectedClass?:ComponentConstructor<T>):T {
 		const component = this.create<T>(model, ExpectedClass);
 		component.resolveReferences();
 		return component;
 	}
 
+	/**
+	 * Attempts to find the component corresponding to the given model.
+	 * @param {Mozel} model
+	 * @param {typeof Component} ExpectedComponentClass		The expected Component class. Will throw if the found
+	 * 														(or created) Component is not of the correct class.
+	 * @param {boolean} createNonExisting					If set to `true`, will create a new instance if no existing
+	 * 														Component was found.
+	 */
 	resolve<T extends Component>(model:Mozel, ExpectedComponentClass:ComponentConstructor<T>, createNonExisting:boolean) {
 		let component = this.registry.byGid(model.gid);
 

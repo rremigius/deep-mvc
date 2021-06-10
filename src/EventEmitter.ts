@@ -13,7 +13,6 @@ function getTypeName(type:unknown) {
 	return typeof(type);
 }
 
-export type Payload<T> = T extends Class ? T : never;
 export type callback<T> = (payload:T)=>void
 export default class EventEmitter<T> {
 	private listeners:callback<T>[] = [];

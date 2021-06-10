@@ -8,7 +8,6 @@ import ViewFactory from "@/View/ViewFactory";
 import ThreeModel3D from "@examples/game-engine/views/threejs/ThreeObject/ThreeModel3D";
 import ThreeEngineView from "@examples/game-engine/views/threejs/ThreeEngineView";
 import ThreeOrbitControls from "@examples/game-engine/views/threejs/ThreeObject/ThreeCamera/ThreeOrbitControls";
-import View from "@/View";
 import ThreeImage from "@examples/game-engine/views/threejs/ThreeObject/ThreeImage";
 import ThreeSphere from "./ThreeObject/ThreeSphere";
 
@@ -19,6 +18,6 @@ export default class ThreeViewFactory extends ViewFactory {
 			ThreeEngineView, ThreeView, ThreeScene, ThreeGraph, ThreeLight, ThreeModel3D, ThreeImage, ThreePerspectiveCamera,
 			ThreeVideo, ThreeOrbitControls, ThreeSphere
 		]);
-		this.registerDefault(View, ThreeView);
+		this.registerDefault(ThreeVideo, ThreeView);
 	}
 }

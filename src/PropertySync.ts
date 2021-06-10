@@ -44,14 +44,25 @@ export default class PropertySync<P extends PropertyValue,T> {
 		this.SyncType = SyncType;
 	}
 
+	/**
+	 * Checks if a value matches the property type defined in this PropertySync.
+	 * @param value
+	 */
 	isPropertyType(value:unknown):value is P {
 		return Property.checkType(value, this.PropertyType);
 	}
-	
+
+	/**
+	 * Checks if a value matches the type of the required output of the PropertySync.
+	 * @param value
+	 */
 	isSyncType(value:unknown):value is T {
 		return value instanceof this.syncValue
 	}
 
+	/**
+	 * Start watching for changes and generate output from model with any changes, starting with the current value.
+	 */
 	startWatching() {
 		if(this.watching) {
 			return;
@@ -62,12 +73,15 @@ export default class PropertySync<P extends PropertyValue,T> {
 		}, {immediate});
 	}
 
+	/**
+	 * Uses the current model value at the configured path to generate a synced output.
+	 */
 	sync() {
 		const current = this.model.$path(this.path);
 		this.syncFromModel(current, this.path);
 	}
 
-	syncFromModel(value:PropertyValue, changePath:string) {
+	private syncFromModel(value:PropertyValue, changePath:string) {
 		const path = changePath.split('.');
 		const prop = check<string>(path.pop(), isString, "prop");
 		const parent = check<Mozel>(this.model.$path(path), instanceOf(Mozel), "parent");
@@ -102,7 +116,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 	}
 
 	/**
-	 * Register a deinitialization callback to be called on every value before it gets overwritten
+	 * Register a deinitialization callback to be called on every value before it gets replaced.
 	 * @param callback
 	 */
 	deinit(callback:callback<T|undefined>) {
@@ -112,6 +126,11 @@ export default class PropertySync<P extends PropertyValue,T> {
 		return this;
 	}
 
+	/**
+	 * Generates an output based on the given value.
+	 * @param value
+	 * @protected
+	 */
 	protected syncValue(value:P|undefined):T|undefined {
 		throw new Error("Not Implemented");
 	}
