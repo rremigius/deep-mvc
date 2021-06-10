@@ -1,7 +1,7 @@
-MozelCC
+Mozel Component
 =======
 
-MozelCC implements a hierarchical model-component architecture, which can optionally be setup as an MCV.
+Mozel Component implements a hierarchical model-component architecture, which can optionally be setup as an MCV.
 In the basis, both a controller and a view are considered components taking care of a specific aspect of a model.
 That way, any number of component 'layers' can be added to a hierarchical model structure. For example, an architecture
 could be setup for each model to have a controller and a view (MCV), a controller and 2 views (MCVV) or even just a
