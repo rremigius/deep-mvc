@@ -7,7 +7,7 @@ import ComponentList from "@/Component/ComponentList";
 import View from "@/View";
 import UIView, {ReactViewComponentPropsWithStyles, UIViewReact} from "@examples/game-engine/views/ui/UIView";
 import {createStyles, Theme, withStyles} from "@material-ui/core";
-import ReactView, {ReactViewComponent} from "@/View/ReactView";
+import {ReactViewComponent} from "@/View/ReactView";
 import {Category} from "@material-ui/icons";
 
 type Props = ReactViewComponentPropsWithStyles<UISceneView, typeof styles>
@@ -24,7 +24,7 @@ export const UISceneViewReact = withStyles(styles())(
 			return <UIViewReact
 				view={this.view}
 				icon={<Category/>}
-				children={this.view.renderChildren()}
+				children={this.renderChildren(this.view.objects)}
 			/>;
 		}
 	}
@@ -45,11 +45,5 @@ export default class UISceneView extends UIView {
 
 	getReactComponent(): typeof React.Component {
 		return UISceneViewReact as typeof React.Component;
-	}
-
-	renderChildren() {
-		return this.objects
-			.filter(view => view instanceof ReactView)
-			.map((view, key) => (view as ReactView).render(key));
 	}
 }

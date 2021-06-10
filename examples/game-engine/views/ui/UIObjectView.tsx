@@ -34,7 +34,7 @@ export const UIObjectViewReact = withStyles(styles())(
 					properties={<UIObjectProperties view={this.view}/>}
 					selected={this.model.selected}
 					onClick={this.handleClick.bind(this)}
-					children={this.view.renderChildren()}
+					children={this.renderChildren(this.view.objects)}
 				/>
 			</div>;
 		}
@@ -63,11 +63,5 @@ export default class UIObjectView extends UIView {
 	onInit() {
 		super.onInit();
 		this.controller = this.findController(ObjectController);
-	}
-
-	renderChildren() {
-		return this.objects
-			.filter(view => view instanceof ReactView)
-			.map((view, key) => (view as ReactView).render(key));
 	}
 }

@@ -1,4 +1,3 @@
-import ViewModel from "@/View/ViewModel";
 import {
 	Collapse,
 	createStyles,
@@ -83,9 +82,6 @@ function styles() {
 }
 
 export default class UIView extends ReactView {
-	static Model = ViewModel;
-	model!:ViewModel;
-
 	getReactComponent():typeof React.Component {
 		return UIViewReact as typeof React.Component;
 	}

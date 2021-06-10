@@ -59,6 +59,15 @@ export class ReactViewComponent<P extends ReactViewComponentProps<ReactView>, S>
 			callback();
 		}
 	}
+	renderChildren(components:ComponentList<View>) {
+		return components
+			.filter(view => view instanceof ReactView)
+			.map((view, key) => (view as ReactView).render(key));
+	}
+	renderChild(component:ComponentSlot<View>) {
+		if(!(component.current instanceof ReactView)) return;
+		return component.current.render();
+	}
 }
 
 export default class ReactView extends View {
