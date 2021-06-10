@@ -432,5 +432,5 @@ this.watch('*', () => {
 });
 ```
 
-to change this behaviour, override the `onInitWatchers` method to add watchers. Leave out `super.onInitWatchers` to
+To change this behaviour, override the `onInitWatchers` method to add watchers. Leave out `super.onInitWatchers` to
 prevent watching all direct properties for changes.
