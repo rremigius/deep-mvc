@@ -187,7 +187,7 @@ describe('TriggerComponent', () => {
 				event: { name: SceneEvent.name },
 				action: { target: { gid: 'obj' }, name: ObjectAction.name }
 			}], // from here to another
-			children: [
+			objects: [
 				factory.model.create(ObjectModel, {
 					gid: 'obj',
 					triggers: [{
@@ -240,7 +240,7 @@ describe('TriggerComponent', () => {
 	it('can change event and action at runtime.', done => {
 		const factory = new Factory();
 		const sceneModel = factory.model.create(SceneModel, {
-			children: [
+			objects: [
 				factory.model.create(ObjectModel, {
 					gid: 'foo',
 					triggers: [

@@ -1,10 +1,10 @@
 import {collection, Collection, property, required} from 'mozel';
 import BehaviourModel from './BehaviourModel';
 import TriggerModel, {UnknownTriggerModel} from "@examples/game-engine/models/TriggerModel";
-import ViewModel from "@/View/ViewModel";
 import Vector3Model from "@examples/game-engine/models/Vector3Model";
+import BaseComponentModel from "../BaseComponentModel";
 
-export default class ObjectModel extends ViewModel {
+export default class ObjectModel extends BaseComponentModel {
 	static get type() { return 'Object'	};
 
 	@property(Number, {required, default: 1})
@@ -24,7 +24,4 @@ export default class ObjectModel extends ViewModel {
 
 	@property(Boolean)
 	selected?:boolean;
-
-	@property(Boolean)
-	enabled?:boolean;
 }

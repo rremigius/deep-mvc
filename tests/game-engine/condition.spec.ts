@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {MozelFactory} from "mozel";
 import ConditionEqualsModel from "@examples/game-engine/models/ConditionModel/ConditionEqualsModel";
-import {ComponentEvent} from "../src/Component";
+import {ComponentEvent} from "@/Component";
 
 describe("ConditionEqualsModel", () => {
 	it('compares all keys and values in `check` property on equality.', ()=>{

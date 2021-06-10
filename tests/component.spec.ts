@@ -103,10 +103,10 @@ describe('Component', () => {
 
 			const bar = factory.createAndResolveReferences<BarComponent>(barModel, BarComponent);
 
-			assert.equal(bar.childBar.get(), bar.otherBar.get(), "Child and reference refer to same Component");
+			assert.equal(bar.childBar.current, bar.otherBar.current, "Child and reference refer to same Component");
 
 			barModel.childBar = modelFactory.create(BarModel, {gid: 3});
-			assert.equal(bar.childBar.get()!.gid, 3, "Child component updated");
+			assert.equal(bar.childBar.current!.gid, 3, "Child component updated");
 
 			try {
 				barModel.otherBar = modelFactory.create(BarModel, {gid: 4});
@@ -116,7 +116,7 @@ describe('Component', () => {
 			}
 
 			barModel.otherBar = barModel.childBar;
-			assert.equal(bar.otherBar.get(), bar.childBar.get(), "Setting reference to same model will resolve to same component");
+			assert.equal(bar.otherBar.current, bar.childBar.current, "Setting reference to same model will resolve to same component");
 		});
 		it('can resolve other Components from the Registry', () => {
 			// Create instances
@@ -144,7 +144,7 @@ describe('Component', () => {
 			const gid12 = component.childFoos.find({gid: 12});
 			assert.ok(gid11 instanceof Component, "Child with GID 11 is a Component.");
 			assert.ok(gid12 instanceof Component, "Child with GID 12 is a Component.");
-			assert.equal(gid11!.childFoos.find({gid:111}), gid12!.otherFoo.get());
+			assert.equal(gid11!.childFoos.find({gid:111}), gid12!.otherFoo.current);
 		});
 	});
 	describe("@component and @componentList", () => {
@@ -178,7 +178,7 @@ describe('Component', () => {
 
 			const fooComponent = componentFactory.createAndResolveReferences(fooModel, FooComponent);
 
-			assert.equal(fooComponent.foo.get()!.model, fooModel.foo, "ComponentSlot synchronized");
+			assert.equal(fooComponent.foo.current!.model, fooModel.foo, "ComponentSlot synchronized");
 			assert.equal(fooComponent.foos.get(0).model, fooModel.foos.get(0), "ComponentList synchronized");
 		});
 	});

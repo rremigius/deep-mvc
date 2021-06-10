@@ -2,7 +2,6 @@ import Component, {ComponentConstructor, ComponentEvent, ComponentEvents} from "
 import {Registry} from "mozel";
 import ViewFactory from "./View/ViewFactory";
 import Controller from "@/Controller";
-import ViewModel from "@/View/ViewModel";
 import Log from "@/log";
 import ViewController from "@/Controller/ViewController";
 
@@ -15,9 +14,6 @@ export class ViewEvents extends ComponentEvents {
 export const ControllerRegistrySymbol = Symbol.for("ControllerRegistrySymbol");
 
 export default class View extends Component {
-	static Model = ViewModel;
-	model!:ViewModel;
-
 	_container?:HTMLElement;
 	get container() {
 		return this._container;

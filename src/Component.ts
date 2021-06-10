@@ -10,7 +10,7 @@ import EventBus from "@/EventBus";
 import EventEmitter, {callback, Events} from "@/EventEmitter";
 import {isString} from 'lodash';
 import Property, {PropertyValue} from "mozel/dist/Property";
-import {Constructor} from "validation-kit";
+import {Constructor, isSubClass} from "validation-kit";
 import {LogLevel} from "log-control";
 import PropertyWatcher, {PropertyChangeHandler, PropertyWatcherOptionsArgument} from "mozel/dist/PropertyWatcher";
 
@@ -260,6 +260,20 @@ export default class Component {
 		this.actions = new this.static.Actions();
 	}
 
+	callAction(name:string, payload:any) {
+		let action;
+		try {
+			action = this.actions.$get(name);
+		} catch(e) {
+			throw new Error(`Unknown action '${name}' on ${this.static.name}.`);
+		}
+		const ActionClass = action.type;
+		if(!isSubClass(ActionClass, ComponentAction)) {
+			throw new Error("Trigger action is not a ComponentAction.");
+		}
+		this.actions.$fire(name, new ActionClass(payload));
+	}
+
 	createWatcher<T extends PropertyValue>(path:string|PropertySchema<T>|MozelSchema<T>, handler:PropertyChangeHandler<T>, options?:PropertyWatcherOptionsArgument) {
 		const finalPath = isString(path) ? path : path.$path;
 		const allOptions = {
@@ -407,7 +421,6 @@ export default class Component {
 			sync.sync();
 		}
 		this.forEachChild(component => component.resolveReferences());
-		this.onResolveReferences();
 	}
 
 	async load() {
@@ -444,7 +457,7 @@ export default class Component {
 
 		if(this.hasEnabledPropertyInModel()) {
 			log.info(`Watching '${this.enabledProperty}' property for enabled/disabled state.`);
-			this.watch(this.enabledProperty, this.updateEnabledState.bind(this), {immediate});
+			this.watchAlways(this.enabledProperty, this.updateEnabledState.bind(this), {immediate});
 		} else {
 			this.updateEnabledState();
 		}
@@ -536,10 +549,6 @@ export default class Component {
 	/*
 	Life cycle hooks
 	 */
-
-	onResolveReferences() {
-
-	}
 
 	/**
 	 * Called when the scene loads. Allows Components to do some asynchronous tasks and notify when they're done.

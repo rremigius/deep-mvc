@@ -1,10 +1,10 @@
 import {collection, Collection, property, required} from "mozel"
 import TriggerModel, {UnknownTriggerModel} from "./TriggerModel";
 import {EngineType} from "@examples/game-engine/viewer-settings";
-import ViewModel from "@/View/ViewModel";
 import ObjectModel from "@examples/game-engine/models/ObjectModel";
+import BaseComponentModel from "../BaseComponentModel";
 
-export default class SceneModel extends ViewModel {
+export default class SceneModel extends BaseComponentModel {
 	static get type() { return 'Scene' };
 
 	@property(String, {required})

@@ -2,8 +2,6 @@ import Controller from "@/Controller";
 import {ViewClickEvent} from "@/View";
 import {ComponentEvent, ComponentEvents} from "@/Component";
 import Log from "@/log";
-import ViewModel from "@/View/ViewModel";
-import {schema} from "mozel";
 
 const log = Log.instance("view-controller");
 
@@ -17,9 +15,6 @@ export class ViewControllerEvents extends ComponentEvents {
 }
 
 export default class ViewController extends Controller {
-	static Model = ViewModel;
-	model!:ViewModel;
-
 	static Events = ViewControllerEvents;
 	events!:ViewControllerEvents;
 

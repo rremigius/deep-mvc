@@ -174,6 +174,7 @@ const viewFactory = new ViewFactory();
 viewFactory.dependencies.bind("ControllerRegistry").toConstantValue(controllerFactory.registry);
 
 class View extends Component {
+	// ...
 	controller!:Component;
 	onInit() {
 		super.onInit();
@@ -190,39 +191,147 @@ class View extends Component {
 Components have a lifecycle, each with their corresponding 'hooks', or methods available for override. 
 Below are the lifecycle stages:
 
-### Constructor
+### 1. Hierarchy - `onSetParent`
 
-The Component constructor includes a few stages:
+Called from the constructor. Is called for any Components that are created as child component. Hierarchy is created
+before any Component initialization stage, so note that the Component, as well as its parent, is not yet initialized.
 
-#### Setup Actions and Events (`onSetupEventsAndActions`)
+### 2. Initialization - `onInit`
 
-Setup or override `events` and `actions` properties. Each subclass has the opportunity to override `events` or `actions` 
-with a more specific version, adding possible events and actions. In later stages, these should not be overridden 
-anymore, as it would remove existing listeners and bindings.
+Called from the constructor. Child component watchers are executed immediately. 
 
-#### Bind Actions (`onBindActions`)
+### 3. Load - `onLoad`
 
-Bind methods to actions, e.g.:
+After initialization, can be called by `component.load()`. Starts initial asynchronous and recursive loading of all components
+in the hierarchy. The `onLoad` method can be overridden to do perform the initial asynchronous loading of the component.
+Should return a Promise that resolves when the component is done loading.
 
-```typescript
-this.actions.kill.on(this.onKillAction.bind(this));
-```
+If none of the components have any loading to do, this stage can be skipped.
 
-#### Initialize child components
+### 4. Start - `onStart`
 
-Child components setup with `@component` or `@components` are setup in this stage.
+After the component as loaded (or if loading is unneccesary), the component can be started with `component.start()`.
+This calls the `onStart` method for all components in the hierarchy.
 
-#### Initialize component itself (`onInit`)
+### 5. Enable - `onEnable`
 
-Called from Component constructor,
+For a component to be enabled, it needs to be started, and set to be enabled. When this condition changes positively, 
+the `onEnable` method is called on the component. If the component starts `enabled`, the first call to `onEnable` will
+be at the end of the Start stage.
 
-## Enable/disable components
+### 6. Disable - `onDisable`
 
+Components can be disabled, in which case they will stop watching and listening to events. When the 'enabled' state
+changes negatively, the `onDisable` method is called.
 
+### 7. Destroy - `onDestroy`
 
+When a component will no longer be used, it should be destroyed (`component.destroy()`). This will destroy the component
+and all its child components. For each destroyed component, the `onDestroy` method will be called.
 
 ## Events
 
-(and EventBus)
+Components can define and use events that can be listened to. Defining events is done as follows:
+
+```typescript
+interface Vector3Interface {x:number, y:number, z:number;}
+// Define a 'move' event, which payload is an object with the new position
+class ObjectMovedEvent extends ComponentEvent<{position:Vector3Interface}> {}
+// Define an Events class, bundling any defined events
+class ObjectEvents extends ComponentEvents {
+	move = this.$event(ObjectMovedEvent);
+}
+
+// Place the events in the component class
+class ObjectComponent extends Component {
+	//...
+	// Define the Events class this component uses
+	static Events = ObjectEvents;
+	// Override the type for the `events` property
+    events!:ObjectEvents;
+}
+
+// Use the events anywhere:
+component.events.move.on(event => console.log("New position:", event.data.position));
+component.events.move.fire(new ObjectMovedEvent(this, {x: 2, y: 10, z: 1}));
+```
+
+### EventBus
+
+Using the `Events` class, specific events of specific components can be listened to. Each component is also provided
+with a shared EventBus (if created from the same ComponentFactory), allowing to listen to specific events from *any*
+component:
+
+```typescript
+class ObjectComponent extends Component {
+	// ...
+	onInit() {
+		super.onInit();
+		// Listen to move events from any other objects
+		this.eventBus.$on(ObjectMovedEvent, event => {
+			console.log("Object moved:", event.origin);
+			console.log("New position:", event.data.position);
+        });
+    }
+    move() {
+		// Fire the event into the eventBus, for anyone to hear
+		this.eventBus.$fire(new ObjectMovedEvent(this, {x: 1, y: 4, z: 2}));
+    }
+}
+```
+
+## Actions
+
+Components can define actions that can be called by other components. These are meant as handles for dynamically defined
+interaction between components. The definition of actions is similar to events. Example:
+
+```typescript
+class ObjectModel extends Mozel {
+	@property(ObjectModel)
+    target?:ObjectModel;    // Let's say our ObjectModel has another object targeted...
+	@property(String)       // .. and a dynamically defined action to call on it
+    action?:string;
+	@property(Vector3, {required})
+    position?:Vector3;
+}
+
+// Define the actions:
+class MoveAction extends ComponentAction<{position:Vector3Interface}> {}
+class ObjectActions extends ComponentActions {
+	move = this.$action(MoveAction);
+}
+// Define the component:
+class ObjectComponent extends Component {
+	static Model = ObjectModel;
+	model!:ObjectModel;
+	
+    @component(schema(ObjectComponent.Model).target, ObjectComponent)
+    target!:ComponentSlot<ObjectComponent>;
+    
+	static Actions = ObjectActions;
+	actions!:ObjectActions;
+	
+	onInit() {
+		super.onInit();
+		this.actions.move.on(action => {
+			// Move itself
+			this.model.position = this.model.create(Vector3, position);
+        })
+    }
+    
+    callTargetAction(payload:any) {
+		const target = this.target.current;
+		if(!target) return;
+		
+		this.target.callAction(this.model.action, payload);
+    }
+    
+    moveTarget() {
+		this.model.action = "MoveAction";
+		this.callTargetAction({x: 10, y: 10, z: 10});
+    }
+}
+
+```
 
 ## ReactView

@@ -129,16 +129,6 @@ export default class TriggerController extends Component {
 			}
 		}
 
-		let action;
-		try {
-			action = target.actions.$get(this.triggerModel.action.name);
-		} catch(e) {
-			throw new Error(`Unknown action '${this.triggerModel.action.name}' on ${target.static.name}.`);
-		}
-		if(!isSubClass(action.type, ComponentAction)) {
-			throw new Error("Trigger action is not a ControllerAction.");
-		}
-		const Action = action.type;
-		target.actions.$fire(this.triggerModel.action.name, new Action(input));
+		target.callAction(this.triggerModel.action.name, input);
 	}
 }
