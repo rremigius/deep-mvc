@@ -173,6 +173,17 @@ changes negatively, the `onDisable` method is called.
 When a component will no longer be used, it should be destroyed (`component.destroy()`). This will destroy the component
 and all its child components. For each destroyed component, the `onDestroy` method will be called.
 
+## Enable/disable
+
+Components can be enabled and disabled. Disabling a component will also disable its children. Re-enabling will only
+re-enable those children that were enabled themselves. By default, enabling/disabling of components is managed by an
+internal state of the component. If the model has an `enabled` property, it will use that intead of the internal state,
+making it easy for components in all layers to see (and change) the enabled state.
+
+Another model property can also be chosen to represent the enabled state of the component, by setting the
+`this.enabledProperty` in the `onInit` method. The `enable` method will use this property to set the enabled state
+(or use the default internal property if the given property name does not exist on the model).
+
 ## Events
 
 Components can define and use events that can be listened to. Defining events is done as follows:
