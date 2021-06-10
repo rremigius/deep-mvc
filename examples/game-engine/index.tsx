@@ -15,10 +15,8 @@ import EventListener from "@/EventListener";
 import Engine from "@examples/game-engine/Engine";
 import ThreeViewFactory from "@examples/game-engine/views/threejs/ThreeViewFactory";
 import UIFactory from "@examples/game-engine/views/ui/UIFactory";
-import SceneModel from "@examples/game-engine/models/SceneModel";
 import ReactDOM from 'react-dom';
 import App from "@examples/game-engine/App";
-import ObjectModel from "@examples/game-engine/models/ObjectModel";
 import SphereModel from "./models/ObjectModel/SphereModel";
 
 const log = Log.instance("index");
@@ -88,9 +86,9 @@ const model = models.createAndResolveReferences(EngineModel, {
 class MyEngine extends Engine {
 	createComponentFactories(): Record<string, ComponentFactory> {
 		const controllerFactory = Engine.createDefaultControllerFactory();
+		controllerFactory.register(ClickToDisableBehaviourController);
 
 		const viewFactory = new ThreeViewFactory();
-		viewFactory.register(ClickToDisableBehaviourController)
 		viewFactory.setControllerRegistry(controllerFactory.registry);
 
 		const uiFactory = new UIFactory();

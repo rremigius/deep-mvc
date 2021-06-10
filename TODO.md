@@ -9,3 +9,4 @@ To Do
                 > Person (ref:(gid:2)) (PhonecallView)
             > Person (gid:2) (Model3DView)
     Idea: provide a separate ViewFactory for one View to generate another View (e.g. UIView to generate a PropertiesView).
+- Registry cleanup  

@@ -90,14 +90,6 @@ export default class Component {
 	static Events = ComponentEvents;
 	static Actions = ComponentActions;
 
-	static get enabledProperty() {
-		return 'enabled';
-	}
-
-	static hasEnabledPropertyInModel() {
-		return this.enabledProperty in schema(this.Model);
-	}
-
 	static createFactory() {
 		const factory = new ComponentFactory();
 		if(this !== Component) factory.register(this);
@@ -161,6 +153,7 @@ export default class Component {
 	_enabled:boolean = true;
 	_started:boolean = false;
 	private parentEnabled:boolean = true;
+	private enabledProperty;
 
 	protected initialized:boolean;
 
@@ -168,10 +161,14 @@ export default class Component {
 		return <typeof Component>this.constructor;
 	}
 
+	hasEnabledPropertyInModel() {
+		return this.model.$has(this.enabledProperty);
+	}
+
 	get enabled() {
 		// If model has 'enabled' property, we use that. Otherwise, we use the Component's own `_enabled` property.
-		const thisEnabled = this.static.hasEnabledPropertyInModel()
-			? this.model.$get(this.static.enabledProperty) !== false
+		const thisEnabled = this.hasEnabledPropertyInModel()
+			? this.model.$get(this.enabledProperty) !== false
 			: this._enabled;
 		return this.started && thisEnabled && this.parentEnabled;
 	}
@@ -206,6 +203,7 @@ export default class Component {
 		this.registry = registry;
 		this.eventBus = eventBus;
 		this.dependencies = dependencies;
+		this.enabledProperty = 'enabled';
 
 		this.initialized = false;
 		this.watchers = [];
@@ -444,9 +442,9 @@ export default class Component {
 
 		log.info(`${this} started.`);
 
-		if(this.static.hasEnabledPropertyInModel()) {
-			log.info(`Watching '${this.static.enabledProperty}' property for enabled/disabled state.`);
-			this.watch(this.static.enabledProperty, this.updateEnabledState.bind(this), {immediate});
+		if(this.hasEnabledPropertyInModel()) {
+			log.info(`Watching '${this.enabledProperty}' property for enabled/disabled state.`);
+			this.watch(this.enabledProperty, this.updateEnabledState.bind(this), {immediate});
 		} else {
 			this.updateEnabledState();
 		}
@@ -475,8 +473,8 @@ export default class Component {
 	}
 
 	enable(enabled:boolean = true) {
-		if(this.static.hasEnabledPropertyInModel()) {
-			this.model.$set(this.static.enabledProperty, enabled);
+		if(this.hasEnabledPropertyInModel()) {
+			this.model.$set(this.enabledProperty, enabled);
 		} else {
 			this._enabled = enabled;
 		}

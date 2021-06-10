@@ -24,4 +24,7 @@ export default class ObjectModel extends ViewModel {
 
 	@property(Boolean)
 	selected?:boolean;
+
+	@property(Boolean)
+	enabled?:boolean;
 }
