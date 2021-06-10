@@ -424,14 +424,12 @@ export default class MyView extends ReactView {
 }
 ```
 
-By default, ReactViewComponents will update when any of its model's *direct properties* change:
+By default, ReactViewComponents will update when any of its model's *direct properties* change, as defined in `onInitWatchers`:
 
 ```typescript
-onInitWatchers() {
-    this.watch('*', () => {
-        this.forceUpdate();
-    });
-}
+this.watch('*', () => {
+    this.forceUpdate();
+});
 ```
 
 to change this behaviour, override the `onInitWatchers` method to add watchers. Leave out `super.onInitWatchers` to
