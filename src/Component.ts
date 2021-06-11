@@ -13,6 +13,7 @@ import Property, {PropertyValue} from "mozel/dist/Property";
 import {Constructor, isSubClass} from "validation-kit";
 import {LogLevel} from "log-control";
 import PropertyWatcher, {PropertyChangeHandler, PropertyWatcherOptionsArgument} from "mozel/dist/PropertyWatcher";
+import {DestroyedEvent} from "mozel/dist/Mozel";
 
 const log = Log.instance("component");
 
@@ -292,6 +293,8 @@ export default class Component {
 		const name = this.toString();
 		this.loader = new Loader(name);
 		this.loader.log.setLevel(LogLevel.WARN);
+
+		this.model.$on(DestroyedEvent, () => this.onModelDestroyed());
 
 		this.setupActionsAndEvents();
 		this.initClassDefinitions();
@@ -610,16 +613,18 @@ export default class Component {
 	}
 
 	/**
-	 * Destroys the Component and cleans up registered callbacks and other memory-sensitive data.
+	 * Destroys the model, triggering the destruction of all related components, including this one.
+	 * Will clean up registered callbacks and other memory-sensitive data.
 	 */
 	destroy() {
+		this.model.$destroy();
+	}
+
+	private onModelDestroyed() {
 		this.stopListening();
 		this.permanentWatchers.forEach(watcher => this.model.$removeWatcher(watcher));
 
 		this.onDestroy();
-		this.forEachChild((child:Component) => {
-			child.destroy();
-		});
 		log.info(`${this} destroyed.`);
 	}
 

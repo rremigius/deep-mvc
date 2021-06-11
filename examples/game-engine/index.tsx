@@ -22,12 +22,12 @@ import ObjectController from "./controllers/ObjectController";
 const log = Log.instance("index");
 const models = new EngineModelFactory();
 
-class ClickToDisableBehaviourModel extends BehaviourModel {
-	static get type() { return 'ClickToDisable' }
+class ClickToDestroyBehaviourModel extends BehaviourModel {
+	static get type() { return 'ClickToDestroy' }
 }
-class ClickToDisableBehaviourController extends BehaviourController {
-	static Model = ClickToDisableBehaviourModel;
-	model!:ClickToDisableBehaviourModel;
+class ClickToDestroy extends BehaviourController {
+	static Model = ClickToDestroyBehaviourModel;
+	model!:ClickToDestroyBehaviourModel;
 
 	parentListener?:EventListener<ViewClickEvent>;
 
@@ -40,7 +40,7 @@ class ClickToDisableBehaviourController extends BehaviourController {
 		// Start new listener
 		if(parent instanceof ObjectController) {
 			this.parentListener = this.listenTo(parent.events.click, event => {
-				parent.enable(false);
+				parent.destroy();
 			});
 		}
 	}
@@ -72,7 +72,7 @@ const model = models.createAndResolveReferences(EngineModel, {
 				scale: 0.5,
 				position: {z: 0.5, x: 2},
 				behaviours: [
-					models.create(ClickToDisableBehaviourModel)
+					models.create(ClickToDestroyBehaviourModel)
 				],
 				objects: []
 			}),
@@ -86,7 +86,7 @@ const model = models.createAndResolveReferences(EngineModel, {
 class MyEngine extends Engine {
 	createComponentFactories(): Record<string, ComponentFactory> {
 		const controllerFactory = Engine.createDefaultControllerFactory();
-		controllerFactory.register(ClickToDisableBehaviourController);
+		controllerFactory.register(ClickToDestroy);
 
 		const viewFactory = new ThreeViewFactory();
 		viewFactory.setControllerRegistry(controllerFactory.registry);
