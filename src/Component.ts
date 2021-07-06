@@ -476,7 +476,7 @@ export default class Component {
 		return new Error(""+args[0]);
 	}
 
-	private setupSubComponent<T extends Component>(
+	protected setupSubComponent<T extends Component>(
 		modelPath:string|Property,
 		ComponentClass:ComponentConstructor<T>
 	) {
@@ -491,7 +491,7 @@ export default class Component {
 		return sync;
 	}
 
-	private setupSubComponents<P extends Mozel, T extends Component>(
+	protected setupSubComponents<P extends Mozel, T extends Component>(
 		modelPath:string|Property,
 		ComponentClass:ComponentConstructor<T>
 	) {

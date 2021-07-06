@@ -1,10 +1,12 @@
 import { Container } from "inversify";
 import ComponentFactory from "@/Component/ComponentFactory";
 import EventListener from "@/EventListener";
+import ComponentList from "@/Component/ComponentList";
+import ComponentSlot from "@/Component/ComponentSlot";
 import Mozel, { alphanumeric, CollectionSchema, MozelSchema, PropertySchema, Registry } from "mozel";
 import EventBus from "@/EventBus";
 import EventEmitter, { callback, Events } from "@/EventEmitter";
-import { PropertyValue } from "mozel/dist/Property";
+import Property, { PropertyValue } from "mozel/dist/Property";
 import { Constructor } from "validation-kit";
 import PropertyWatcher, { PropertyChangeHandler, PropertyWatcherOptionsArgument } from "mozel/dist/PropertyWatcher";
 export declare type ComponentConstructor<T extends Component> = {
@@ -250,8 +252,8 @@ export default class Component {
      * @protected
      */
     protected error(...args: unknown[]): Error;
-    private setupSubComponent;
-    private setupSubComponents;
+    protected setupSubComponent<T extends Component>(modelPath: string | Property, ComponentClass: ComponentConstructor<T>): ComponentSlot<T>;
+    protected setupSubComponents<P extends Mozel, T extends Component>(modelPath: string | Property, ComponentClass: ComponentConstructor<T>): ComponentList<T>;
     /**
      * Listens to an event from the given source by its event name.
      * @param {Component} source
