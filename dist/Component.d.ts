@@ -102,7 +102,7 @@ export default class Component {
      * Creates a Component based on the given model, and instantiates all necessary dependencies.
      * @param {Mozel} model
      */
-    static create(model: Mozel): Component;
+    static create<T extends Component>(model: Mozel): T;
     /**
      * Creates a ComponentFactory.
      */
