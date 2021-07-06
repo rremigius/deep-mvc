@@ -1,4 +1,4 @@
-import ComponentFactory from "@/Component/ComponentFactory";
+import ComponentFactory from "../Component/ComponentFactory";
 import {Registry} from "mozel";
 import {ControllerRegistrySymbol} from "../View";
 import Component from "../Component";

@@ -1,9 +1,9 @@
-import Component, {ComponentConstructor} from "@/Component";
+import Component, {ComponentConstructor} from "../Component";
 import {isArray, isFunction, isMatch} from 'lodash';
-import EventEmitter from "@/EventEmitter";
-import PropertySync, {PropertySyncEvents} from "@/PropertySync";
+import EventEmitter from "../EventEmitter";
+import PropertySync, {PropertySyncEvents} from "../PropertySync";
 import {check, Constructor, instanceOf} from "validation-kit";
-import ComponentFactory from "@/Component/ComponentFactory";
+import ComponentFactory from "../Component/ComponentFactory";
 import Mozel, {Collection} from "mozel";
 import {CollectionItemAddedEvent, CollectionItemRemovedEvent} from "mozel/dist/Collection";
 
@@ -33,17 +33,17 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 		return this._current ? this._current : [];
 	}
 
-	private addedListener = (model:unknown) => {
-		const $model = check<ComponentModel<C>>(model, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
-		const component = this.factory.resolve<C>($model, this.ComponentClass, true);
+	private addedListener = (event:CollectionItemAddedEvent<unknown>) => {
+		const model = check<ComponentModel<C>>(event.data.item, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
+		const component = this.factory.resolve<C>(model, this.ComponentClass, true);
 
 		if(component && !this.has(component)) {
 			this.add(component);
 		}
 	}
-	private removedListener = (model:unknown) => {
-		const $model = check<ComponentModel<C>>(model, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
-		const component = this.factory.registry.byGid($model.gid);
+	private removedListener = (event:CollectionItemRemovedEvent<unknown>) => {
+		const model = check<ComponentModel<C>>(event.data.item, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
+		const component = this.factory.registry.byGid(model.gid);
 		if(component instanceof this.ComponentClass) {
 			this.remove(component);
 		}

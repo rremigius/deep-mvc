@@ -1,10 +1,10 @@
 import React from "react";
-import View from "@/View";
+import View from "../View";
 import {alphanumeric, MozelSchema, PropertySchema} from "mozel";
 import ReactDOM from "react-dom";
 import PropertyWatcher, {PropertyChangeHandler, PropertyWatcherOptionsArgument} from "mozel/dist/PropertyWatcher";
 import {PropertyValue} from "mozel/dist/Property";
-import EventEmitter, {callback} from "@/EventEmitter";
+import EventEmitter, {callback} from "../EventEmitter";
 import ComponentList from "../Component/ComponentList";
 import ComponentSlot from "../Component/ComponentSlot";
 

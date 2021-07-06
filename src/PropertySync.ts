@@ -1,6 +1,6 @@
 import Mozel, {immediate} from "mozel";
 import {isString} from 'lodash';
-import {callback, Events} from "@/EventEmitter";
+import {callback, Events} from "./EventEmitter";
 import Property, {PropertyType, PropertyValue} from "mozel/dist/Property";
 import {check, Constructor, instanceOf} from "validation-kit";
 

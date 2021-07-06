@@ -1,34 +1,29 @@
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
+"use strict";
 var Component_1;
-import { Container, inject, injectable, LazyServiceIdentifer } from "inversify";
-import ComponentFactory from "@/Component/ComponentFactory";
-import Log from "@/log";
-import Loader from "deep-loader";
-import EventListener from "@/EventListener";
-import ComponentList from "@/Component/ComponentList";
-import ComponentSlot from "@/Component/ComponentSlot";
-import Mozel, { immediate, Registry } from "mozel";
-import EventBus from "@/EventBus";
-import { Events } from "@/EventEmitter";
-import { isString } from 'lodash';
-import Property from "mozel/dist/Property";
-import { isSubClass } from "validation-kit";
-import { LogLevel } from "log-control";
-import PropertyWatcher from "mozel/dist/PropertyWatcher";
-import { DestroyedEvent } from "mozel/dist/Mozel";
-const log = Log.instance("component");
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.components = exports.component = exports.ComponentActions = exports.ComponentEnableAction = exports.ComponentEvents = exports.ComponentDisabledEvent = exports.ComponentEnabledEvent = exports.ComponentEvent = exports.ComponentAction = void 0;
+const tslib_1 = require("tslib");
+const inversify_1 = require("inversify");
+const ComponentFactory_1 = tslib_1.__importDefault(require("./Component/ComponentFactory"));
+const log_1 = tslib_1.__importDefault(require("./log"));
+const deep_loader_1 = tslib_1.__importDefault(require("deep-loader"));
+const EventListener_1 = tslib_1.__importDefault(require("./EventListener"));
+const ComponentList_1 = tslib_1.__importDefault(require("./Component/ComponentList"));
+const ComponentSlot_1 = tslib_1.__importDefault(require("./Component/ComponentSlot"));
+const mozel_1 = tslib_1.__importStar(require("mozel"));
+const EventBus_1 = tslib_1.__importDefault(require("./EventBus"));
+const EventEmitter_1 = require("./EventEmitter");
+const lodash_1 = require("lodash");
+const Property_1 = tslib_1.__importDefault(require("mozel/dist/Property"));
+const validation_kit_1 = require("validation-kit");
+const log_control_1 = require("log-control");
+const PropertyWatcher_1 = tslib_1.__importDefault(require("mozel/dist/PropertyWatcher"));
+const Mozel_1 = require("mozel/dist/Mozel");
+const log = log_1.default.instance("component");
 /**
  * Base class for Component Actions.
  */
-export class ComponentAction {
+class ComponentAction {
     /**
      * Payload of the event.
      * @param {T} data
@@ -37,10 +32,11 @@ export class ComponentAction {
         this.data = data;
     }
 }
+exports.ComponentAction = ComponentAction;
 /**
  * Base class for Component Events
  */
-export class ComponentEvent {
+class ComponentEvent {
     /**
      *
      * @param {Component} origin	The Component from which this event originates.
@@ -51,29 +47,34 @@ export class ComponentEvent {
         this.data = data;
     }
 }
+exports.ComponentEvent = ComponentEvent;
 /**
  * Fires when the Component gets enabled.
  */
-export class ComponentEnabledEvent extends ComponentEvent {
+class ComponentEnabledEvent extends ComponentEvent {
 }
+exports.ComponentEnabledEvent = ComponentEnabledEvent;
 /**
  * Fires when the Component gets disabled.
  */
-export class ComponentDisabledEvent extends ComponentEvent {
+class ComponentDisabledEvent extends ComponentEvent {
 }
-export class ComponentEvents extends Events {
+exports.ComponentDisabledEvent = ComponentDisabledEvent;
+class ComponentEvents extends EventEmitter_1.Events {
     constructor() {
         super(true);
         this.enabled = this.$event(ComponentEnabledEvent);
         this.disabled = this.$event(ComponentDisabledEvent);
     }
 }
+exports.ComponentEvents = ComponentEvents;
 /**
  * Action to enable/disable the Component.
  */
-export class ComponentEnableAction extends ComponentAction {
+class ComponentEnableAction extends ComponentAction {
 }
-export class ComponentActions extends Events {
+exports.ComponentEnableAction = ComponentEnableAction;
+class ComponentActions extends EventEmitter_1.Events {
     constructor() {
         super(...arguments);
         this.enable = this.$action(ComponentEnableAction);
@@ -82,6 +83,7 @@ export class ComponentActions extends Events {
         return this.$event(ActionClass);
     }
 }
+exports.ComponentActions = ComponentActions;
 // DECORATORS
 /**
  * Defines a ComponentSlot for the current Component class, to instantiate or find the child component corresponding
@@ -90,13 +92,14 @@ export class ComponentActions extends Events {
  * 									Can be a string, or a Schema provided by `schema(Model)`.
  * @param ExpectedComponentClass	Component class that is expected to be instantiated (runtime verification).
  */
-export function component(modelPath, ExpectedComponentClass) {
+function component(modelPath, ExpectedComponentClass) {
     return function (target, propertyName) {
-        if (!isString(modelPath))
+        if (!lodash_1.isString(modelPath))
             modelPath = modelPath.$path;
         target.static.defineComponentSlot(propertyName, modelPath, ExpectedComponentClass);
     };
 }
+exports.component = component;
 /**
  * Defines a ComponentList for the current Component class, to instantiate or find the child components corresponding
  * to the model at the given path.
@@ -104,13 +107,14 @@ export function component(modelPath, ExpectedComponentClass) {
  * 									Can be a string, or a Schema provided by `schema(Model)`.
  * @param ExpectedComponentClass	Component class that is expected to be instantiated (runtime verification).
  */
-export function components(modelPath, ExpectedComponentClass) {
+function components(modelPath, ExpectedComponentClass) {
     return function (target, propertyName) {
-        if (!isString(modelPath))
+        if (!lodash_1.isString(modelPath))
             modelPath = modelPath.$path;
         target.static.defineComponentList(propertyName, modelPath, ExpectedComponentClass);
     };
 }
+exports.components = components;
 /**
  * Base Component class. Designed to be a functional counterpart of a data model.
  */
@@ -141,9 +145,9 @@ let Component = Component_1 = class Component {
         this.watchers = [];
         this.permanentWatchers = [];
         const name = this.toString();
-        this.loader = new Loader(name);
-        this.loader.log.setLevel(LogLevel.WARN);
-        this.model.$on(DestroyedEvent, () => this.onModelDestroyed());
+        this.loader = new deep_loader_1.default(name);
+        this.loader.log.setLevel(log_control_1.LogLevel.WARN);
+        this.model.$on(Mozel_1.DestroyedEvent, () => this.onModelDestroyed());
         this.setupActionsAndEvents();
         this.initClassDefinitions();
         this.onInit();
@@ -153,7 +157,7 @@ let Component = Component_1 = class Component {
      * Creates a ComponentFactory, with the current Component class already registered.
      */
     static createFactory() {
-        const factory = new ComponentFactory();
+        const factory = new ComponentFactory_1.default();
         if (this !== Component_1)
             factory.register(this);
         return factory;
@@ -291,7 +295,7 @@ let Component = Component_1 = class Component {
             throw new Error(`Unknown action '${name}' on ${this.static.name}.`);
         }
         const ActionClass = action.type;
-        if (!isSubClass(ActionClass, ComponentAction)) {
+        if (!validation_kit_1.isSubClass(ActionClass, ComponentAction)) {
             throw new Error("Trigger action is not a ComponentAction.");
         }
         this.actions.$fire(name, new ActionClass(payload));
@@ -308,7 +312,7 @@ let Component = Component_1 = class Component {
      * 																multiple times.
      */
     createWatcher(path, handler, options) {
-        const finalPath = isString(path) ? path : path.$path;
+        const finalPath = lodash_1.isString(path) ? path : path.$path;
         const allOptions = {
             ...options,
             ...{
@@ -317,7 +321,7 @@ let Component = Component_1 = class Component {
                 immediate: true
             }
         };
-        return new PropertyWatcher(this.model, allOptions);
+        return new PropertyWatcher_1.default(this.model, allOptions);
     }
     /**
      * Watches model at the given path (only when the Component is enabled).
@@ -391,19 +395,19 @@ let Component = Component_1 = class Component {
         return new Error("" + args[0]);
     }
     setupSubComponent(modelPath, ComponentClass) {
-        if (modelPath instanceof Property) {
+        if (modelPath instanceof Property_1.default) {
             modelPath = modelPath.getPathFrom(this.model);
         }
-        const sync = new ComponentSlot(this, this.model, modelPath, ComponentClass.Model, ComponentClass, this.factory);
+        const sync = new ComponentSlot_1.default(this, this.model, modelPath, ComponentClass.Model, ComponentClass, this.factory);
         sync.startWatching();
         this.allChildren[modelPath] = sync;
         return sync;
     }
     setupSubComponents(modelPath, ComponentClass) {
-        if (modelPath instanceof Property) {
+        if (modelPath instanceof Property_1.default) {
             modelPath = modelPath.getPathFrom(this.model);
         }
-        const list = new ComponentList(this, this.model, modelPath, ComponentClass.Model, ComponentClass, this.factory);
+        const list = new ComponentList_1.default(this, this.model, modelPath, ComponentClass.Model, ComponentClass, this.factory);
         list.startWatching();
         this.allChildren[modelPath] = list;
         return list;
@@ -425,7 +429,7 @@ let Component = Component_1 = class Component {
      * @param {callback<T>} callback
      */
     listenTo(event, callback) {
-        const eventListener = new EventListener(event, callback);
+        const eventListener = new EventListener_1.default(event, callback);
         eventListener.start();
         // TS: we can't use the event listener callbacks in this class anyway
         this.eventListeners.push(eventListener);
@@ -442,13 +446,13 @@ let Component = Component_1 = class Component {
             const child = this.allChildren[path];
             if (!includeReferences && child.isReference)
                 continue;
-            if (child instanceof ComponentSlot) {
+            if (child instanceof ComponentSlot_1.default) {
                 const component = child.current;
                 if (!component)
                     continue;
                 callback(component);
             }
-            else if (child instanceof ComponentList) {
+            else if (child instanceof ComponentList_1.default) {
                 child.each(callback);
             }
         }
@@ -500,7 +504,7 @@ let Component = Component_1 = class Component {
         log.info(`${this} started.`);
         if (this.hasEnabledPropertyInModel()) {
             log.info(`Watching '${this.enabledProperty}' property for enabled/disabled state.`);
-            this.watchAlways(this.enabledProperty, this.updateEnabledState.bind(this), { immediate });
+            this.watchAlways(this.enabledProperty, this.updateEnabledState.bind(this), { immediate: mozel_1.immediate });
         }
         else {
             this.updateEnabledState();
@@ -612,11 +616,11 @@ let Component = Component_1 = class Component {
         }
         for (let path in this.allChildren) {
             const child = this.allChildren[path];
-            if (child instanceof ComponentSlot) {
+            if (child instanceof ComponentSlot_1.default) {
                 const component = child.current;
                 tree[path] = component ? component.toTree(child.isReference) : undefined;
             }
-            else if (child instanceof ComponentList) {
+            else if (child instanceof ComponentList_1.default) {
                 const list = [];
                 child.each(component => list.push(component.toTree(child.isReference)));
                 tree[path] = list;
@@ -652,18 +656,18 @@ let Component = Component_1 = class Component {
      */
     onSetParent(parent) { }
 };
-Component.Model = Mozel; // should be set for each extending class
+Component.Model = mozel_1.default; // should be set for each extending class
 Component.Events = ComponentEvents;
 Component.Actions = ComponentActions;
 Component._classComponentSlotDefinitions = [];
 Component._classComponentListDefinitions = [];
-Component = Component_1 = __decorate([
-    injectable(),
-    __param(0, inject(new LazyServiceIdentifer(() => Mozel))),
-    __param(1, inject(new LazyServiceIdentifer(() => ComponentFactory))),
-    __param(2, inject(Registry)),
-    __param(3, inject(EventBus)),
-    __param(4, inject(Container))
+Component = Component_1 = tslib_1.__decorate([
+    inversify_1.injectable(),
+    tslib_1.__param(0, inversify_1.inject(new inversify_1.LazyServiceIdentifer(() => mozel_1.default))),
+    tslib_1.__param(1, inversify_1.inject(new inversify_1.LazyServiceIdentifer(() => ComponentFactory_1.default))),
+    tslib_1.__param(2, inversify_1.inject(mozel_1.Registry)),
+    tslib_1.__param(3, inversify_1.inject(EventBus_1.default)),
+    tslib_1.__param(4, inversify_1.inject(inversify_1.Container))
 ], Component);
-export default Component;
+exports.default = Component;
 //# sourceMappingURL=Component.js.map

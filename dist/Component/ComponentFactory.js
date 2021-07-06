@@ -1,23 +1,20 @@
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
+"use strict";
 var ComponentFactory_1;
-import { Container, injectable } from "inversify";
-import { isSubClass } from "validation-kit";
-import Mozel, { Registry } from "mozel";
-import Log from "@/log";
-import EventBus from "@/EventBus";
-import { Events } from "@/EventEmitter";
-import { isArray } from "lodash";
-const log = Log.instance("component-factory");
+Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
+const inversify_1 = require("inversify");
+const validation_kit_1 = require("validation-kit");
+const mozel_1 = tslib_1.__importStar(require("mozel"));
+const log_1 = tslib_1.__importDefault(require("../log"));
+const EventBus_1 = tslib_1.__importDefault(require("../EventBus"));
+const EventEmitter_1 = require("../EventEmitter");
+const lodash_1 = require("lodash");
+const log = log_1.default.instance("component-factory");
 const ComponentSymbol = Symbol.for("Component");
 let ComponentFactory = ComponentFactory_1 = class ComponentFactory {
     constructor(eventBus, componentRegistry, dependencies) {
-        this.registry = componentRegistry || new Registry();
-        this.eventBus = eventBus || new Events(true);
+        this.registry = componentRegistry || new mozel_1.Registry();
+        this.eventBus = eventBus || new EventEmitter_1.Events(true);
         this.localDependencies = ComponentFactory_1.createDependencyContainer();
         // Given container gets priority, then localContainer, then default
         if (dependencies) {
@@ -29,15 +26,15 @@ let ComponentFactory = ComponentFactory_1 = class ComponentFactory {
         }
         // Set scoped globals
         this.localDependencies.bind(ComponentFactory_1).toConstantValue(this);
-        this.localDependencies.bind(Registry).toConstantValue(this.registry);
-        this.localDependencies.bind(EventBus).toConstantValue(this.eventBus);
+        this.localDependencies.bind(mozel_1.Registry).toConstantValue(this.registry);
+        this.localDependencies.bind(EventBus_1.default).toConstantValue(this.eventBus);
         this.initDependencies();
     }
     /**
      * Creates a dependency container that can be used for the ComponentFactory.
      */
     static createDependencyContainer() {
-        return new Container({ autoBindInjectable: true });
+        return new inversify_1.Container({ autoBindInjectable: true });
     }
     // For override
     initDependencies() { }
@@ -46,7 +43,7 @@ let ComponentFactory = ComponentFactory_1 = class ComponentFactory {
      * Dependencies can be added to the new container without polluting the existing one.
      */
     extendDependencies() {
-        const newDependencies = new Container({ autoBindInjectable: true });
+        const newDependencies = new inversify_1.Container({ autoBindInjectable: true });
         newDependencies.parent = this.dependencies;
         return newDependencies;
     }
@@ -57,7 +54,7 @@ let ComponentFactory = ComponentFactory_1 = class ComponentFactory {
      * 							ModelClass defined in the Component.
      */
     register(ComponentClass, ModelClass) {
-        if (isArray(ComponentClass)) {
+        if (lodash_1.isArray(ComponentClass)) {
             for (let Class of ComponentClass) {
                 this.register(Class);
             }
@@ -88,15 +85,15 @@ let ComponentFactory = ComponentFactory_1 = class ComponentFactory {
             return !ExpectedClass || model instanceof ExpectedClass;
         }
         // Other way of saying `model instanceof ExpectedClass.Model`, which TypeScript does not allow because Model is not a constructor type
-        if (ExpectedClass && !isSubClass(model.constructor, ExpectedClass.Model)) {
+        if (ExpectedClass && !validation_kit_1.isSubClass(model.constructor, ExpectedClass.Model)) {
             const message = `${ExpectedClass.name} expects ${ExpectedClass.Model.name}`;
             log.error(message, model);
             throw new Error(message);
         }
         // Component needs a Mozel in the constructor so we inject it through the container.
         let container = this.extendDependencies();
-        container.bind(Mozel).toConstantValue(model);
-        container.bind(Container).toConstantValue(this.dependencies);
+        container.bind(mozel_1.default).toConstantValue(model);
+        container.bind(inversify_1.Container).toConstantValue(this.dependencies);
         let component;
         if (container.isBoundNamed(ComponentSymbol, model.static.type)) {
             component = container.getNamed(ComponentSymbol, model.static.type);
@@ -153,8 +150,8 @@ let ComponentFactory = ComponentFactory_1 = class ComponentFactory {
         return component;
     }
 };
-ComponentFactory = ComponentFactory_1 = __decorate([
-    injectable()
+ComponentFactory = ComponentFactory_1 = tslib_1.__decorate([
+    inversify_1.injectable()
 ], ComponentFactory);
-export default ComponentFactory;
+exports.default = ComponentFactory;
 //# sourceMappingURL=ComponentFactory.js.map

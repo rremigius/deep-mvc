@@ -1,14 +1,18 @@
-import * as _ from "lodash";
-import { Alphanumeric, isAlphanumeric, isClass } from "validation-kit";
-import Log from "log-control";
-const log = Log.instance("event-emitter");
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Events = void 0;
+const tslib_1 = require("tslib");
+const _ = tslib_1.__importStar(require("lodash"));
+const validation_kit_1 = require("validation-kit");
+const log_control_1 = tslib_1.__importDefault(require("log-control"));
+const log = log_control_1.default.instance("event-emitter");
 function getTypeName(type) {
     const className = _.get(type, 'constructor.name');
     if (className)
         return className;
     return typeof (type);
 }
-export default class EventEmitter {
+class EventEmitter {
     constructor(runtimeType) {
         this.listeners = [];
         this.type = runtimeType;
@@ -41,9 +45,9 @@ export default class EventEmitter {
             case String: return _.isString(value);
             case Number: return _.isNumber(value);
             case Boolean: return _.isBoolean(value);
-            case Alphanumeric: return isAlphanumeric(value);
+            case validation_kit_1.Alphanumeric: return validation_kit_1.isAlphanumeric(value);
             default: {
-                if (isClass(this.type)) {
+                if (validation_kit_1.isClass(this.type)) {
                     return value instanceof this.type;
                 }
                 // Should not happen.
@@ -52,7 +56,8 @@ export default class EventEmitter {
         }
     }
 }
-export class Events {
+exports.default = EventEmitter;
+class Events {
     constructor(allowDynamicEvents = false) {
         this.$byName = {};
         this.$allowDynamicEvents = allowDynamicEvents;
@@ -152,4 +157,5 @@ export class Events {
         return this.$byName[event];
     }
 }
+exports.Events = Events;
 //# sourceMappingURL=EventEmitter.js.map

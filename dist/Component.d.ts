@@ -1,11 +1,11 @@
 import { Container } from "inversify";
-import ComponentFactory from "@/Component/ComponentFactory";
-import EventListener from "@/EventListener";
-import ComponentList from "@/Component/ComponentList";
-import ComponentSlot from "@/Component/ComponentSlot";
+import ComponentFactory from "./Component/ComponentFactory";
+import EventListener from "./EventListener";
+import ComponentList from "./Component/ComponentList";
+import ComponentSlot from "./Component/ComponentSlot";
 import Mozel, { alphanumeric, CollectionSchema, MozelSchema, PropertySchema, Registry } from "mozel";
-import EventBus from "@/EventBus";
-import EventEmitter, { callback, Events } from "@/EventEmitter";
+import EventBus from "./EventBus";
+import EventEmitter, { callback, Events } from "./EventEmitter";
 import Property, { PropertyValue } from "mozel/dist/Property";
 import { Constructor } from "validation-kit";
 import PropertyWatcher, { PropertyChangeHandler, PropertyWatcherOptionsArgument } from "mozel/dist/PropertyWatcher";

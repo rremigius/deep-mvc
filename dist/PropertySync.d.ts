@@ -1,5 +1,5 @@
 import Mozel from "mozel";
-import { callback, Events } from "@/EventEmitter";
+import { callback, Events } from "./EventEmitter";
 import { PropertyType, PropertyValue } from "mozel/dist/Property";
 import { Constructor } from "validation-kit";
 export declare class ValueChangeEvent<T> {
@@ -10,7 +10,7 @@ export declare class ValueChangeEvent<T> {
     constructor(path: string, isReference: boolean, current?: T | undefined, old?: T | undefined);
 }
 export declare class PropertySyncEvents<T> extends Events {
-    change: import("@/EventEmitter").default<ValueChangeEvent<T>>;
+    change: import("./EventEmitter").default<ValueChangeEvent<T>>;
 }
 /**
  * Watches a Model path for changes, does something based on the new value when it changes and fires

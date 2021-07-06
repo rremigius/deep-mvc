@@ -1,10 +1,10 @@
 import {assert} from 'chai';
 import Component, {component, components} from "../src/Component";
 import Mozel, {collection, Collection, MozelFactory, property, reference, required, schema} from "mozel";
-import ComponentFactory from "@/Component/ComponentFactory";
+import ComponentFactory from "../src/Component/ComponentFactory";
 import {isNil} from 'lodash';
-import ComponentSlot from "@/Component/ComponentSlot";
-import ComponentList from "@/Component/ComponentList";
+import ComponentSlot from "../src/Component/ComponentSlot";
+import ComponentList from "../src/Component/ComponentList";
 
 class FooModel extends Mozel {
 	static get type() { return 'FooModel'; }

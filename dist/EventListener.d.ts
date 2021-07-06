@@ -1,4 +1,4 @@
-import EventEmitter, { callback } from "@/EventEmitter";
+import EventEmitter, { callback } from "./EventEmitter";
 /**
  * A class that can listen to an event, and can remove itself from the event when it stops listening.
  */

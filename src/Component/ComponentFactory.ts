@@ -1,10 +1,10 @@
 import {Container, injectable} from "inversify";
 import {isSubClass} from "validation-kit";
-import Component, {ComponentConstructor} from "@/Component";
+import Component, {ComponentConstructor} from "../Component";
 import Mozel, {Registry} from "mozel";
-import Log from "@/log";
-import EventBus from "@/EventBus";
-import {Events} from "@/EventEmitter";
+import Log from "../log";
+import EventBus from "../EventBus";
+import {Events} from "../EventEmitter";
 import {isArray} from "lodash";
 
 const log = Log.instance("component-factory");

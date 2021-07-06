@@ -1,5 +1,8 @@
-import PropertySync from "@/PropertySync";
-export default class ComponentSlot extends PropertySync {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
+const PropertySync_1 = tslib_1.__importDefault(require("../PropertySync"));
+class ComponentSlot extends PropertySync_1.default {
     constructor(parent, watchModel, path, PropertyType, SyncType, factory) {
         super(watchModel, path, PropertyType, SyncType);
         this.factory = factory;
@@ -23,4 +26,5 @@ export default class ComponentSlot extends PropertySync {
         return component;
     }
 }
+exports.default = ComponentSlot;
 //# sourceMappingURL=ComponentSlot.js.map

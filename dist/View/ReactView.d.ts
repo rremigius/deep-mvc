@@ -1,9 +1,9 @@
 import React from "react";
-import View from "@/View";
+import View from "../View";
 import { alphanumeric, MozelSchema, PropertySchema } from "mozel";
 import PropertyWatcher, { PropertyChangeHandler, PropertyWatcherOptionsArgument } from "mozel/dist/PropertyWatcher";
 import { PropertyValue } from "mozel/dist/Property";
-import EventEmitter, { callback } from "@/EventEmitter";
+import EventEmitter, { callback } from "../EventEmitter";
 import ComponentList from "../Component/ComponentList";
 import ComponentSlot from "../Component/ComponentSlot";
 export declare type ReactViewComponentProps<T extends View> = {

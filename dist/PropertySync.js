@@ -1,9 +1,13 @@
-import Mozel, { immediate } from "mozel";
-import { isString } from 'lodash';
-import { Events } from "@/EventEmitter";
-import Property from "mozel/dist/Property";
-import { check, instanceOf } from "validation-kit";
-export class ValueChangeEvent {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PropertySyncEvents = exports.ValueChangeEvent = void 0;
+const tslib_1 = require("tslib");
+const mozel_1 = tslib_1.__importStar(require("mozel"));
+const lodash_1 = require("lodash");
+const EventEmitter_1 = require("./EventEmitter");
+const Property_1 = tslib_1.__importDefault(require("mozel/dist/Property"));
+const validation_kit_1 = require("validation-kit");
+class ValueChangeEvent {
     constructor(path, isReference, current, old) {
         this.path = path;
         this.isReference = isReference;
@@ -11,17 +15,19 @@ export class ValueChangeEvent {
         this.old = old;
     }
 }
-export class PropertySyncEvents extends Events {
+exports.ValueChangeEvent = ValueChangeEvent;
+class PropertySyncEvents extends EventEmitter_1.Events {
     constructor() {
         super(...arguments);
         this.change = this.$event(ValueChangeEvent);
     }
 }
+exports.PropertySyncEvents = PropertySyncEvents;
 /**
  * Watches a Model path for changes, does something based on the new value when it changes and fires
  * an event with the new and old constructs.
  */
-export default class PropertySync {
+class PropertySync {
     constructor(watchModel, path, PropertyType, SyncType) {
         this.events = new PropertySyncEvents();
         this.watching = false;
@@ -40,7 +46,7 @@ export default class PropertySync {
      * @param value
      */
     isPropertyType(value) {
-        return Property.checkType(value, this.PropertyType);
+        return Property_1.default.checkType(value, this.PropertyType);
     }
     /**
      * Checks if a value matches the type of the required output of the PropertySync.
@@ -59,7 +65,7 @@ export default class PropertySync {
         this.watching = true;
         this.model.$watch(this.path, ({ newValue, oldValue, valuePath }) => {
             this.syncFromModel(newValue, valuePath);
-        }, { immediate });
+        }, { immediate: mozel_1.immediate });
     }
     /**
      * Uses the current model value at the configured path to generate a synced output.
@@ -70,8 +76,8 @@ export default class PropertySync {
     }
     syncFromModel(value, changePath) {
         const path = changePath.split('.');
-        const prop = check(path.pop(), isString, "prop");
-        const parent = check(this.model.$path(path), instanceOf(Mozel), "parent");
+        const prop = validation_kit_1.check(path.pop(), lodash_1.isString, "prop");
+        const parent = validation_kit_1.check(this.model.$path(path), validation_kit_1.instanceOf(mozel_1.default), "parent");
         const property = parent.$property(prop);
         if (!property)
             throw new Error(`Change path does not match any property on ${this.model.constructor.name}: ${changePath}.`);
@@ -116,4 +122,5 @@ export default class PropertySync {
         throw new Error("Not Implemented");
     }
 }
+exports.default = PropertySync;
 //# sourceMappingURL=PropertySync.js.map

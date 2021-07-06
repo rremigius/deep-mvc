@@ -1,40 +1,46 @@
-import { isArray, isFunction, isMatch } from 'lodash';
-import EventEmitter from "@/EventEmitter";
-import PropertySync, { PropertySyncEvents } from "@/PropertySync";
-import { check, instanceOf } from "validation-kit";
-import { Collection } from "mozel";
-import { CollectionItemAddedEvent, CollectionItemRemovedEvent } from "mozel/dist/Collection";
-export class ComponentAddedEvent {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ComponentRemovedEvent = exports.ComponentAddedEvent = void 0;
+const tslib_1 = require("tslib");
+const lodash_1 = require("lodash");
+const EventEmitter_1 = tslib_1.__importDefault(require("../EventEmitter"));
+const PropertySync_1 = tslib_1.__importStar(require("../PropertySync"));
+const validation_kit_1 = require("validation-kit");
+const mozel_1 = require("mozel");
+const Collection_1 = require("mozel/dist/Collection");
+class ComponentAddedEvent {
     constructor(component) {
         this.component = component;
     }
 }
-export class ComponentRemovedEvent {
+exports.ComponentAddedEvent = ComponentAddedEvent;
+class ComponentRemovedEvent {
     constructor(component) {
         this.component = component;
     }
 }
-class ComponentListEvents extends PropertySyncEvents {
+exports.ComponentRemovedEvent = ComponentRemovedEvent;
+class ComponentListEvents extends PropertySync_1.PropertySyncEvents {
     constructor() {
         super(...arguments);
         // Using $register for generic type definition on EventEmitter
-        this.add = this.$register(new EventEmitter(ComponentAddedEvent), ComponentAddedEvent.name);
-        this.remove = this.$register(new EventEmitter(ComponentRemovedEvent), ComponentRemovedEvent.name);
+        this.add = this.$register(new EventEmitter_1.default(ComponentAddedEvent), ComponentAddedEvent.name);
+        this.remove = this.$register(new EventEmitter_1.default(ComponentRemovedEvent), ComponentRemovedEvent.name);
     }
 }
-export default class ComponentList extends PropertySync {
+class ComponentList extends PropertySync_1.default {
     constructor(parent, watchModel, path, PropertyType, SyncType, factory) {
-        super(watchModel, path, Collection, SyncType); // TS: we override isSyncType
-        this.addedListener = (model) => {
-            const $model = check(model, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
-            const component = this.factory.resolve($model, this.ComponentClass, true);
+        super(watchModel, path, mozel_1.Collection, SyncType); // TS: we override isSyncType
+        this.addedListener = (event) => {
+            const model = validation_kit_1.check(event.data.item, validation_kit_1.instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
+            const component = this.factory.resolve(model, this.ComponentClass, true);
             if (component && !this.has(component)) {
                 this.add(component);
             }
         };
-        this.removedListener = (model) => {
-            const $model = check(model, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
-            const component = this.factory.registry.byGid($model.gid);
+        this.removedListener = (event) => {
+            const model = validation_kit_1.check(event.data.item, validation_kit_1.instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
+            const component = this.factory.registry.byGid(model.gid);
             if (component instanceof this.ComponentClass) {
                 this.remove(component);
             }
@@ -54,7 +60,7 @@ export default class ComponentList extends PropertySync {
      * @param value
      */
     isSyncType(value) {
-        return isArray(value) && !value.find(item => !(item instanceof this.SyncType));
+        return lodash_1.isArray(value) && !value.find(item => !(item instanceof this.SyncType));
     }
     /**
      * Generates output values based on the Collection values
@@ -65,15 +71,15 @@ export default class ComponentList extends PropertySync {
         this.clear();
         // Remove listeners from current collection
         if (this.currentCollection) {
-            this.currentCollection.off(CollectionItemAddedEvent, this.addedListener);
-            this.currentCollection.off(CollectionItemRemovedEvent, this.removedListener);
+            this.currentCollection.off(Collection_1.CollectionItemAddedEvent, this.addedListener);
+            this.currentCollection.off(Collection_1.CollectionItemRemovedEvent, this.removedListener);
         }
         this.currentCollection = collection;
         if (!collection)
             return []; // because of this, `current` is always defined
         // Add listeners to new collection
-        collection.on(CollectionItemAddedEvent, this.addedListener);
-        collection.on(CollectionItemRemovedEvent, this.removedListener);
+        collection.on(Collection_1.CollectionItemAddedEvent, this.addedListener);
+        collection.on(Collection_1.CollectionItemRemovedEvent, this.removedListener);
         // Resolve components for each of the models
         const components = collection.map((model) => this.factory.resolve(model, this.ComponentClass, true));
         // Add one by one to trigger events on ComponentList
@@ -127,10 +133,10 @@ export default class ComponentList extends PropertySync {
      * @param {Component|Function} component
      */
     remove(component) {
-        if (isArray(component)) {
+        if (lodash_1.isArray(component)) {
             return component.reduce((sum, item) => this.remove(item), 0);
         }
-        const check = isFunction(component) ? component : (item) => item === component;
+        const check = lodash_1.isFunction(component) ? component : (item) => item === component;
         let count = 0;
         for (let i = this.current.length - 1; i >= 0; i--) {
             let item = this.current[i];
@@ -172,9 +178,9 @@ export default class ComponentList extends PropertySync {
      * 										the same keys of the Component.
      */
     find(predicate) {
-        const check = isFunction(predicate)
+        const check = lodash_1.isFunction(predicate)
             ? predicate
-            : (candidate) => isMatch(candidate, predicate);
+            : (candidate) => lodash_1.isMatch(candidate, predicate);
         for (const component of this.current.values()) {
             if (check(component)) {
                 return component;
@@ -195,4 +201,5 @@ export default class ComponentList extends PropertySync {
         this.clear();
     }
 }
+exports.default = ComponentList;
 //# sourceMappingURL=ComponentList.js.map

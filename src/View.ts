@@ -1,7 +1,7 @@
 import Component, {ComponentConstructor, ComponentEvent, ComponentEvents} from "./Component";
 import {Registry} from "mozel";
 import ViewFactory from "./View/ViewFactory";
-import Log from "@/log";
+import Log from "./log";
 
 const log = Log.instance("view");
 

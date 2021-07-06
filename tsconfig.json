@@ -1,32 +1,29 @@
 {
 	"compilerOptions": {
 		"target": "esnext",
-		"module": "esnext",
-		"jsx": "react-jsx",
-		"sourceMap": true,
-		"moduleResolution": "node",
-		"declaration": true,
+		"module": "commonjs",
 		"outDir": "./dist",
+		"declaration": true,
 		"strict": true,
-		"esModuleInterop": true,
+		"jsx": "preserve",
+		"importHelpers": true,
+		"moduleResolution": "node",
 		"experimentalDecorators": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"sourceMap": true,
 		"baseUrl": ".",
-		"paths": {
-			"@/*": ["./src/*"],
-			"@examples/*":  ["./examples/*"]
-		},
 		"lib": [
 			"esnext",
 			"dom",
 			"dom.iterable",
 			"scripthost"
-		],
-		"skipLibCheck": true
+		]
 	},
-	"ts-node": {
-		"files": true
-	},
-	"files": ["src/index.ts"],
-	"exclude": ["node_modules"],
-	"include": ["@types"]
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		"node_modules"
+	]
 }

@@ -1,16 +1,22 @@
-import Component, { ComponentEvent, ComponentEvents } from "./Component";
-import Log from "@/log";
-const log = Log.instance("view");
-export class ViewClickEvent extends ComponentEvent {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ControllerRegistrySymbol = exports.ViewEvents = exports.ViewClickEvent = void 0;
+const tslib_1 = require("tslib");
+const Component_1 = tslib_1.__importStar(require("./Component"));
+const log_1 = tslib_1.__importDefault(require("./log"));
+const log = log_1.default.instance("view");
+class ViewClickEvent extends Component_1.ComponentEvent {
 }
-export class ViewEvents extends ComponentEvents {
+exports.ViewClickEvent = ViewClickEvent;
+class ViewEvents extends Component_1.ComponentEvents {
     constructor() {
         super(...arguments);
         this.click = this.$event(ViewClickEvent);
     }
 }
-export const ControllerRegistrySymbol = Symbol.for("ControllerRegistrySymbol");
-export default class View extends Component {
+exports.ViewEvents = ViewEvents;
+exports.ControllerRegistrySymbol = Symbol.for("ControllerRegistrySymbol");
+class View extends Component_1.default {
     constructor() {
         super(...arguments);
         this.events = new ViewEvents();
@@ -19,8 +25,8 @@ export default class View extends Component {
         return this._container;
     }
     onInit() {
-        if (this.dependencies.isBound(ControllerRegistrySymbol)) {
-            this.controllerRegistry = this.dependencies.get(ControllerRegistrySymbol);
+        if (this.dependencies.isBound(exports.ControllerRegistrySymbol)) {
+            this.controllerRegistry = this.dependencies.get(exports.ControllerRegistrySymbol);
         }
         super.onInit();
     }
@@ -68,4 +74,5 @@ export default class View extends Component {
     onResize(width, height) { }
     onClick(event) { }
 }
+exports.default = View;
 //# sourceMappingURL=View.js.map

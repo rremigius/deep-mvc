@@ -1,7 +1,7 @@
 import { Container } from "inversify";
-import Component, { ComponentConstructor } from "@/Component";
+import Component, { ComponentConstructor } from "../Component";
 import Mozel, { Registry } from "mozel";
-import { Events } from "@/EventEmitter";
+import { Events } from "../EventEmitter";
 export default class ComponentFactory {
     /**
      * Infersify dependency container from which all registered dependencies can be retrieved. If provided in the constructor, this

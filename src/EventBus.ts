@@ -1,4 +1,4 @@
-import {Events} from "@/EventEmitter";
+import {Events} from "./EventEmitter";
 
 export default class EventBus extends Events {
 	constructor() {

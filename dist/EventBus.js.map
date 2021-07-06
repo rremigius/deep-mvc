@@ -1,1 +1,1 @@
-{"version":3,"file":"EventBus.js","sourceRoot":"","sources":["../src/EventBus.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,MAAM,EAAC,MAAM,gBAAgB,CAAC;AAEtC,MAAM,CAAC,OAAO,OAAO,QAAS,SAAQ,MAAM;IAC3C;QACC,KAAK,CAAC,IAAI,CAAC,CAAC;IACb,CAAC;CACD"}
+{"version":3,"file":"EventBus.js","sourceRoot":"","sources":["../src/EventBus.ts"],"names":[],"mappings":";;AAAA,iDAAsC;AAEtC,MAAqB,QAAS,SAAQ,qBAAM;IAC3C;QACC,KAAK,CAAC,IAAI,CAAC,CAAC;IACb,CAAC;CACD;AAJD,2BAIC"}
