@@ -154,13 +154,18 @@ let Component = Component_1 = class Component {
         this.initialized = true;
     }
     /**
-     * Creates a ComponentFactory, with the current Component class already registered.
+     * Creates a Component based on the given model, and instantiates all necessary dependencies.
+     * @param {Mozel} model
+     */
+    static create(model) {
+        const factory = this.createFactory();
+        return factory.create(model, this);
+    }
+    /**
+     * Creates a ComponentFactory.
      */
     static createFactory() {
-        const factory = new ComponentFactory_1.default();
-        if (this !== Component_1)
-            factory.register(this);
-        return factory;
+        return new ComponentFactory_1.default();
     }
     /**
      * Gets the definitions for ComponentSlots for this class.

@@ -99,7 +99,12 @@ export default class Component {
     static Events: typeof ComponentEvents;
     static Actions: typeof ComponentActions;
     /**
-     * Creates a ComponentFactory, with the current Component class already registered.
+     * Creates a Component based on the given model, and instantiates all necessary dependencies.
+     * @param {Mozel} model
+     */
+    static create(model: Mozel): Component;
+    /**
+     * Creates a ComponentFactory.
      */
     static createFactory(): ComponentFactory;
     private static _classComponentSlotDefinitions;

@@ -138,12 +138,19 @@ export default class Component {
 	static Actions = ComponentActions;
 
 	/**
-	 * Creates a ComponentFactory, with the current Component class already registered.
+	 * Creates a Component based on the given model, and instantiates all necessary dependencies.
+	 * @param {Mozel} model
+	 */
+	static create(model:Mozel) {
+		const factory = this.createFactory();
+		return factory.create(model, this);
+	}
+
+	/**
+	 * Creates a ComponentFactory.
 	 */
 	static createFactory() {
-		const factory = new ComponentFactory();
-		if(this !== Component) factory.register(this);
-		return factory;
+		return new ComponentFactory();
 	}
 
 	private static _classComponentSlotDefinitions: ComponentSlotDefinition[] = [];
