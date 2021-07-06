@@ -68,8 +68,8 @@ export default class PropertySync<P extends PropertyValue,T> {
 			return;
 		}
 		this.watching = true;
-		this.model.$watch(this.path,(newValue, oldValue, path) => {
-			this.syncFromModel(newValue, path);
+		this.model.$watch(this.path,({newValue, oldValue, valuePath}) => {
+			this.syncFromModel(newValue, valuePath);
 		}, {immediate});
 	}
 

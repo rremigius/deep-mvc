@@ -5,6 +5,7 @@ import PropertySync, {PropertySyncEvents} from "@/PropertySync";
 import {check, Constructor, instanceOf} from "validation-kit";
 import ComponentFactory from "@/Component/ComponentFactory";
 import Mozel, {Collection} from "mozel";
+import {CollectionItemAddedEvent, CollectionItemRemovedEvent} from "mozel/dist/Collection";
 
 export class ComponentAddedEvent<T extends Component> {
 	constructor(public component: T) {}
@@ -76,15 +77,15 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 
 		// Remove listeners from current collection
 		if(this.currentCollection) {
-			this.currentCollection.removeAddedListener(this.addedListener);
-			this.currentCollection.removeRemovedListener(this.removedListener);
+			this.currentCollection.off(CollectionItemAddedEvent, this.addedListener);
+			this.currentCollection.off(CollectionItemRemovedEvent, this.removedListener);
 		}
 		this.currentCollection = collection;
 		if(!collection) return []; // because of this, `current` is always defined
 
 		// Add listeners to new collection
-		collection.onAdded(this.addedListener);
-		collection.onRemoved(this.removedListener);
+		collection.on(CollectionItemAddedEvent, this.addedListener);
+		collection.on(CollectionItemRemovedEvent, this.removedListener);
 
 		// Resolve components for each of the models
 		const components = collection.map((model:ComponentModel<C>) =>

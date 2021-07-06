@@ -3,6 +3,7 @@ import EventEmitter from "@/EventEmitter";
 import PropertySync, { PropertySyncEvents } from "@/PropertySync";
 import { check, instanceOf } from "validation-kit";
 import { Collection } from "mozel";
+import { CollectionItemAddedEvent, CollectionItemRemovedEvent } from "mozel/dist/Collection";
 export class ComponentAddedEvent {
     constructor(component) {
         this.component = component;
@@ -64,15 +65,15 @@ export default class ComponentList extends PropertySync {
         this.clear();
         // Remove listeners from current collection
         if (this.currentCollection) {
-            this.currentCollection.removeAddedListener(this.addedListener);
-            this.currentCollection.removeRemovedListener(this.removedListener);
+            this.currentCollection.off(CollectionItemAddedEvent, this.addedListener);
+            this.currentCollection.off(CollectionItemRemovedEvent, this.removedListener);
         }
         this.currentCollection = collection;
         if (!collection)
             return []; // because of this, `current` is always defined
         // Add listeners to new collection
-        collection.onAdded(this.addedListener);
-        collection.onRemoved(this.removedListener);
+        collection.on(CollectionItemAddedEvent, this.addedListener);
+        collection.on(CollectionItemRemovedEvent, this.removedListener);
         // Resolve components for each of the models
         const components = collection.map((model) => this.factory.resolve(model, this.ComponentClass, true));
         // Add one by one to trigger events on ComponentList
