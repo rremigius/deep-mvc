@@ -165,7 +165,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 	 * Calls the given function for each of the Components in the list.
 	 * @param {Function} callback
 	 */
-	each(callback:(component:C)=>void) {
+	each(callback:(component:C, index:number)=>void) {
 		this.current.forEach(callback);
 	}
 
@@ -173,7 +173,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 	 * Calls the given function for each of the Components in the list and returns an array of the results.
 	 * @param {Function} callback
 	 */
-	map<T>(callback:(component:C)=>T):T[] {
+	map<T>(callback:(component:C, index:number)=>T):T[] {
 		return this.current.map(callback);
 	}
 
@@ -181,7 +181,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 	 * Returns a list of the Components that are matches by the given callback.
 	 * @param {Function} callback
 	 */
-	filter(callback:(component:C)=>boolean):C[] {
+	filter(callback:(component:C, index:number)=>boolean):C[] {
 		return this.current.filter(callback);
 	}
 
@@ -192,13 +192,14 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 	 * 										If an object is provided, will check if all keys of the object are equal to
 	 * 										the same keys of the Component.
 	 */
-	find(predicate:((value:C)=>boolean)|Record<string,unknown>) {
+	find(predicate:((value:C, index:number)=>boolean)|Record<string,unknown>) {
 		const check = isFunction(predicate)
 			? predicate
 			: (candidate:C) => isMatch(candidate, predicate);
 
+		let i = 0;
 		for (const component of this.current.values()) {
-			if(check(component)) {
+			if(check(component, i++)) {
 				return component;
 			}
 		}

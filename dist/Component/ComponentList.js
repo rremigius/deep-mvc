@@ -181,8 +181,9 @@ class ComponentList extends PropertySync_1.default {
         const check = lodash_1.isFunction(predicate)
             ? predicate
             : (candidate) => lodash_1.isMatch(candidate, predicate);
+        let i = 0;
         for (const component of this.current.values()) {
-            if (check(component)) {
+            if (check(component, i++)) {
                 return component;
             }
         }

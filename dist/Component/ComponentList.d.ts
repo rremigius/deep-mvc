@@ -68,17 +68,17 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
      * Calls the given function for each of the Components in the list.
      * @param {Function} callback
      */
-    each(callback: (component: C) => void): void;
+    each(callback: (component: C, index: number) => void): void;
     /**
      * Calls the given function for each of the Components in the list and returns an array of the results.
      * @param {Function} callback
      */
-    map<T>(callback: (component: C) => T): T[];
+    map<T>(callback: (component: C, index: number) => T): T[];
     /**
      * Returns a list of the Components that are matches by the given callback.
      * @param {Function} callback
      */
-    filter(callback: (component: C) => boolean): C[];
+    filter(callback: (component: C, index: number) => boolean): C[];
     /**
      * Find the first Component matching the given predicate.
      * @param {Function|object} predicate	If a function is provided, will use the function return value to determine
@@ -86,7 +86,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
      * 										If an object is provided, will check if all keys of the object are equal to
      * 										the same keys of the Component.
      */
-    find(predicate: ((value: C) => boolean) | Record<string, unknown>): C | undefined;
+    find(predicate: ((value: C, index: number) => boolean) | Record<string, unknown>): C | undefined;
     /**
      * Counts the Components in the list.
      */
