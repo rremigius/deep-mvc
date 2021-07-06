@@ -165,6 +165,8 @@ export default class Component {
     private permanentWatchers;
     private initialized;
     private parentEnabled;
+    private slots;
+    private lists;
     /** Property name of the model that represents the enabled state of the Component */
     protected enabledProperty: string;
     get static(): typeof Component;

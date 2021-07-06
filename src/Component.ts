@@ -238,6 +238,9 @@ export default class Component {
 	private initialized:boolean;
 	private parentEnabled:boolean = true;
 
+	private slots:ComponentSlot<Component>[];
+	private lists:ComponentList<Component>[];
+
 	/** Property name of the model that represents the enabled state of the Component */
 	protected enabledProperty;
 
@@ -298,6 +301,8 @@ export default class Component {
 		this.initialized = false;
 		this.watchers = [];
 		this.permanentWatchers = [];
+		this.slots = [];
+		this.lists = [];
 
 		const name = this.toString();
 		this.loader = new Loader(name);
@@ -352,17 +357,11 @@ export default class Component {
 	}
 
 	eachComponentSlot(callback: (slot:ComponentSlot<Component>)=>void) {
-		for(let property in this.componentSlotDefinitions) {
-			const definition = this.componentSlotDefinitions[property];
-			callback((this as any)[definition.property]);
-		}
+		this.slots.forEach(callback);
 	}
 
 	eachComponentList(callback: (list:ComponentList<Component>)=>void) {
-		for(let property in this.componentListDefinitions) {
-			const definition = this.componentListDefinitions[property];
-			callback((this as any)[definition.property]);
-		}
+		this.lists.forEach(callback);
 	}
 
 	/**
@@ -509,7 +508,9 @@ export default class Component {
 		const sync = new ComponentSlot<T>(this, this.model, modelPath, ComponentClass.Model, ComponentClass, this.factory);
 		sync.startWatching();
 
-		this.allChildren[modelPath] = sync as unknown as ComponentSlot<Component>;
+		const typedSlot = sync as unknown as ComponentSlot<Component>;
+		this.allChildren[modelPath] = typedSlot;
+		this.slots.push(typedSlot);
 
 		return sync;
 	}
@@ -524,7 +525,9 @@ export default class Component {
 		const list = new ComponentList<T>(this, this.model, modelPath, ComponentClass.Model, ComponentClass, this.factory);
 		list.startWatching();
 
-		this.allChildren[modelPath] = list as unknown as ComponentList<Component>;
+		const typedList = list as unknown as ComponentList<Component>;
+		this.allChildren[modelPath] = typedList;
+		this.lists.push(typedList);
 
 		return list;
 	}
