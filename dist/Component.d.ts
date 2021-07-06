@@ -181,6 +181,8 @@ export default class Component {
     hasEnabledPropertyInModel(): boolean;
     private collectClassDefinitions;
     private initClassDefinitions;
+    eachComponentSlot(callback: (slot: ComponentSlot<Component>) => void): void;
+    eachComponentList(callback: (list: ComponentList<Component>) => void): void;
     /**
      * Initializes the Component. Called from the constructor.
      * @protected

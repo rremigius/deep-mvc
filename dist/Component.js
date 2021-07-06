@@ -267,6 +267,18 @@ let Component = Component_1 = class Component {
             this[definition.property] = this.setupSubComponents(definition.modelPath, definition.ExpectedComponentClass);
         }
     }
+    eachComponentSlot(callback) {
+        for (let property in this.componentSlotDefinitions) {
+            const definition = this.componentSlotDefinitions[property];
+            callback(this[definition.property]);
+        }
+    }
+    eachComponentList(callback) {
+        for (let property in this.componentListDefinitions) {
+            const definition = this.componentListDefinitions[property];
+            callback(this[definition.property]);
+        }
+    }
     /**
      * Initializes the Component. Called from the constructor.
      * @protected

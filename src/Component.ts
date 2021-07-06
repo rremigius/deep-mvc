@@ -342,6 +342,20 @@ export default class Component {
 		}
 	}
 
+	eachComponentSlot(callback: (slot:ComponentSlot<Component>)=>void) {
+		for(let property in this.componentSlotDefinitions) {
+			const definition = this.componentSlotDefinitions[property];
+			callback((this as any)[definition.property]);
+		}
+	}
+
+	eachComponentList(callback: (list:ComponentList<Component>)=>void) {
+		for(let property in this.componentListDefinitions) {
+			const definition = this.componentListDefinitions[property];
+			callback((this as any)[definition.property]);
+		}
+	}
+
 	/**
 	 * Initializes the Component. Called from the constructor.
 	 * @protected
