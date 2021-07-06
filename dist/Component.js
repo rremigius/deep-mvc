@@ -155,10 +155,12 @@ let Component = Component_1 = class Component {
     }
     /**
      * Creates a Component based on the given model, and instantiates all necessary dependencies.
+     * Current Component class is pre-registered in the factory.
      * @param {Mozel} model
      */
     static create(model) {
         const factory = this.createFactory();
+        factory.register(this);
         return factory.create(model, this);
     }
     /**
