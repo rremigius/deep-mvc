@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReactViewComponent = void 0;
 const tslib_1 = require("tslib");
+const jsx_runtime_1 = require("react/jsx-runtime");
 const react_1 = tslib_1.__importDefault(require("react"));
 const View_1 = tslib_1.__importDefault(require("../View"));
 const react_dom_1 = tslib_1.__importDefault(require("react-dom"));
@@ -103,7 +104,7 @@ class ReactView extends View_1.default {
     }
     render(key) {
         const Component = this.getReactComponent();
-        return <Component view={this} key={key}/>;
+        return jsx_runtime_1.jsx(Component, { view: this }, key);
     }
     onMount(container) {
         super.onMount(container);
@@ -117,4 +118,4 @@ class ReactView extends View_1.default {
     }
 }
 exports.default = ReactView;
-//# sourceMappingURL=ReactView.jsx.map
+//# sourceMappingURL=ReactView.js.map
