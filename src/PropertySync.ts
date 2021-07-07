@@ -127,6 +127,14 @@ export default class PropertySync<P extends PropertyValue,T> {
 	}
 
 	/**
+	 * Sets the model value
+	 * @param {P|undefined} value
+	 */
+	set(value:P|undefined) {
+		return this.model.$set(this.path, value, true);
+	}
+
+	/**
 	 * Generates an output based on the given value.
 	 * @param value
 	 * @protected

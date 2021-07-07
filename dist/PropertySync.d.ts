@@ -58,6 +58,11 @@ export default class PropertySync<P extends PropertyValue, T> {
      */
     deinit(callback: callback<T | undefined>): this;
     /**
+     * Sets the model value
+     * @param {P|undefined} value
+     */
+    set(value: P | undefined): PropertyValue;
+    /**
      * Generates an output based on the given value.
      * @param value
      * @protected
