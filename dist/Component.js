@@ -144,8 +144,8 @@ let Component = Component_1 = class Component {
         this.initialized = false;
         this.watchers = [];
         this.permanentWatchers = [];
-        this.slots = [];
-        this.lists = [];
+        this.slots = {};
+        this.lists = {};
         const name = this.toString();
         this.loader = new deep_loader_1.default(name);
         this.loader.log.setLevel(log_control_1.LogLevel.WARN);
@@ -277,10 +277,20 @@ let Component = Component_1 = class Component {
         }
     }
     eachComponentSlot(callback) {
-        this.slots.forEach(callback);
+        for (let path in this.slots) {
+            callback(this.slots[path]);
+        }
     }
     eachComponentList(callback) {
-        this.lists.forEach(callback);
+        for (let path in this.lists) {
+            callback(this.lists[path]);
+        }
+    }
+    getComponentSlot(path) {
+        return this.slots[path];
+    }
+    getComponentList(path) {
+        return this.lists[path];
     }
     /**
      * Initializes the Component. Called from the constructor.
@@ -417,7 +427,7 @@ let Component = Component_1 = class Component {
         sync.startWatching();
         const typedSlot = sync;
         this.allChildren[modelPath] = typedSlot;
-        this.slots.push(typedSlot);
+        this.slots[modelPath] = typedSlot;
         return sync;
     }
     setupSubComponents(modelPath, ComponentClass) {
@@ -428,7 +438,7 @@ let Component = Component_1 = class Component {
         list.startWatching();
         const typedList = list;
         this.allChildren[modelPath] = typedList;
-        this.lists.push(typedList);
+        this.lists[modelPath] = typedList;
         return list;
     }
     /**

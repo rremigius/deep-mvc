@@ -6,6 +6,7 @@ const jsx_runtime_1 = require("react/jsx-runtime");
 const react_1 = tslib_1.__importDefault(require("react"));
 const View_1 = tslib_1.__importDefault(require("../View"));
 const react_dom_1 = tslib_1.__importDefault(require("react-dom"));
+// TODO: implement componentDidUpdate to check for changes to view prop?
 /**
  * React Component that can be wrapped in a View, containing convenient getters and methods to communicate with the
  * View instance. By default, watches the model's direct properties to re-render when they change.

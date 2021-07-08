@@ -238,8 +238,8 @@ export default class Component {
 	private initialized:boolean;
 	private parentEnabled:boolean = true;
 
-	private slots:ComponentSlot<Component>[];
-	private lists:ComponentList<Component>[];
+	private slots:Record<string, ComponentSlot<Component>>;
+	private lists:Record<string, ComponentList<Component>>;
 
 	/** Property name of the model that represents the enabled state of the Component */
 	protected enabledProperty;
@@ -301,8 +301,8 @@ export default class Component {
 		this.initialized = false;
 		this.watchers = [];
 		this.permanentWatchers = [];
-		this.slots = [];
-		this.lists = [];
+		this.slots = {};
+		this.lists = {};
 
 		const name = this.toString();
 		this.loader = new Loader(name);
@@ -357,11 +357,23 @@ export default class Component {
 	}
 
 	eachComponentSlot(callback: (slot:ComponentSlot<Component>)=>void) {
-		this.slots.forEach(callback);
+		for(let path in this.slots) {
+			callback(this.slots[path]);
+		}
 	}
 
 	eachComponentList(callback: (list:ComponentList<Component>)=>void) {
-		this.lists.forEach(callback);
+		for(let path in this.lists) {
+			callback(this.lists[path]);
+		}
+	}
+
+	getComponentSlot(path:string) {
+		return this.slots[path];
+	}
+
+	getComponentList(path:string) {
+		return this.lists[path];
 	}
 
 	/**
@@ -510,7 +522,7 @@ export default class Component {
 
 		const typedSlot = sync as unknown as ComponentSlot<Component>;
 		this.allChildren[modelPath] = typedSlot;
-		this.slots.push(typedSlot);
+		this.slots[modelPath] = typedSlot;
 
 		return sync;
 	}
@@ -527,7 +539,7 @@ export default class Component {
 
 		const typedList = list as unknown as ComponentList<Component>;
 		this.allChildren[modelPath] = typedList;
-		this.lists.push(typedList);
+		this.lists[modelPath] = typedList;
 
 		return list;
 	}

@@ -191,6 +191,8 @@ export default class Component {
     private initClassDefinitions;
     eachComponentSlot(callback: (slot: ComponentSlot<Component>) => void): void;
     eachComponentList(callback: (list: ComponentList<Component>) => void): void;
+    getComponentSlot(path: string): ComponentSlot<Component>;
+    getComponentList(path: string): ComponentList<Component>;
     /**
      * Initializes the Component. Called from the constructor.
      * @protected

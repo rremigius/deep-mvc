@@ -12,6 +12,8 @@ export type ReactViewComponentProps<T extends View> = {
 	view:T;
 };
 
+// TODO: implement componentDidUpdate to check for changes to view prop?
+
 /**
  * React Component that can be wrapped in a View, containing convenient getters and methods to communicate with the
  * View instance. By default, watches the model's direct properties to re-render when they change.
