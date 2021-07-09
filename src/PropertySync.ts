@@ -1,5 +1,5 @@
 import Mozel, {immediate} from "mozel";
-import {isString} from 'lodash';
+import {isString, get} from 'lodash';
 import {callback, Events} from "./EventEmitter";
 import Property, {PropertyType, PropertyValue} from "mozel/dist/Property";
 import {check, Constructor, instanceOf} from "validation-kit";
@@ -42,6 +42,8 @@ export default class PropertySync<P extends PropertyValue,T> {
 		this.path = path;
 		this.PropertyType = PropertyType;
 		this.SyncType = SyncType;
+
+		this.isReference = get(watchModel.static.$schema(), path).$isReference;
 	}
 
 	/**
@@ -88,7 +90,6 @@ export default class PropertySync<P extends PropertyValue,T> {
 		const property = parent.$property(prop as any);
 		if(!property) throw new Error(`Change path does not match any property on ${this.model.constructor.name}: ${changePath}.`);
 
-		this.isReference = property.isReference;
 		if(this.isReference && !this.resolveReferences) {
 			return; // should not try to resolve references (yet)
 		}

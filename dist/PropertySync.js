@@ -37,6 +37,7 @@ class PropertySync {
         this.path = path;
         this.PropertyType = PropertyType;
         this.SyncType = SyncType;
+        this.isReference = lodash_1.get(watchModel.static.$schema(), path).$isReference;
     }
     get current() {
         return this._current;
@@ -81,7 +82,6 @@ class PropertySync {
         const property = parent.$property(prop);
         if (!property)
             throw new Error(`Change path does not match any property on ${this.model.constructor.name}: ${changePath}.`);
-        this.isReference = property.isReference;
         if (this.isReference && !this.resolveReferences) {
             return; // should not try to resolve references (yet)
         }

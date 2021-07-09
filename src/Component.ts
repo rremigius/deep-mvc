@@ -145,7 +145,7 @@ export default class Component {
 	static create<T extends Component>(model:Mozel) {
 		const factory = this.createFactory();
 		factory.register(this);
-		return <T>factory.create(model, this);
+		return <T>factory.createAndResolveReferences(model, this);
 	}
 
 	/**

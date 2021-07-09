@@ -163,7 +163,7 @@ let Component = Component_1 = class Component {
     static create(model) {
         const factory = this.createFactory();
         factory.register(this);
-        return factory.create(model, this);
+        return factory.createAndResolveReferences(model, this);
     }
     /**
      * Creates a ComponentFactory.
