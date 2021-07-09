@@ -6,6 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "webpack",
+    "update-mozel": "npm remove mozel && npm i https://github.com/rremigius/mozel.git",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
