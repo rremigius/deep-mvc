@@ -17,10 +17,6 @@ class ViewEvents extends Component_1.ComponentEvents {
 exports.ViewEvents = ViewEvents;
 exports.ControllerRegistrySymbol = Symbol.for("ControllerRegistrySymbol");
 class View extends Component_1.default {
-    constructor() {
-        super(...arguments);
-        this.events = new ViewEvents();
-    }
     get container() {
         return this._container;
     }
@@ -75,4 +71,5 @@ class View extends Component_1.default {
     onClick(event) { }
 }
 exports.default = View;
+View.Events = ViewEvents;
 //# sourceMappingURL=View.js.map

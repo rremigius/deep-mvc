@@ -12,12 +12,13 @@ export class ViewEvents extends ComponentEvents {
 export const ControllerRegistrySymbol = Symbol.for("ControllerRegistrySymbol");
 
 export default class View extends Component {
+	static Events = ViewEvents;
+	declare events:ViewEvents;
+
 	_container?:HTMLElement;
 	get container() {
 		return this._container;
 	}
-
-	events = new ViewEvents();
 
 	controller?:Component;
 	controllerRegistry?:Registry<Component>;

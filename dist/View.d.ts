@@ -8,9 +8,10 @@ export declare class ViewEvents extends ComponentEvents {
 }
 export declare const ControllerRegistrySymbol: unique symbol;
 export default class View extends Component {
+    static Events: typeof ViewEvents;
+    events: ViewEvents;
     _container?: HTMLElement;
     get container(): HTMLElement | undefined;
-    events: ViewEvents;
     controller?: Component;
     controllerRegistry?: Registry<Component>;
     factory: ViewFactory;
