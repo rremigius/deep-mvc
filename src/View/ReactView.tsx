@@ -96,7 +96,7 @@ export class ReactViewComponent<P extends ReactViewComponentProps<ReactView>, S>
 	renderChildren(components:ComponentList<View>) {
 		return components
 			.filter(view => view instanceof ReactView)
-			.map((view, key) => (view as ReactView).render(key));
+			.map((view, key) => (view as ReactView).render({key}));
 	}
 
 	/**
@@ -114,9 +114,13 @@ export default class ReactView extends View {
 		throw new Error(`${this.static.name} does not have getReactComponent implemented.`);
 	}
 
-	render(key?:alphanumeric) {
+	render(props:Record<string, any> = {}) {
 		const Component = this.getReactComponent();
-		return <Component view={this} key={key}/>
+		props = {
+			...props,
+			view: this
+		}
+		return <Component {...props}/>
 	}
 
 	onMount(container: HTMLElement) {

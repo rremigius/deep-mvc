@@ -1,6 +1,6 @@
 import React from "react";
 import View from "../View";
-import { alphanumeric, MozelSchema, PropertySchema } from "mozel";
+import { MozelSchema, PropertySchema } from "mozel";
 import PropertyWatcher, { PropertyChangeHandler, PropertyWatcherOptionsArgument } from "mozel/dist/PropertyWatcher";
 import { PropertyValue } from "mozel/dist/Property";
 import EventEmitter, { callback } from "../EventEmitter";
@@ -62,7 +62,7 @@ export declare class ReactViewComponent<P extends ReactViewComponentProps<ReactV
 }
 export default class ReactView extends View {
     getReactComponent(): typeof React.Component;
-    render(key?: alphanumeric): JSX.Element;
+    render(props?: Record<string, any>): JSX.Element;
     onMount(container: HTMLElement): void;
     onDismount(): void;
 }

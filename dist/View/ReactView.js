@@ -86,7 +86,7 @@ class ReactViewComponent extends react_1.default.Component {
     renderChildren(components) {
         return components
             .filter(view => view instanceof ReactView)
-            .map((view, key) => view.render(key));
+            .map((view, key) => view.render({ key }));
     }
     /**
      * Renders a Component from a ComponentSlot as a JSX Element.
@@ -103,9 +103,13 @@ class ReactView extends View_1.default {
     getReactComponent() {
         throw new Error(`${this.static.name} does not have getReactComponent implemented.`);
     }
-    render(key) {
+    render(props = {}) {
         const Component = this.getReactComponent();
-        return jsx_runtime_1.jsx(Component, { view: this }, key);
+        props = {
+            ...props,
+            view: this
+        };
+        return jsx_runtime_1.jsx(Component, Object.assign({}, props), void 0);
     }
     onMount(container) {
         super.onMount(container);
