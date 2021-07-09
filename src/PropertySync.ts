@@ -35,7 +35,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 
 	watching:boolean = false;
 	resolveReferences:boolean = false;
-	isReference:boolean = false;
+	isReference:boolean;
 
 	constructor(watchModel:Mozel, path:string, PropertyType:PropertyType, SyncType:Constructor<T>) {
 		this.model = watchModel;
@@ -43,7 +43,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 		this.PropertyType = PropertyType;
 		this.SyncType = SyncType;
 
-		this.isReference = get(watchModel.static.$schema(), path).$isReference;
+		this.isReference = get(watchModel.static.$schema(), path).$reference;
 	}
 
 	/**

@@ -32,12 +32,11 @@ class PropertySync {
         this.events = new PropertySyncEvents();
         this.watching = false;
         this.resolveReferences = false;
-        this.isReference = false;
         this.model = watchModel;
         this.path = path;
         this.PropertyType = PropertyType;
         this.SyncType = SyncType;
-        this.isReference = lodash_1.get(watchModel.static.$schema(), path).$isReference;
+        this.isReference = lodash_1.get(watchModel.static.$schema(), path).$reference;
     }
     get current() {
         return this._current;
