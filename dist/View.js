@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ControllerRegistrySymbol = exports.ViewEvents = exports.ViewClickEvent = void 0;
+exports.ControllerRegistrySymbol = exports.ViewEvents = exports.ViewRightClickEvent = exports.ViewClickEvent = void 0;
 const tslib_1 = require("tslib");
 const Component_1 = tslib_1.__importStar(require("./Component"));
 const log_1 = tslib_1.__importDefault(require("./log"));
@@ -8,10 +8,14 @@ const log = log_1.default.instance("view");
 class ViewClickEvent extends Component_1.ComponentEvent {
 }
 exports.ViewClickEvent = ViewClickEvent;
+class ViewRightClickEvent extends Component_1.ComponentEvent {
+}
+exports.ViewRightClickEvent = ViewRightClickEvent;
 class ViewEvents extends Component_1.ComponentEvents {
     constructor() {
         super(...arguments);
         this.click = this.$event(ViewClickEvent);
+        this.rightClick = this.$event(ViewRightClickEvent);
     }
 }
 exports.ViewEvents = ViewEvents;
@@ -42,11 +46,17 @@ class View extends Component_1.default {
         }
         return component;
     }
-    click() {
+    click(details) {
         log.info(`${this} clicked.`);
-        const event = new ViewClickEvent(this, {});
+        const event = new ViewClickEvent(this, details);
         this.onClick(event);
         this.events.click.fire(new ViewClickEvent(this));
+    }
+    rightClick(details) {
+        log.info(`${this} right-clicked.`);
+        const event = new ViewRightClickEvent(this, details);
+        this.onRightClick(event);
+        this.events.rightClick.fire(event);
     }
     resize() {
         if (!this.container)
@@ -69,6 +79,7 @@ class View extends Component_1.default {
     onDismount() { }
     onResize(width, height) { }
     onClick(event) { }
+    onRightClick(event) { }
 }
 exports.default = View;
 View.Events = ViewEvents;

@@ -5,9 +5,11 @@ import Log from "./log";
 
 const log = Log.instance("view");
 
-export class ViewClickEvent extends ComponentEvent<{}>{}
+export class ViewClickEvent extends ComponentEvent<{position:{x:number, y:number}}>{}
+export class ViewRightClickEvent extends ComponentEvent<{position:{x:number, y:number}}>{}
 export class ViewEvents extends ComponentEvents {
 	click = this.$event(ViewClickEvent);
+	rightClick = this.$event(ViewRightClickEvent);
 }
 export const ControllerRegistrySymbol = Symbol.for("ControllerRegistrySymbol");
 
@@ -49,11 +51,18 @@ export default class View extends Component {
 		return component;
 	}
 
-	click() {
+	click(details:{position:{x:number, y:number}}) {
 		log.info(`${this} clicked.`);
-		const event = new ViewClickEvent(this, {});
+		const event = new ViewClickEvent(this, details);
 		this.onClick(event);
 		this.events.click.fire(new ViewClickEvent(this));
+	}
+
+	rightClick(details:{position:{x:number, y:number}}) {
+		log.info(`${this} right-clicked.`);
+		const event = new ViewRightClickEvent(this, details);
+		this.onRightClick(event);
+		this.events.rightClick.fire(event);
 	}
 
 	resize() {
@@ -77,4 +86,5 @@ export default class View extends Component {
 	onDismount():void {}
 	onResize(width:number, height:number):void {}
 	onClick(event:ViewClickEvent):void {}
+	onRightClick(event:ViewRightClickEvent):void {}
 }
