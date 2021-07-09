@@ -74,6 +74,18 @@ let ComponentFactory = ComponentFactory_1 = class ComponentFactory {
         this.localDependencies.bind(Base).to(Implementation);
     }
     /**
+     * Finds the first bound component class up the hierarchy for the given Mozel class.
+     * @param {typeof Mozel} Model
+     */
+    findFirstBoundModelInHierarchy(Model) {
+        if (this.dependencies.isBoundNamed(ComponentSymbol, Model.type)) {
+            return Model;
+        }
+        if (Model === mozel_1.default)
+            return;
+        return this.findFirstBoundModelInHierarchy(Model.getParentClass());
+    }
+    /**
      * Creates a Component based on a Model.
      * If <T> matches ExpectedClass, is guaranteed to provide the correct class (or throw).
      *
@@ -95,8 +107,9 @@ let ComponentFactory = ComponentFactory_1 = class ComponentFactory {
         container.bind(mozel_1.default).toConstantValue(model);
         container.bind(inversify_1.Container).toConstantValue(this.dependencies);
         let component;
-        if (container.isBoundNamed(ComponentSymbol, model.static.type)) {
-            component = container.getNamed(ComponentSymbol, model.static.type);
+        const BoundMozel = this.findFirstBoundModelInHierarchy(model.static);
+        if (BoundMozel) {
+            component = container.getNamed(ComponentSymbol, BoundMozel.type);
             log.info(`Component '${component.static.name}' generated for model '${model.static.type}'.`);
         }
         else if (ExpectedClass) {

@@ -103,6 +103,18 @@ export default class ComponentFactory {
 	}
 
 	/**
+	 * Finds the first bound component class up the hierarchy for the given Mozel class.
+	 * @param {typeof Mozel} Model
+	 */
+	findFirstBoundModelInHierarchy(Model:typeof Mozel):typeof Mozel|undefined {
+		if(this.dependencies.isBoundNamed(ComponentSymbol, Model.type)) {
+			return Model;
+		}
+		if(Model === Mozel) return;
+		return this.findFirstBoundModelInHierarchy(Model.getParentClass());
+	}
+
+	/**
 	 * Creates a Component based on a Model.
 	 * If <T> matches ExpectedClass, is guaranteed to provide the correct class (or throw).
 	 *
@@ -126,8 +138,9 @@ export default class ComponentFactory {
 		container.bind(Container).toConstantValue(this.dependencies);
 
 		let component;
-		if(container.isBoundNamed(ComponentSymbol, model.static.type)) {
-			component = container.getNamed<Component>(ComponentSymbol, model.static.type);
+		const BoundMozel = this.findFirstBoundModelInHierarchy(model.static);
+		if(BoundMozel) {
+			component = container.getNamed<Component>(ComponentSymbol, BoundMozel.type);
 			log.info(`Component '${component.static.name}' generated for model '${model.static.type}'.`);
 		} else if(ExpectedClass) {
 			// Try an generic placeholder for the expected class

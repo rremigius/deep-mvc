@@ -40,6 +40,11 @@ export default class ComponentFactory {
      */
     registerDefault(Base: typeof Component, Implementation: typeof Component): void;
     /**
+     * Finds the first bound component class up the hierarchy for the given Mozel class.
+     * @param {typeof Mozel} Model
+     */
+    findFirstBoundModelInHierarchy(Model: typeof Mozel): typeof Mozel | undefined;
+    /**
      * Creates a Component based on a Model.
      * If <T> matches ExpectedClass, is guaranteed to provide the correct class (or throw).
      *
