@@ -659,9 +659,10 @@ export default class Component {
 	}
 
 	private onModelDestroyed() {
-		this.onDestroy();
 		this.stopListening();
 		this.permanentWatchers.forEach(watcher => this.model.$removeWatcher(watcher));
+
+		this.onDestroy();
 		log.info(`${this} destroyed.`);
 	}
 

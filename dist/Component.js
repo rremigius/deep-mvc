@@ -547,9 +547,9 @@ let Component = Component_1 = class Component {
         this.model.$destroy();
     }
     onModelDestroyed() {
-        this.onDestroy();
         this.stopListening();
         this.permanentWatchers.forEach(watcher => this.model.$removeWatcher(watcher));
+        this.onDestroy();
         log.info(`${this} destroyed.`);
     }
     /**
