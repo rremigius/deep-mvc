@@ -4,8 +4,8 @@ import Component, {ComponentConstructor} from "../Component";
 import Mozel, {Registry} from "mozel";
 import Log from "../log";
 import EventBus from "../EventBus";
-import {Events} from "../EventEmitter";
 import {isArray} from "lodash";
+import EventInterface from "event-interface-mixin";
 
 const log = Log.instance("component-factory");
 
@@ -24,7 +24,7 @@ export default class ComponentFactory {
 	/** Local Infersify dependency Container to which any internal classes and services can be registered. */
 	readonly localDependencies:Container;
 	/** EventBus that is provided to all created Components to communicate between each other. */
-	public readonly eventBus:Events;
+	public readonly eventBus:EventBus;
 	/** Registry to which all created Components are registed. */
 	public readonly registry:Registry<Component>;
 
@@ -36,12 +36,12 @@ export default class ComponentFactory {
 	}
 
 	constructor(
-		eventBus?:Events,
+		eventBus?:EventInterface,
 		componentRegistry?:Registry<Component>,
 		dependencies?:Container
 	) {
 		this.registry = componentRegistry || new Registry<Component>();
-		this.eventBus = eventBus || new Events(true);
+		this.eventBus = eventBus || new EventBus();
 
 		this.localDependencies = ComponentFactory.createDependencyContainer();
 

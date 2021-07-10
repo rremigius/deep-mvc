@@ -1,11 +1,11 @@
 import Component, {ComponentConstructor} from "../Component";
 import {isArray, isFunction, isMatch} from 'lodash';
-import EventEmitter from "../EventEmitter";
 import PropertySync, {PropertySyncEvents} from "../PropertySync";
 import {check, Constructor, instanceOf} from "validation-kit";
 import ComponentFactory from "../Component/ComponentFactory";
 import Mozel, {Collection} from "mozel";
 import {CollectionItemAddedEvent, CollectionItemRemovedEvent} from "mozel/dist/Collection";
+import {EventEmitter} from "event-interface-mixin";
 
 export class ComponentAddedEvent<T extends Component> {
 	constructor(public component: T) {}

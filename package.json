@@ -15,6 +15,7 @@
   "dependencies": {
     "@types/mocha": "^8.2.1",
     "deep-loader": "git+https://github.com/rremigius/deep-loader.git",
+    "event-interface-mixin": "^0.1.0",
     "inversify": "^5.0.5",
     "log-control": "0.0.2",
     "mocha": "^8.3.1",

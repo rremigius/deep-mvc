@@ -4,9 +4,10 @@ import {alphanumeric, MozelSchema, PropertySchema} from "mozel";
 import ReactDOM from "react-dom";
 import PropertyWatcher, {PropertyChangeHandler, PropertyWatcherOptionsArgument} from "mozel/dist/PropertyWatcher";
 import {PropertyValue} from "mozel/dist/Property";
-import EventEmitter, {callback} from "../EventEmitter";
 import ComponentList from "../Component/ComponentList";
 import ComponentSlot from "../Component/ComponentSlot";
+import {callback} from "event-interface-mixin/dist/EventEmitter";
+import {EventEmitter} from "event-interface-mixin";
 
 export type ReactViewComponentProps<T extends View> = {
 	view:T;

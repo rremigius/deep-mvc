@@ -2,18 +2,18 @@ import {Container, inject, injectable, LazyServiceIdentifer} from "inversify";
 import ComponentFactory from "./Component/ComponentFactory";
 import Log from "./log";
 import Loader from "deep-loader";
-import EventListener from "./EventListener";
 import ComponentList from "./Component/ComponentList";
 import ComponentSlot from "./Component/ComponentSlot";
 import Mozel, {alphanumeric, CollectionSchema, immediate, MozelSchema, PropertySchema, Registry, schema} from "mozel";
 import EventBus from "./EventBus";
-import EventEmitter, {callback, Events} from "./EventEmitter";
 import {isString} from 'lodash';
 import Property, {PropertyValue} from "mozel/dist/Property";
 import {Constructor, isSubClass} from "validation-kit";
 import {LogLevel} from "log-control";
 import PropertyWatcher, {PropertyChangeHandler, PropertyWatcherOptionsArgument} from "mozel/dist/PropertyWatcher";
 import {DestroyedEvent} from "mozel/dist/Mozel";
+import EventInterface, {EventListener} from "event-interface-mixin";
+import EventEmitter, {callback} from "event-interface-mixin/dist/EventEmitter";
 
 const log = Log.instance("component");
 
@@ -70,7 +70,7 @@ export class ComponentEnabledEvent extends ComponentEvent<object> { }
  */
 export class ComponentDisabledEvent extends ComponentEvent<object> { }
 
-export class ComponentEvents extends Events {
+export class ComponentEvents extends EventInterface {
 	enabled = this.$event(ComponentEnabledEvent)
 	disabled = this.$event(ComponentDisabledEvent)
 
@@ -84,7 +84,7 @@ export class ComponentEvents extends Events {
  */
 export class ComponentEnableAction extends ComponentAction<{enable:boolean}> { }
 
-export class ComponentActions extends Events {
+export class ComponentActions extends EventInterface {
 	$action<T>(ActionClass:Constructor<T>) {
 		return this.$event(ActionClass);
 	}
@@ -550,7 +550,7 @@ export default class Component {
 	 * @param {string} eventName
 	 * @param {callback} callback
 	 */
-	listenToEventName(source:Events, eventName:string, callback:callback<unknown>) {
+	listenToEventName(source:EventInterface, eventName:string, callback:callback<unknown>) {
 		const event = source.$get(eventName);
 		this.listenTo(event, callback);
 	}

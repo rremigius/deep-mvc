@@ -1,8 +1,9 @@
 import Mozel, {immediate} from "mozel";
 import {isString, get} from 'lodash';
-import {callback, Events} from "./EventEmitter";
 import Property, {PropertyType, PropertyValue} from "mozel/dist/Property";
 import {check, Constructor, instanceOf} from "validation-kit";
+import EventInterface from "event-interface-mixin";
+import {callback} from "event-interface-mixin/dist/EventEmitter";
 
 export class ValueChangeEvent<T> {
 	constructor(
@@ -12,7 +13,7 @@ export class ValueChangeEvent<T> {
 		public old?:T) {}
 }
 
-export class PropertySyncEvents<T> extends Events {
+export class PropertySyncEvents<T> extends EventInterface {
 	change = this.$event<ValueChangeEvent<T>>(ValueChangeEvent);
 }
 
