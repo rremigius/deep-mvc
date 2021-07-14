@@ -3,9 +3,10 @@ import View from "../View";
 import { MozelSchema, PropertySchema } from "mozel";
 import PropertyWatcher, { PropertyChangeHandler, PropertyWatcherOptionsArgument } from "mozel/dist/PropertyWatcher";
 import { PropertyValue } from "mozel/dist/Property";
-import EventEmitter, { callback } from "../EventEmitter";
 import ComponentList from "../Component/ComponentList";
 import ComponentSlot from "../Component/ComponentSlot";
+import { callback } from "event-interface-mixin/dist/EventEmitter";
+import { EventEmitter } from "event-interface-mixin";
 export declare type ReactViewComponentProps<T extends View> = {
     view: T;
 };

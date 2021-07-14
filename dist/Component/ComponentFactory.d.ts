@@ -1,7 +1,8 @@
 import { Container } from "inversify";
 import Component, { ComponentConstructor } from "../Component";
 import Mozel, { Registry } from "mozel";
-import { Events } from "../EventEmitter";
+import EventBus from "../EventBus";
+import EventInterface from "event-interface-mixin";
 export default class ComponentFactory {
     /**
      * Infersify dependency container from which all registered dependencies can be retrieved. If provided in the constructor, this
@@ -12,14 +13,14 @@ export default class ComponentFactory {
     /** Local Infersify dependency Container to which any internal classes and services can be registered. */
     readonly localDependencies: Container;
     /** EventBus that is provided to all created Components to communicate between each other. */
-    readonly eventBus: Events;
+    readonly eventBus: EventBus;
     /** Registry to which all created Components are registed. */
     readonly registry: Registry<Component>;
     /**
      * Creates a dependency container that can be used for the ComponentFactory.
      */
     static createDependencyContainer(): Container;
-    constructor(eventBus?: Events, componentRegistry?: Registry<Component>, dependencies?: Container);
+    constructor(eventBus?: EventInterface, componentRegistry?: Registry<Component>, dependencies?: Container);
     protected initDependencies(): void;
     /**
      * Creates a new dependency container, extending from the existing one.

@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const EventEmitter_1 = require("./EventEmitter");
-class EventBus extends EventEmitter_1.Events {
+const tslib_1 = require("tslib");
+const event_interface_mixin_1 = tslib_1.__importDefault(require("event-interface-mixin"));
+class EventBus extends event_interface_mixin_1.default {
     constructor() {
         super(true);
     }

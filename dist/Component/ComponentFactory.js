@@ -7,14 +7,13 @@ const validation_kit_1 = require("validation-kit");
 const mozel_1 = tslib_1.__importStar(require("mozel"));
 const log_1 = tslib_1.__importDefault(require("../log"));
 const EventBus_1 = tslib_1.__importDefault(require("../EventBus"));
-const EventEmitter_1 = require("../EventEmitter");
 const lodash_1 = require("lodash");
 const log = log_1.default.instance("component-factory");
 const ComponentSymbol = Symbol.for("Component");
 let ComponentFactory = ComponentFactory_1 = class ComponentFactory {
     constructor(eventBus, componentRegistry, dependencies) {
         this.registry = componentRegistry || new mozel_1.Registry();
-        this.eventBus = eventBus || new EventEmitter_1.Events(true);
+        this.eventBus = eventBus || new EventBus_1.default();
         this.localDependencies = ComponentFactory_1.createDependencyContainer();
         // Given container gets priority, then localContainer, then default
         if (dependencies) {

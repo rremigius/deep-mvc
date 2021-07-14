@@ -1,9 +1,9 @@
 import Component, { ComponentConstructor } from "../Component";
-import EventEmitter from "../EventEmitter";
 import PropertySync, { PropertySyncEvents } from "../PropertySync";
 import { Constructor } from "validation-kit";
 import ComponentFactory from "../Component/ComponentFactory";
 import Mozel, { Collection } from "mozel";
+import { EventEmitter } from "event-interface-mixin";
 export declare class ComponentAddedEvent<T extends Component> {
     component: T;
     constructor(component: T);

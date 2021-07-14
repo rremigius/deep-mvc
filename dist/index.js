@@ -7,10 +7,6 @@ const ComponentFactory_1 = tslib_1.__importDefault(require("./Component/Componen
 exports.ComponentFactory = ComponentFactory_1.default;
 const EventBus_1 = tslib_1.__importDefault(require("./EventBus"));
 exports.EventBus = EventBus_1.default;
-const EventEmitter_1 = tslib_1.__importDefault(require("./EventEmitter"));
-exports.EventEmitter = EventEmitter_1.default;
-const EventListener_1 = tslib_1.__importDefault(require("./EventListener"));
-exports.EventListener = EventListener_1.default;
 const ViewFactory_1 = tslib_1.__importDefault(require("./View/ViewFactory"));
 exports.ViewFactory = ViewFactory_1.default;
 const ReactView_1 = tslib_1.__importDefault(require("./View/ReactView"));
@@ -19,5 +15,8 @@ const Component_2 = require("./Component");
 Object.defineProperty(exports, "component", { enumerable: true, get: function () { return Component_2.component; } });
 const Component_3 = require("./Component");
 Object.defineProperty(exports, "components", { enumerable: true, get: function () { return Component_3.components; } });
+const event_interface_mixin_1 = require("event-interface-mixin");
+Object.defineProperty(exports, "EventEmitter", { enumerable: true, get: function () { return event_interface_mixin_1.EventEmitter; } });
+Object.defineProperty(exports, "EventListener", { enumerable: true, get: function () { return event_interface_mixin_1.EventListener; } });
 exports.default = Component_1.default;
 //# sourceMappingURL=index.js.map

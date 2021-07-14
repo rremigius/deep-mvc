@@ -4,9 +4,9 @@ exports.PropertySyncEvents = exports.ValueChangeEvent = void 0;
 const tslib_1 = require("tslib");
 const mozel_1 = tslib_1.__importStar(require("mozel"));
 const lodash_1 = require("lodash");
-const EventEmitter_1 = require("./EventEmitter");
 const Property_1 = tslib_1.__importDefault(require("mozel/dist/Property"));
 const validation_kit_1 = require("validation-kit");
+const event_interface_mixin_1 = tslib_1.__importDefault(require("event-interface-mixin"));
 class ValueChangeEvent {
     constructor(path, isReference, current, old) {
         this.path = path;
@@ -16,7 +16,7 @@ class ValueChangeEvent {
     }
 }
 exports.ValueChangeEvent = ValueChangeEvent;
-class PropertySyncEvents extends EventEmitter_1.Events {
+class PropertySyncEvents extends event_interface_mixin_1.default {
     constructor() {
         super(...arguments);
         this.change = this.$event(ValueChangeEvent);

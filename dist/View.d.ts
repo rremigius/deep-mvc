@@ -16,8 +16,8 @@ export declare class ViewRightClickEvent extends ComponentEvent<{
 }> {
 }
 export declare class ViewEvents extends ComponentEvents {
-    click: import("./EventEmitter").default<ViewClickEvent>;
-    rightClick: import("./EventEmitter").default<ViewRightClickEvent>;
+    click: import("event-interface-mixin").EventEmitter<ViewClickEvent>;
+    rightClick: import("event-interface-mixin").EventEmitter<ViewRightClickEvent>;
 }
 export declare const ControllerRegistrySymbol: unique symbol;
 export default class View extends Component {

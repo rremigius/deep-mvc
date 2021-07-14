@@ -34,7 +34,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 	}
 
 	private addedListener = (event:CollectionItemAddedEvent<unknown>) => {
-		const model = check<ComponentModel<C>>(event.data.item, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
+		const model = check<ComponentModel<C>>(event.item, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
 		const component = this.factory.resolve<C>(model, this.ComponentClass, true);
 
 		if(component && !this.has(component)) {
@@ -42,7 +42,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 		}
 	}
 	private removedListener = (event:CollectionItemRemovedEvent<unknown>) => {
-		const model = check<ComponentModel<C>>(event.data.item, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
+		const model = check<ComponentModel<C>>(event.item, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
 		const component = this.factory.registry.byGid(model.gid);
 		if(component instanceof this.ComponentClass) {
 			this.remove(component);
@@ -77,15 +77,15 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 
 		// Remove listeners from current collection
 		if(this.currentCollection) {
-			this.currentCollection.off(CollectionItemAddedEvent, this.addedListener);
-			this.currentCollection.off(CollectionItemRemovedEvent, this.removedListener);
+			this.currentCollection.events.added.off(this.addedListener);
+			this.currentCollection.events.removed.off(this.removedListener);
 		}
 		this.currentCollection = collection;
 		if(!collection) return []; // because of this, `current` is always defined
 
 		// Add listeners to new collection
-		collection.on(CollectionItemAddedEvent, this.addedListener);
-		collection.on(CollectionItemRemovedEvent, this.removedListener);
+		collection.events.added.on(this.addedListener);
+		collection.events.removed.on(this.removedListener);
 
 		// Resolve components for each of the models
 		const components = collection.map((model:ComponentModel<C>) =>

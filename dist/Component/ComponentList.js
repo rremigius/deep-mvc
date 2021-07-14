@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComponentRemovedEvent = exports.ComponentAddedEvent = void 0;
 const tslib_1 = require("tslib");
 const lodash_1 = require("lodash");
-const EventEmitter_1 = tslib_1.__importDefault(require("../EventEmitter"));
 const PropertySync_1 = tslib_1.__importStar(require("../PropertySync"));
 const validation_kit_1 = require("validation-kit");
 const mozel_1 = require("mozel");
 const Collection_1 = require("mozel/dist/Collection");
+const event_interface_mixin_1 = require("event-interface-mixin");
 class ComponentAddedEvent {
     constructor(component) {
         this.component = component;
@@ -24,8 +24,8 @@ class ComponentListEvents extends PropertySync_1.PropertySyncEvents {
     constructor() {
         super(...arguments);
         // Using $register for generic type definition on EventEmitter
-        this.add = this.$register(new EventEmitter_1.default(ComponentAddedEvent), ComponentAddedEvent.name);
-        this.remove = this.$register(new EventEmitter_1.default(ComponentRemovedEvent), ComponentRemovedEvent.name);
+        this.add = this.$register(new event_interface_mixin_1.EventEmitter(ComponentAddedEvent), ComponentAddedEvent.name);
+        this.remove = this.$register(new event_interface_mixin_1.EventEmitter(ComponentRemovedEvent), ComponentRemovedEvent.name);
     }
 }
 class ComponentList extends PropertySync_1.default {

@@ -308,7 +308,7 @@ export default class Component {
 		this.loader = new Loader(name);
 		this.loader.log.setLevel(LogLevel.WARN);
 
-		this.model.$on(DestroyedEvent, () => this.onModelDestroyed());
+		this.model.$events.destroyed.on(event => this.onModelDestroyed());
 
 		this.setupActionsAndEvents();
 		this.initClassDefinitions();

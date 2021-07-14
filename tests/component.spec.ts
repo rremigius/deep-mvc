@@ -260,7 +260,7 @@ describe('Component', () => {
 			const modelFactory = new TestModelFactory();
 			const componentFactory = new TestComponentFactory();
 
-			const model = modelFactory.createAndResolveReferences(FooModel, {
+			const model = modelFactory.create(FooModel, {
 				gid: 'a',
 				otherFoo: {
 					gid: 'a0'

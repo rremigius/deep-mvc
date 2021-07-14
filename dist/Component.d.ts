@@ -1,14 +1,14 @@
 import { Container } from "inversify";
 import ComponentFactory from "./Component/ComponentFactory";
-import EventListener from "./EventListener";
 import ComponentList from "./Component/ComponentList";
 import ComponentSlot from "./Component/ComponentSlot";
 import Mozel, { alphanumeric, CollectionSchema, MozelSchema, PropertySchema, Registry } from "mozel";
 import EventBus from "./EventBus";
-import EventEmitter, { callback, Events } from "./EventEmitter";
 import Property, { PropertyValue } from "mozel/dist/Property";
 import { Constructor } from "validation-kit";
 import PropertyWatcher, { PropertyChangeHandler, PropertyWatcherOptionsArgument } from "mozel/dist/PropertyWatcher";
+import EventInterface, { EventListener } from "event-interface-mixin";
+import EventEmitter, { callback } from "event-interface-mixin/dist/EventEmitter";
 export declare type ComponentConstructor<T extends Component> = {
     new (...args: any[]): T;
     Model: (typeof Mozel);
@@ -59,7 +59,7 @@ export declare class ComponentEnabledEvent extends ComponentEvent<object> {
  */
 export declare class ComponentDisabledEvent extends ComponentEvent<object> {
 }
-export declare class ComponentEvents extends Events {
+export declare class ComponentEvents extends EventInterface {
     enabled: EventEmitter<ComponentEnabledEvent>;
     disabled: EventEmitter<ComponentDisabledEvent>;
     constructor();
@@ -71,7 +71,7 @@ export declare class ComponentEnableAction extends ComponentAction<{
     enable: boolean;
 }> {
 }
-export declare class ComponentActions extends Events {
+export declare class ComponentActions extends EventInterface {
     $action<T>(ActionClass: Constructor<T>): EventEmitter<T>;
     enable: EventEmitter<ComponentEnableAction>;
 }
@@ -272,7 +272,7 @@ export default class Component {
      * @param {string} eventName
      * @param {callback} callback
      */
-    listenToEventName(source: Events, eventName: string, callback: callback<unknown>): void;
+    listenToEventName(source: EventInterface, eventName: string, callback: callback<unknown>): void;
     /**
      * Starts listening to an event of the target EventEmitterr, storing the callback locally to be destroyed and
      * unsubscribed when the Component is destroyed.

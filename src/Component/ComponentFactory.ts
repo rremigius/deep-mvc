@@ -167,6 +167,7 @@ export default class ComponentFactory {
 	 * @param {typeof Component} ExpectedClass
 	 */
 	createAndResolveReferences<T extends Component>(model:Mozel, ExpectedClass?:ComponentConstructor<T>):T {
+		// TODO: Lazy resolve on ComponentSlot
 		const component = this.create<T>(model, ExpectedClass);
 		component.resolveReferences();
 		return component;

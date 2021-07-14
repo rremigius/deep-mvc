@@ -7,18 +7,17 @@ const inversify_1 = require("inversify");
 const ComponentFactory_1 = tslib_1.__importDefault(require("./Component/ComponentFactory"));
 const log_1 = tslib_1.__importDefault(require("./log"));
 const deep_loader_1 = tslib_1.__importDefault(require("deep-loader"));
-const EventListener_1 = tslib_1.__importDefault(require("./EventListener"));
 const ComponentList_1 = tslib_1.__importDefault(require("./Component/ComponentList"));
 const ComponentSlot_1 = tslib_1.__importDefault(require("./Component/ComponentSlot"));
 const mozel_1 = tslib_1.__importStar(require("mozel"));
 const EventBus_1 = tslib_1.__importDefault(require("./EventBus"));
-const EventEmitter_1 = require("./EventEmitter");
 const lodash_1 = require("lodash");
 const Property_1 = tslib_1.__importDefault(require("mozel/dist/Property"));
 const validation_kit_1 = require("validation-kit");
 const log_control_1 = require("log-control");
 const PropertyWatcher_1 = tslib_1.__importDefault(require("mozel/dist/PropertyWatcher"));
 const Mozel_1 = require("mozel/dist/Mozel");
+const event_interface_mixin_1 = tslib_1.__importStar(require("event-interface-mixin"));
 const log = log_1.default.instance("component");
 /**
  * Base class for Component Actions.
@@ -60,7 +59,7 @@ exports.ComponentEnabledEvent = ComponentEnabledEvent;
 class ComponentDisabledEvent extends ComponentEvent {
 }
 exports.ComponentDisabledEvent = ComponentDisabledEvent;
-class ComponentEvents extends EventEmitter_1.Events {
+class ComponentEvents extends event_interface_mixin_1.default {
     constructor() {
         super(true);
         this.enabled = this.$event(ComponentEnabledEvent);
@@ -74,7 +73,7 @@ exports.ComponentEvents = ComponentEvents;
 class ComponentEnableAction extends ComponentAction {
 }
 exports.ComponentEnableAction = ComponentEnableAction;
-class ComponentActions extends EventEmitter_1.Events {
+class ComponentActions extends event_interface_mixin_1.default {
     constructor() {
         super(...arguments);
         this.enable = this.$action(ComponentEnableAction);
@@ -458,7 +457,7 @@ let Component = Component_1 = class Component {
      * @param {callback<T>} callback
      */
     listenTo(event, callback) {
-        const eventListener = new EventListener_1.default(event, callback);
+        const eventListener = new event_interface_mixin_1.EventListener(event, callback);
         eventListener.start();
         // TS: we can't use the event listener callbacks in this class anyway
         this.eventListeners.push(eventListener);
