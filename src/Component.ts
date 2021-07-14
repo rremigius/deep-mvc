@@ -310,6 +310,7 @@ export default class Component {
 
 		this.model.$events.destroyed.on(event => this.onModelDestroyed());
 
+		this.beforeSubComponentInitialization();
 		this.setupActionsAndEvents();
 		this.initClassDefinitions();
 		this.onInit();
@@ -374,6 +375,10 @@ export default class Component {
 
 	getComponentList(path:string) {
 		return this.lists[path];
+	}
+
+	beforeSubComponentInitialization() {
+		// for override
 	}
 
 	/**

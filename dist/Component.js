@@ -148,6 +148,7 @@ let Component = Component_1 = class Component {
         this.loader = new deep_loader_1.default(name);
         this.loader.log.setLevel(log_control_1.LogLevel.WARN);
         this.model.$events.destroyed.on(event => this.onModelDestroyed());
+        this.beforeSubComponentInitialization();
         this.setupActionsAndEvents();
         this.initClassDefinitions();
         this.onInit();
@@ -289,6 +290,9 @@ let Component = Component_1 = class Component {
     }
     getComponentList(path) {
         return this.lists[path];
+    }
+    beforeSubComponentInitialization() {
+        // for override
     }
     /**
      * Initializes the Component. Called from the constructor.
