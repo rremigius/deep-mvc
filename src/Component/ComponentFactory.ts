@@ -162,18 +162,6 @@ export default class ComponentFactory {
 	}
 
 	/**
-	 * Creates a Component based on a model, and resolves all references in the hierarchy right afterwards.
-	 * @param {Mozel} model
-	 * @param {typeof Component} ExpectedClass
-	 */
-	createAndResolveReferences<T extends Component>(model:Mozel, ExpectedClass?:ComponentConstructor<T>):T {
-		// TODO: Lazy resolve on ComponentSlot
-		const component = this.create<T>(model, ExpectedClass);
-		component.resolveReferences();
-		return component;
-	}
-
-	/**
 	 * Attempts to find the component corresponding to the given model.
 	 * @param {Mozel} model
 	 * @param {typeof Component} ExpectedComponentClass		The expected Component class. Will throw if the found
@@ -188,10 +176,7 @@ export default class ComponentFactory {
 		if(!component && createNonExisting) {
 			component = this.create(model, ExpectedComponentClass);
 		}
-		if(!component) {
-			throw new Error(`Could not resolve Component by GID ${model.gid}.`);
-		}
-		if(!(component instanceof ExpectedComponentClass)) {
+		if(component && !(component instanceof ExpectedComponentClass)) {
 			throw new Error(`Model GID ${model.gid} resolved to '${component.constructor.name}' rather than '${ExpectedComponentClass.name}'.`);
 		}
 		return component;

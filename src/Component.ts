@@ -145,7 +145,7 @@ export default class Component {
 	static create<T extends Component>(model:Mozel) {
 		const factory = this.createFactory();
 		factory.register(this);
-		return <T>factory.createAndResolveReferences(model, this);
+		return <T>factory.create(model, this);
 	}
 
 	/**
@@ -597,8 +597,7 @@ export default class Component {
 	resolveReferences() {
 		for(let path in this.allChildren) {
 			const sync = this.allChildren[path];
-			sync.resolveReferences = true;
-			sync.sync();
+			sync.resolveReferences();
 		}
 		this.forEachChild(component => component.resolveReferences());
 	}

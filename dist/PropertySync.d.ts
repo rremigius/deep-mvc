@@ -20,15 +20,16 @@ export declare class PropertySyncEvents<T> extends EventInterface {
 export default class PropertySync<P extends PropertyValue, T> {
     protected _current?: T;
     get current(): T | undefined;
+    protected currentSource?: P;
     events: PropertySyncEvents<T>;
     model: Mozel;
     path: string;
     readonly PropertyType: PropertyType;
     readonly SyncType: Constructor<T>;
     watching: boolean;
-    resolveReferences: boolean;
     isReference: boolean;
     constructor(watchModel: Mozel, path: string, PropertyType: PropertyType, SyncType: Constructor<T>);
+    getCurrent(resolveReference?: boolean): T | undefined;
     /**
      * Checks if a value matches the property type defined in this PropertySync.
      * @param value
@@ -43,11 +44,13 @@ export default class PropertySync<P extends PropertyValue, T> {
      * Start watching for changes and generate output from model with any changes, starting with the current value.
      */
     startWatching(): void;
+    resolveReferences(): void;
     /**
      * Uses the current model value at the configured path to generate a synced output.
      */
     sync(): void;
     private syncFromModel;
+    protected syncValue(value: P): void;
     /**
      * Register an intialization callback to be called on every new value.
      * @param callback
@@ -62,11 +65,11 @@ export default class PropertySync<P extends PropertyValue, T> {
      * Sets the model value
      * @param {P|undefined} value
      */
-    set(value: any | undefined): PropertyValue;
+    set(value: any | undefined): import("mozel/dist/Property").PropertyInput;
     /**
      * Generates an output based on the given value.
      * @param value
      * @protected
      */
-    protected syncValue(value: P | undefined): T | undefined;
+    protected modelToComponent(value: P | undefined): T | undefined;
 }

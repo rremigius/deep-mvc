@@ -6,6 +6,9 @@ import ComponentFactory from "../Component/ComponentFactory";
 import Mozel, {Collection} from "mozel";
 import {CollectionItemAddedEvent, CollectionItemRemovedEvent} from "mozel/dist/Collection";
 import {EventEmitter} from "event-interface-mixin";
+import Log from "../log";
+
+const log = Log.instance("component-list");
 
 export class ComponentAddedEvent<T extends Component> {
 	constructor(public component: T) {}
@@ -72,7 +75,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 	 * @param {Collection} collection
 	 * @protected
 	 */
-	protected syncValue(collection?:Collection<ComponentModel<C>>) {
+	protected modelToComponent(collection?:Collection<ComponentModel<C>>) {
 		this.clear();
 
 		// Remove listeners from current collection
@@ -88,8 +91,23 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 		collection.events.removed.on(this.removedListener);
 
 		// Resolve components for each of the models
-		const components = collection.map((model:ComponentModel<C>) =>
-			this.factory.resolve<C>(model, this.ComponentClass, true));
+		const components:C[] = [];
+		collection.map((model:ComponentModel<C>) => {
+			const component = this.factory.resolve<C>(model, this.ComponentClass, !this.isReference);
+			if(component) {
+				if(!(component instanceof this.ComponentClass)) {
+					log.error(`Could not resolve component for ${model.static.type} (${model.gid})`);
+				} else {
+					components.push(component as C);
+				}
+			} else if(!this.isReference) {
+				log.error(`Could not resolve component for ${model.static.type} (${model.gid})`);
+			}
+		});
+		if(this.isReference && components.length !== collection.length) {
+			// Not all components could be resolved, perhaps later
+			return [];
+		}
 
 		// Add one by one to trigger events on ComponentList
 		components.forEach(component => this.add(component));

@@ -16,7 +16,6 @@ const Property_1 = tslib_1.__importDefault(require("mozel/dist/Property"));
 const validation_kit_1 = require("validation-kit");
 const log_control_1 = require("log-control");
 const PropertyWatcher_1 = tslib_1.__importDefault(require("mozel/dist/PropertyWatcher"));
-const Mozel_1 = require("mozel/dist/Mozel");
 const event_interface_mixin_1 = tslib_1.__importStar(require("event-interface-mixin"));
 const log = log_1.default.instance("component");
 /**
@@ -148,7 +147,7 @@ let Component = Component_1 = class Component {
         const name = this.toString();
         this.loader = new deep_loader_1.default(name);
         this.loader.log.setLevel(log_control_1.LogLevel.WARN);
-        this.model.$on(Mozel_1.DestroyedEvent, () => this.onModelDestroyed());
+        this.model.$events.destroyed.on(event => this.onModelDestroyed());
         this.setupActionsAndEvents();
         this.initClassDefinitions();
         this.onInit();
@@ -162,7 +161,7 @@ let Component = Component_1 = class Component {
     static create(model) {
         const factory = this.createFactory();
         factory.register(this);
-        return factory.createAndResolveReferences(model, this);
+        return factory.create(model, this);
     }
     /**
      * Creates a ComponentFactory.
@@ -491,8 +490,7 @@ let Component = Component_1 = class Component {
     resolveReferences() {
         for (let path in this.allChildren) {
             const sync = this.allChildren[path];
-            sync.resolveReferences = true;
-            sync.sync();
+            sync.resolveReferences();
         }
         this.forEachChild(component => component.resolveReferences());
     }

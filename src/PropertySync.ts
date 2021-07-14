@@ -24,8 +24,9 @@ export class PropertySyncEvents<T> extends EventInterface {
 export default class PropertySync<P extends PropertyValue,T> {
 	protected _current?:T;
 	get current() {
-		return this._current;
+		return this.getCurrent(true);
 	}
+	protected currentSource?:P;
 
 	events = new PropertySyncEvents<T>();
 
@@ -35,7 +36,6 @@ export default class PropertySync<P extends PropertyValue,T> {
 	readonly SyncType:Constructor<T>;
 
 	watching:boolean = false;
-	resolveReferences:boolean = false;
 	isReference:boolean;
 
 	constructor(watchModel:Mozel, path:string, PropertyType:PropertyType, SyncType:Constructor<T>) {
@@ -45,6 +45,16 @@ export default class PropertySync<P extends PropertyValue,T> {
 		this.SyncType = SyncType;
 
 		this.isReference = get(watchModel.static.$schema(), path).$reference;
+	}
+
+	getCurrent(resolveReference = true) {
+		if(this.isReference && resolveReference) {
+			this.resolveReferences();
+			if(this.currentSource && !this._current) {
+				throw new Error(`Could not resolve reference.`);
+			}
+		}
+		return this._current;
 	}
 
 	/**
@@ -60,7 +70,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 	 * @param value
 	 */
 	isSyncType(value:unknown):value is T {
-		return value instanceof this.syncValue
+		return value instanceof this.modelToComponent
 	}
 
 	/**
@@ -74,6 +84,11 @@ export default class PropertySync<P extends PropertyValue,T> {
 		this.model.$watch(this.path,({newValue, oldValue, valuePath}) => {
 			this.syncFromModel(newValue, valuePath);
 		}, {immediate});
+	}
+
+	resolveReferences() {
+		if(!this.isReference || !this.currentSource) return;
+		return this.syncValue(this.currentSource);
 	}
 
 	/**
@@ -91,19 +106,23 @@ export default class PropertySync<P extends PropertyValue,T> {
 		const property = parent.$property(prop as any);
 		if(!property) throw new Error(`Change path does not match any property on ${this.model.constructor.name}: ${changePath}.`);
 
-		if(this.isReference && !this.resolveReferences) {
-			return; // should not try to resolve references (yet)
-		}
-
 		if(value !== undefined && !this.isPropertyType(value)) {
 			throw new Error("New property value is not of expected type.");
 		}
 
-		let output = this.syncValue(value);
+		this.currentSource = value;
+		this.syncValue(value as P);
+	}
 
-		const old = this.current;
+	protected syncValue(value:P) {
+		let output = this.modelToComponent(value);
+
+		const old = this.getCurrent(false);
 		this._current = output;
-		this.events.change.fire(new ValueChangeEvent<T>(changePath, this.isReference, output, old));
+
+		if(old !== output) {
+			this.events.change.fire(new ValueChangeEvent<T>(this.path, this.isReference, output, old));
+		}
 	}
 
 	/**
@@ -141,7 +160,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 	 * @param value
 	 * @protected
 	 */
-	protected syncValue(value:P|undefined):T|undefined {
+	protected modelToComponent(value:P|undefined):T|undefined {
 		throw new Error("Not Implemented");
 	}
 }

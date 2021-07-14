@@ -39,7 +39,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
      * @param {Collection} collection
      * @protected
      */
-    protected syncValue(collection?: Collection<ComponentModel<C>>): C[];
+    protected modelToComponent(collection?: Collection<ComponentModel<C>>): C[];
     /**
      * Removes all Components from the ComponentList, firing the `remove` event for each.
      */

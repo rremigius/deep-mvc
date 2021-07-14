@@ -6,8 +6,9 @@ const lodash_1 = require("lodash");
 const PropertySync_1 = tslib_1.__importStar(require("../PropertySync"));
 const validation_kit_1 = require("validation-kit");
 const mozel_1 = require("mozel");
-const Collection_1 = require("mozel/dist/Collection");
 const event_interface_mixin_1 = require("event-interface-mixin");
+const log_1 = tslib_1.__importDefault(require("../log"));
+const log = log_1.default.instance("component-list");
 class ComponentAddedEvent {
     constructor(component) {
         this.component = component;
@@ -32,14 +33,14 @@ class ComponentList extends PropertySync_1.default {
     constructor(parent, watchModel, path, PropertyType, SyncType, factory) {
         super(watchModel, path, mozel_1.Collection, SyncType); // TS: we override isSyncType
         this.addedListener = (event) => {
-            const model = validation_kit_1.check(event.data.item, validation_kit_1.instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
+            const model = validation_kit_1.check(event.item, validation_kit_1.instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
             const component = this.factory.resolve(model, this.ComponentClass, true);
             if (component && !this.has(component)) {
                 this.add(component);
             }
         };
         this.removedListener = (event) => {
-            const model = validation_kit_1.check(event.data.item, validation_kit_1.instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
+            const model = validation_kit_1.check(event.item, validation_kit_1.instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
             const component = this.factory.registry.byGid(model.gid);
             if (component instanceof this.ComponentClass) {
                 this.remove(component);
@@ -67,21 +68,39 @@ class ComponentList extends PropertySync_1.default {
      * @param {Collection} collection
      * @protected
      */
-    syncValue(collection) {
+    modelToComponent(collection) {
         this.clear();
         // Remove listeners from current collection
         if (this.currentCollection) {
-            this.currentCollection.off(Collection_1.CollectionItemAddedEvent, this.addedListener);
-            this.currentCollection.off(Collection_1.CollectionItemRemovedEvent, this.removedListener);
+            this.currentCollection.events.added.off(this.addedListener);
+            this.currentCollection.events.removed.off(this.removedListener);
         }
         this.currentCollection = collection;
         if (!collection)
             return []; // because of this, `current` is always defined
         // Add listeners to new collection
-        collection.on(Collection_1.CollectionItemAddedEvent, this.addedListener);
-        collection.on(Collection_1.CollectionItemRemovedEvent, this.removedListener);
+        collection.events.added.on(this.addedListener);
+        collection.events.removed.on(this.removedListener);
         // Resolve components for each of the models
-        const components = collection.map((model) => this.factory.resolve(model, this.ComponentClass, true));
+        const components = [];
+        collection.map((model) => {
+            const component = this.factory.resolve(model, this.ComponentClass, !this.isReference);
+            if (component) {
+                if (!(component instanceof this.ComponentClass)) {
+                    log.error(`Could not resolve component for ${model.static.type} (${model.gid})`);
+                }
+                else {
+                    components.push(component);
+                }
+            }
+            else if (!this.isReference) {
+                log.error(`Could not resolve component for ${model.static.type} (${model.gid})`);
+            }
+        });
+        if (this.isReference && components.length !== collection.length) {
+            // Not all components could be resolved, perhaps later
+            return [];
+        }
         // Add one by one to trigger events on ComponentList
         components.forEach(component => this.add(component));
         return components;

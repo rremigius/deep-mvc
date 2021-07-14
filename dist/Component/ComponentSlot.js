@@ -13,14 +13,18 @@ class ComponentSlot extends PropertySync_1.default {
      * @param {Mozel} model
      * @protected
      */
-    syncValue(model) {
-        if (this.current && !this.isReference) {
-            this.current.setParent(undefined);
+    modelToComponent(model) {
+        const current = this.getCurrent(false);
+        if (current && !this.isReference) {
+            current.setParent(undefined);
         }
         if (!model)
             return undefined;
-        const component = this.factory.resolve(model, this.SyncType, true);
+        const component = this.factory.resolve(model, this.SyncType, !this.isReference);
         if (!this.isReference) {
+            if (!component) {
+                throw new Error(`Could not resolve component for ${model.static.type} (${model.gid}).`);
+            }
             component.setParent(this.parent);
         }
         return component;

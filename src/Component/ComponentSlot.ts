@@ -22,13 +22,18 @@ export default class ComponentSlot<C extends Component> extends PropertySync<Com
 	 * @param {Mozel} model
 	 * @protected
 	 */
-	protected syncValue(model:ComponentModel<C>) {
-		if(this.current && !this.isReference) {
-			this.current.setParent(undefined);
+	protected modelToComponent(model:ComponentModel<C>) {
+		const current = this.getCurrent(false);
+		if(current && !this.isReference) {
+			current.setParent(undefined);
 		}
 		if(!model) return undefined;
-		const component = this.factory.resolve<C>(model, this.SyncType, true);
+
+		const component = this.factory.resolve<C>(model, this.SyncType, !this.isReference);
 		if(!this.isReference) {
+			if(!component) {
+				throw new Error(`Could not resolve component for ${model.static.type} (${model.gid}).`);
+			}
 			component.setParent(this.parent);
 		}
 		return component;

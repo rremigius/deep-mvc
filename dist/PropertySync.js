@@ -31,7 +31,6 @@ class PropertySync {
     constructor(watchModel, path, PropertyType, SyncType) {
         this.events = new PropertySyncEvents();
         this.watching = false;
-        this.resolveReferences = false;
         this.model = watchModel;
         this.path = path;
         this.PropertyType = PropertyType;
@@ -39,6 +38,15 @@ class PropertySync {
         this.isReference = lodash_1.get(watchModel.static.$schema(), path).$reference;
     }
     get current() {
+        return this.getCurrent(true);
+    }
+    getCurrent(resolveReference = true) {
+        if (this.isReference && resolveReference) {
+            this.resolveReferences();
+            if (this.currentSource && !this._current) {
+                throw new Error(`Could not resolve reference.`);
+            }
+        }
         return this._current;
     }
     /**
@@ -53,7 +61,7 @@ class PropertySync {
      * @param value
      */
     isSyncType(value) {
-        return value instanceof this.syncValue;
+        return value instanceof this.modelToComponent;
     }
     /**
      * Start watching for changes and generate output from model with any changes, starting with the current value.
@@ -66,6 +74,11 @@ class PropertySync {
         this.model.$watch(this.path, ({ newValue, oldValue, valuePath }) => {
             this.syncFromModel(newValue, valuePath);
         }, { immediate: mozel_1.immediate });
+    }
+    resolveReferences() {
+        if (!this.isReference || !this.currentSource)
+            return;
+        return this.syncValue(this.currentSource);
     }
     /**
      * Uses the current model value at the configured path to generate a synced output.
@@ -81,16 +94,19 @@ class PropertySync {
         const property = parent.$property(prop);
         if (!property)
             throw new Error(`Change path does not match any property on ${this.model.constructor.name}: ${changePath}.`);
-        if (this.isReference && !this.resolveReferences) {
-            return; // should not try to resolve references (yet)
-        }
         if (value !== undefined && !this.isPropertyType(value)) {
             throw new Error("New property value is not of expected type.");
         }
-        let output = this.syncValue(value);
-        const old = this.current;
+        this.currentSource = value;
+        this.syncValue(value);
+    }
+    syncValue(value) {
+        let output = this.modelToComponent(value);
+        const old = this.getCurrent(false);
         this._current = output;
-        this.events.change.fire(new ValueChangeEvent(changePath, this.isReference, output, old));
+        if (old !== output) {
+            this.events.change.fire(new ValueChangeEvent(this.path, this.isReference, output, old));
+        }
     }
     /**
      * Register an intialization callback to be called on every new value.
@@ -124,7 +140,7 @@ class PropertySync {
      * @param value
      * @protected
      */
-    syncValue(value) {
+    modelToComponent(value) {
         throw new Error("Not Implemented");
     }
 }

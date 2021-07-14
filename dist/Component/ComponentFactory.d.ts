@@ -54,12 +54,6 @@ export default class ComponentFactory {
      */
     create<T extends Component>(model: Mozel, ExpectedClass?: ComponentConstructor<T>): T;
     /**
-     * Creates a Component based on a model, and resolves all references in the hierarchy right afterwards.
-     * @param {Mozel} model
-     * @param {typeof Component} ExpectedClass
-     */
-    createAndResolveReferences<T extends Component>(model: Mozel, ExpectedClass?: ComponentConstructor<T>): T;
-    /**
      * Attempts to find the component corresponding to the given model.
      * @param {Mozel} model
      * @param {typeof Component} ExpectedComponentClass		The expected Component class. Will throw if the found
@@ -67,5 +61,5 @@ export default class ComponentFactory {
      * @param {boolean} createNonExisting					If set to `true`, will create a new instance if no existing
      * 														Component was found.
      */
-    resolve<T extends Component>(model: Mozel, ExpectedComponentClass: ComponentConstructor<T>, createNonExisting: boolean): T;
+    resolve<T extends Component>(model: Mozel, ExpectedComponentClass: ComponentConstructor<T>, createNonExisting: boolean): T | undefined;
 }

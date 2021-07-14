@@ -14,6 +14,6 @@ export default class ComponentSlot<C extends Component> extends PropertySync<Com
      * @param {Mozel} model
      * @protected
      */
-    protected syncValue(model: ComponentModel<C>): C | undefined;
+    protected modelToComponent(model: ComponentModel<C>): C | undefined;
 }
 export {};
