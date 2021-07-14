@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.components = exports.component = exports.ReactView = exports.ViewFactory = exports.EventListener = exports.EventEmitter = exports.EventBus = exports.ComponentFactory = void 0;
+exports.components = exports.component = exports.ViewFactory = exports.EventListener = exports.EventEmitter = exports.EventBus = exports.ComponentFactory = void 0;
 const tslib_1 = require("tslib");
 const Component_1 = tslib_1.__importDefault(require("./Component"));
 const ComponentFactory_1 = tslib_1.__importDefault(require("./Component/ComponentFactory"));
@@ -9,8 +9,6 @@ const EventBus_1 = tslib_1.__importDefault(require("./EventBus"));
 exports.EventBus = EventBus_1.default;
 const ViewFactory_1 = tslib_1.__importDefault(require("./View/ViewFactory"));
 exports.ViewFactory = ViewFactory_1.default;
-const ReactView_1 = tslib_1.__importDefault(require("./View/ReactView"));
-exports.ReactView = ReactView_1.default;
 const Component_2 = require("./Component");
 Object.defineProperty(exports, "component", { enumerable: true, get: function () { return Component_2.component; } });
 const Component_3 = require("./Component");
