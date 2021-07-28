@@ -49,7 +49,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 	}
 
 	getCurrent(resolveReference = true) {
-		if(this.isReference && resolveReference && !this.currentSource !== this.resolvedReference) {
+		if(this.isReference && resolveReference && this.currentSource && this.currentSource !== this.resolvedReference) {
 			this.resolveReferences();
 			if(this.currentSource && !this._current) {
 				throw new Error(`Could not resolve reference.`);
