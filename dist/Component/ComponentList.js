@@ -34,7 +34,7 @@ class ComponentList extends PropertySync_1.default {
         super(watchModel, path, mozel_1.Collection, SyncType); // TS: we override isSyncType
         this.addedListener = (event) => {
             const model = validation_kit_1.check(event.item, validation_kit_1.instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
-            const component = this.factory.resolve(model, this.ComponentClass, true);
+            const component = this.factory.resolve(model, this.ComponentClass, !this.isReference);
             if (component && !this.has(component)) {
                 this.add(component);
             }

@@ -38,7 +38,7 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 
 	private addedListener = (event:CollectionItemAddedEvent<unknown>) => {
 		const model = check<ComponentModel<C>>(event.item, instanceOf(this.ComponentModelClass), this.ComponentModelClass.name, 'model');
-		const component = this.factory.resolve<C>(model, this.ComponentClass, true);
+		const component = this.factory.resolve<C>(model, this.ComponentClass, !this.isReference);
 
 		if(component && !this.has(component)) {
 			this.add(component);
