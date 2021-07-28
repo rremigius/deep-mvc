@@ -21,6 +21,7 @@ export default class PropertySync<P extends PropertyValue, T> {
     protected _current?: T;
     get current(): T | undefined;
     protected currentSource?: P;
+    protected resolvedReference?: P;
     events: PropertySyncEvents<T>;
     model: Mozel;
     path: string;

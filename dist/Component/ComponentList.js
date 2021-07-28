@@ -96,9 +96,13 @@ class ComponentList extends PropertySync_1.default {
                 log.error(`Could not resolve component for ${model.static.type} (${model.gid})`);
             }
         });
-        if (this.isReference && components.length !== collection.length) {
-            // Not all components could be resolved, perhaps later
-            return [];
+        if (this.isReference) {
+            if (components.length !== collection.length) {
+                // Not all components could be resolved, perhaps later
+                this.resolvedReference = undefined;
+                return [];
+            }
+            this.resolvedReference = this.currentSource; // will prevent future reference resolving
         }
         // Add one by one to trigger events on ComponentList
         components.forEach(component => this.add(component));
@@ -108,13 +112,14 @@ class ComponentList extends PropertySync_1.default {
      * Removes all Components from the ComponentList, firing the `remove` event for each.
      */
     clear() {
-        if (!this.current)
+        this.resolvedReference = undefined;
+        if (!this._current)
             return;
-        for (let i = this.current.length - 1; i >= 0; i--) {
-            const item = this.current[i];
+        for (let i = this._current.length - 1; i >= 0; i--) {
+            const item = this._current[i];
             if (!this.isReference)
                 item.setParent(undefined);
-            this.current.splice(i, 1);
+            this._current.splice(i, 1);
             this.events.remove.fire(new ComponentRemovedEvent(item));
         }
     }

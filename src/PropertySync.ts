@@ -27,6 +27,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 		return this.getCurrent(true);
 	}
 	protected currentSource?:P;
+	protected resolvedReference?:P;
 
 	events = new PropertySyncEvents<T>();
 
@@ -48,7 +49,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 	}
 
 	getCurrent(resolveReference = true) {
-		if(this.isReference && resolveReference) {
+		if(this.isReference && resolveReference && !this.currentSource !== this.resolvedReference) {
 			this.resolveReferences();
 			if(this.currentSource && !this._current) {
 				throw new Error(`Could not resolve reference.`);
@@ -70,7 +71,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 	 * @param value
 	 */
 	isSyncType(value:unknown):value is T {
-		return value instanceof this.modelToComponent
+		return value instanceof this.SyncType;
 	}
 
 	/**
@@ -88,6 +89,7 @@ export default class PropertySync<P extends PropertyValue,T> {
 
 	resolveReferences() {
 		if(!this.isReference || !this.currentSource) return;
+
 		return this.syncValue(this.currentSource);
 	}
 

@@ -41,7 +41,7 @@ class PropertySync {
         return this.getCurrent(true);
     }
     getCurrent(resolveReference = true) {
-        if (this.isReference && resolveReference) {
+        if (this.isReference && resolveReference && !this.currentSource !== this.resolvedReference) {
             this.resolveReferences();
             if (this.currentSource && !this._current) {
                 throw new Error(`Could not resolve reference.`);
@@ -61,7 +61,7 @@ class PropertySync {
      * @param value
      */
     isSyncType(value) {
-        return value instanceof this.modelToComponent;
+        return value instanceof this.SyncType;
     }
     /**
      * Start watching for changes and generate output from model with any changes, starting with the current value.
