@@ -48,7 +48,7 @@ describe('Component', () => {
 		const componentFactory = new TestComponentFactory();
 
 		const fooModel = modelFactory.create(FooModel, {}, true);
-		const fooComponent = componentFactory.createAndResolveReferences(fooModel, FooComponent);
+		const fooComponent = componentFactory.create(fooModel, FooComponent);
 
 		fooModel.childFoos.add(modelFactory.create(FooModel, {gid: 'foo1'}));
 
@@ -104,7 +104,7 @@ describe('Component', () => {
 			const factory = new TestComponentFactory();
 			factory.register(BarComponent);
 
-			const bar = factory.createAndResolveReferences<BarComponent>(barModel, BarComponent);
+			const bar = factory.create<BarComponent>(barModel, BarComponent);
 
 			assert.equal(bar.childBar.current, bar.otherBar.current, "Child and reference refer to same Component");
 
@@ -141,7 +141,7 @@ describe('Component', () => {
 			});
 
 			const factory = new TestComponentFactory();
-			const component = factory.createAndResolveReferences(foo, FooComponent);
+			const component = factory.create(foo, FooComponent);
 
 			const gid11 = component.childFoos.find({gid: 11});
 			const gid12 = component.childFoos.find({gid: 12});
@@ -179,7 +179,7 @@ describe('Component', () => {
 				foos: [{name: 'foo2'}]
 			});
 
-			const fooComponent = componentFactory.createAndResolveReferences(fooModel, FooComponent);
+			const fooComponent = componentFactory.create(fooModel, FooComponent);
 
 			assert.equal(fooComponent.foo.current!.model, fooModel.foo, "ComponentSlot synchronized");
 			assert.equal(fooComponent.foos.get(0).model, fooModel.foos.get(0), "ComponentList synchronized");
@@ -269,7 +269,7 @@ describe('Component', () => {
 					gid: 'a0', otherFoo: {gid: 'a'}
 				}]
 			});
-			const component = componentFactory.createAndResolveReferences(model, FooComponent);
+			const component = componentFactory.create(model, FooComponent);
 
 			const tree = <any>component.toTree();
 

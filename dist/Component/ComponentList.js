@@ -52,9 +52,8 @@ class ComponentList extends PropertySync_1.default {
         this.factory = factory;
         this.parent = parent;
     }
-    /** Gets current list of Components */
     get current() {
-        return this._current ? this._current : [];
+        return super.current || [];
     }
     /**
      * Determines whether all items in the generated list match the required output type.

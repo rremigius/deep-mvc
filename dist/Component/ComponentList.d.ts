@@ -23,7 +23,6 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
     factory: ComponentFactory;
     currentCollection?: Collection<ComponentModel<C>>;
     parent: Component;
-    /** Gets current list of Components */
     get current(): C[];
     private addedListener;
     private removedListener;

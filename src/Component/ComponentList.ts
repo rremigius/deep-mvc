@@ -31,9 +31,8 @@ export default class ComponentList<C extends Component> extends PropertySync<Col
 	currentCollection?:Collection<ComponentModel<C>>;
 	parent:Component;
 
-	/** Gets current list of Components */
-	get current() {
-		return this._current ? this._current : [];
+	get current():C[]{
+		return super.current || [] as C[];
 	}
 
 	private addedListener = (event:CollectionItemAddedEvent<unknown>) => {
